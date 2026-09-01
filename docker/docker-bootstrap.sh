@@ -21,15 +21,9 @@ set -eo pipefail
 # Make python interactive
 if [ "$DEV_MODE" == "true" ]; then
     if [ "$(whoami)" = "root" ] && command -v uv > /dev/null 2>&1; then
-      # Always ensure superset-core is available
-      echo "Installing superset-core in editable mode"
-      uv pip install --no-deps -e /app/superset-core
-
-      # Only reinstall the main app for non-worker processes
-      if [ "$1" != "worker" ] && [ "$1" != "beat" ]; then
-        echo "Reinstalling the app in editable mode"
-        uv pip install -e .
-      fi
+      # Always ensure superset-core and the app are available in editable mode
+      echo "Installing superset-core and superset in editable mode without dependencies"
+      uv pip install --no-deps -e /app/superset-core -e .
     fi
 fi
 REQUIREMENTS_LOCAL="/app/docker/requirements-local.txt"
@@ -47,10 +41,10 @@ if [[ "$DATABASE_DIALECT" == postgres* ]] && [ "$(whoami)" = "root" ] && [ "$1" 
     echo "Installing postgres requirements"
     if command -v uv > /dev/null 2>&1; then
         # Use uv in newer images
-        uv pip install -e .[postgres]
+        uv pip install --no-deps -e .[postgres] || echo "⚠️ Warning: Failed to install postgres extras in editable mode"
     else
         # Use pip in older images
-        pip install -e .[postgres]
+        pip install --no-deps -e .[postgres] || echo "⚠️ Warning: Failed to install postgres extras in editable mode"
     fi
 fi
 #

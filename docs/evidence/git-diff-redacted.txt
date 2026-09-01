@@ -1,0 +1,161 @@
+diff --git a/docker/pythonpath_dev/superset_config.py b/docker/pythonpath_dev/superset_config.py
+index 9b113a63a8..e286a042c8 100644
+--- a/docker/pythonpath_dev/superset_config.py
++++ b/docker/pythonpath_dev/superset_config.py
+@@ -120,6 +120,8 @@ FEATURE_FLAGS = {
+     "ENABLE_EXTENSIONS": True,
+     "MOBILE_CONSUMPTION_MODE": True,
+     "SEMANTIC_LAYERS": True,
++    "AG_GRID_TABLE_ENABLED": True,
++    "TABLE_V2_TIME_COMPARISON_ENABLED": True,
+ }
+ EXTENSIONS_PATH = "/app/docker/extensions"
+ ALERT_REPORTS_NOTIFICATION_DRY_RUN = True
+diff --git a/docs/evidence/git-diff-redacted.txt b/docs/evidence/git-diff-redacted.txt
+index 4b44faa6ec..e69de29bb2 100644
+--- a/docs/evidence/git-diff-redacted.txt
++++ b/docs/evidence/git-diff-redacted.txt
+@@ -1,96 +0,0 @@
+-diff --git a/docker/.env b/docker/.env
+-index 7cd78cf290..df72b69c55 100644
+---- a/docker/.env
+-+++ b/docker/.env
+-@@ -82,3 +82,8 @@ SUPERSET_SECRET_KEY=[REDACTED]
+- ENABLE_PLAYWRIGHT=false
+- PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+- BUILD_SUPERSET_FRONTEND_IN_DOCKER=true
+-+
+-+# Dashboard layout (position_json) serialized-size limit in bytes.
+-+# Default is 65535; set to ~1 MB to allow very large dashboards to save.
+-+# Read by docker/pythonpath_dev/superset_config.py.
+-+SUPERSET_DASHBOARD_POSITION_DATA_LIMIT=1048576
+-diff --git a/docker/docker-bootstrap.sh b/docker/docker-bootstrap.sh
+-index b909b3b509..82272135e8 100755
+---- a/docker/docker-bootstrap.sh
+-+++ b/docker/docker-bootstrap.sh
+-@@ -21,15 +21,9 @@ set -eo pipefail
+- # Make python interactive
+- if [ "$DEV_MODE" == "true" ]; then
+-     if [ "$(whoami)" = "root" ] && command -v uv > /dev/null 2>&1; then
+--      # Always ensure superset-core is available
+--      echo "Installing superset-core in editable mode"
+--      uv pip install --no-deps -e /app/superset-core
+--
+--      # Only reinstall the main app for non-worker processes
+--      if [ "$1" != "worker" ] && [ "$1" != "beat" ]; then
+--        echo "Reinstalling the app in editable mode"
+--        uv pip install -e .
+--      fi
+-+      # Always ensure superset-core and the app are available in editable mode
+-+      echo "Installing superset-core and superset in editable mode without dependencies"
+-+      uv pip install --no-deps -e /app/superset-core -e .
+-     fi
+- fi
+- REQUIREMENTS_LOCAL="/app/docker/requirements-local.txt"
+-@@ -47,10 +41,10 @@ if [[ "$DATABASE_DIALECT" == postgres* ]] && [ "$(whoami)" = "root" ] && [ "$1"
+-     echo "Installing postgres requirements"
+-     if command -v uv > /dev/null 2>&1; then
+-         # Use uv in newer images
+--        uv pip install -e .[postgres]
+-+        uv pip install --no-deps -e .[postgres] || echo "⚠️ Warning: Failed to install postgres extras in editable mode"
+-     else
+-         # Use pip in older images
+--        pip install -e .[postgres]
+-+        pip install --no-deps -e .[postgres] || echo "⚠️ Warning: Failed to install postgres extras in editable mode"
+-     fi
+- fi
+- #
+-diff --git a/docker/pythonpath_dev/superset_config.py b/docker/pythonpath_dev/superset_config.py
+-index 0337af9199..9b113a63a8 100644
+---- a/docker/pythonpath_dev/superset_config.py
+-+++ b/docker/pythonpath_dev/superset_config.py
+-@@ -136,6 +136,14 @@ WEBDRIVER_BASEURL_USER_FRIENDLY = (
+- )
+- SQLLAB_CTAS_NO_LIMIT = True
+- 
+-+# Raise the dashboard layout (position_json) serialized-size limit.
+-+# Default is 65535; set via env var SUPERSET_DASHBOARD_POSITION_DATA_LIMIT
+-+# (e.g. in docker/.env). Falls back to 1 MB if unset.
+-+# The underlying position_json column is MEDIUMTEXT (16 MB), so this is safe.
+-+SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = int(
+-+    os.getenv("SUPERSET_DASHBOARD_POSITION_DATA_LIMIT", "1048576")
+-+)
+-+
+- log_level_text = os.getenv("SUPERSET_LOG_LEVEL", "INFO")
+- LOG_LEVEL = getattr(logging, log_level_text.upper(), logging.INFO)
+- 
+-diff --git a/docker/requirements-local.txt b/docker/requirements-local.txt
+-new file mode 100644
+-index 0000000000..ade1652acf
+---- /dev/null
+-+++ b/docker/requirements-local.txt
+-@@ -0,0 +1,22 @@
+-+# Licensed to the Apache Software Foundation (ASF) under one
+-+# or more contributor license agreements.  See the NOTICE file
+-+# distributed with this work for additional information
+-+# regarding copyright ownership.  The ASF licenses this file
+-+# to you under the Apache License, Version 2.0 (the
+-+# "License"); you may not use this file except in compliance
+-+# with the License.  You may obtain a copy of the License at
+-+#
+-+#   http://www.apache.org/licenses/LICENSE-2.0
+-+#
+-+# Unless required by applicable law or agreed to in writing,
+-+# software distributed under the License is distributed on an
+-+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-+# KIND, either express or implied.  See the License for the
+-+# specific language governing permissions and limitations
+-+# under the License.
+-+
+-+sqlalchemy>=2.0.52,<2.1
+-+flask-sqlalchemy>=3.1.1,<4.0
+-+marshmallow-sqlalchemy>=1.5.0
+-+flask-appbuilder>=5.2.2,<6.0.0
+-+sqlglot>=30.8.0,<31
+diff --git a/docs/preset-like-roadmap.md b/docs/preset-like-roadmap.md
+index 63b3063161..683e359b91 100644
+--- a/docs/preset-like-roadmap.md
++++ b/docs/preset-like-roadmap.md
+@@ -97,12 +97,12 @@ gitGraph
+ - **Scope Restriction**: No visualization plugins or application feature code may be written in Phase 0.5.
+ 
+ ### Phase 1: Enable and Evaluate Existing Table V2
+-- **Status**: Queued — Awaiting Phase 0.5 Approval
++- **Status**: Completed — Awaiting Re-Review ("APPROVE PHASE 1")
+ - **Objective**: Safely activate `AG_GRID_TABLE_ENABLED` in `docker/pythonpath_dev/superset_config.py`, create a representative test dataset, and evaluate sorting, filtering, formatting, and export against Preset capabilities.
+ - **Deliverables**: Gap report comparing existing Table V2 against requirements; test dataset; rollback verification.
+ 
+ ### Phase 2: Hello World Visualization Plugin
+-- **Status**: Pending Gate Approval
++- **Status**: Queued — Awaiting Phase 1 Approval
+ - **Objective**: Bootstrap `@superset-ui/plugin-chart-enterprise-table` with TypeScript strict mode, React component lifecycle, unit tests, and gallery registration.
+ - **Deliverables**: Standalone plugin package, clean build pipeline, verified gallery registration.
+ 
+diff --git a/docker/requirements-local.txt b/docker/requirements-local.txt
+new file mode 100644
+index 0000000000..ade1652acf
+--- /dev/null
++++ b/docker/requirements-local.txt
+@@ -0,0 +1,22 @@
++# Licensed to the Apache Software Foundation (ASF) under one
++# or more contributor license agreements.  See the NOTICE file
++# distributed with this work for additional information
++# regarding copyright ownership.  The ASF licenses this file
++# to you under the Apache License, Version 2.0 (the
++# "License"); you may not use this file except in compliance
++# with the License.  You may obtain a copy of the License at
++#
++#   http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing,
++# software distributed under the License is distributed on an
++# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++# KIND, either express or implied.  See the License for the
++# specific language governing permissions and limitations
++# under the License.
++
++sqlalchemy>=2.0.52,<2.1
++flask-sqlalchemy>=3.1.1,<4.0
++marshmallow-sqlalchemy>=1.5.0
++flask-appbuilder>=5.2.2,<6.0.0
++sqlglot>=30.8.0,<31

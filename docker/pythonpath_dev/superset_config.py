@@ -120,6 +120,8 @@ FEATURE_FLAGS = {
     "ENABLE_EXTENSIONS": True,
     "MOBILE_CONSUMPTION_MODE": True,
     "SEMANTIC_LAYERS": True,
+    "AG_GRID_TABLE_ENABLED": True,
+    "TABLE_V2_TIME_COMPARISON_ENABLED": True,
 }
 EXTENSIONS_PATH = "/app/docker/extensions"
 ALERT_REPORTS_NOTIFICATION_DRY_RUN = True
@@ -135,6 +137,14 @@ WEBDRIVER_BASEURL_USER_FRIENDLY = (
     f"http://localhost:8888/{os.environ.get('SUPERSET_APP_ROOT', '/')}/"
 )
 SQLLAB_CTAS_NO_LIMIT = True
+
+# Raise the dashboard layout (position_json) serialized-size limit.
+# Default is 65535; set via env var SUPERSET_DASHBOARD_POSITION_DATA_LIMIT
+# (e.g. in docker/.env). Falls back to 1 MB if unset.
+# The underlying position_json column is MEDIUMTEXT (16 MB), so this is safe.
+SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = int(
+    os.getenv("SUPERSET_DASHBOARD_POSITION_DATA_LIMIT", "1048576")
+)
 
 log_level_text = os.getenv("SUPERSET_LOG_LEVEL", "INFO")
 LOG_LEVEL = getattr(logging, log_level_text.upper(), logging.INFO)

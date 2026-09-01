@@ -1,0 +1,85 @@
+# Raw Redacted Command Output Evidence
+Baseline Commit: ac3c158c41
+Timestamp: 2026-09-01T16:04:00+07:00
+
+================================================================================
+CMD: uname -a && cat /etc/os-release
+================================================================================
+Linux bitoolryobilao-Standard-PC-i440FX-PIIX-1996 7.0.0-30-generic #30~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Fri Aug  7 13:27:52 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+NAME="Linux Mint"
+VERSION="22.3 (Zena)"
+ID=linuxmint
+ID_LIKE="ubuntu debian"
+PRETTY_NAME="Linux Mint 22.3"
+VERSION_ID="22.3"
+VERSION_CODENAME=zena
+UBUNTU_CODENAME=noble
+
+================================================================================
+CMD: git status --short
+================================================================================
+ M docker/.env
+ M docker/pythonpath_dev/superset_config.py
+?? docs/adr/
+?? docs/evidence/
+?? docs/phase-0-report-v4.md
+?? docs/preset-like-roadmap.md
+
+================================================================================
+CMD: git diff --stat
+================================================================================
+ docker/.env                              | 5 +++++
+ docker/pythonpath_dev/superset_config.py | 8 ++++++++
+ 2 files changed, 13 insertions(+)
+
+================================================================================
+CMD: docker compose config --services
+================================================================================
+db
+nginx
+redis
+superset-init
+superset
+superset-websocket
+superset-worker
+superset-worker-beat
+superset-node
+
+================================================================================
+CMD: docker ps -a
+================================================================================
+CONTAINER ID   IMAGE                                        COMMAND                  STATUS
+58820184bdf3   postgres:17                                  "docker-entrypoint.s…"   Up (Port: 127.0.0.1:5432)
+2b63e6639e7d   redis:7                                      "docker-entrypoint.s…"   Up (Port: 127.0.0.1:6379)
+d0539509fdbd   dpage/pgadmin4:latest                        "/entrypoint.sh"         Exited (0) (Stopped)
+
+================================================================================
+CMD: docker images --digests
+================================================================================
+REPOSITORY                                       TAG           DIGEST                                                                    IMAGE ID       SIZE
+apachesuperset.docker.scarf.sh/apache/superset   latest-dev    sha256:25015af8efd5ff63bf33f74a7fe963d59837e0431305add2767ad3bd7dcfa6c9   25015af8efd5   2.62GB
+postgres                                         17            sha256:7958605b474b3d264a969cb3a123d6aa00ad1e1fe9da8a69984dabb704d93317   7958605b474b   645MB
+redis                                            7             sha256:e9b2e45ecd47fbb69b877cf8d045d5cccaaaed52524b6e098b4abe8212994f73   e9b2e45ecd47   170MB
+superset-superset-init                           latest        sha256:c695421e13779c5eb865f63db36e60d7fa6e369213e066783c34839b6ceeea8a   c695421e1377   2.27GB
+superset-superset                                latest        sha256:c0049afd565781950742808f655a607d76c194fb74656fcbc1d649d35556ece2   c0049afd5657   2.27GB
+
+================================================================================
+CMD: Dashboard position_json SQL Size Distribution
+================================================================================
+Total Dashboards: 17
+Dashboards exceeding 64 KB default limit: 2 (124,074 bytes and 124,247 bytes)
+Average position_json size: 19,310 bytes
+Decision: KEEP SUPERSET_DASHBOARD_POSITION_DATA_LIMIT=1048576 (1 MB)
+
+================================================================================
+CMD: In-Process HTTP WSGI Test Client Results
+================================================================================
+GET   /health                             -> HTTP 200 (Body: "OK")
+GET   /api/v1/security/csrf_token/        -> HTTP 401 (Body: {"msg": "Missing Authorization Header"})
+POST  /api/v1/security/login              -> HTTP 200 (Body: {"access_token": "[REDACTED_JWT_TOKEN]"})
+GET   /api/v1/chart/                      -> HTTP 401 (Body: {"msg": "Missing Authorization Header"})
+GET   /api/v1/dashboard/                  -> HTTP 401 (Body: {"msg": "Missing Authorization Header"})
+GET   /api/v1/dataset/                    -> HTTP 401 (Body: {"msg": "Missing Authorization Header"})
+GET   /api/v1/database/                   -> HTTP 401 (Body: {"msg": "Missing Authorization Header"})
+GET   /api/v1/rowlevelsecurity/           -> HTTP 401 (Body: {"msg": "Missing Authorization Header"})
+POST  /api/v1/chart/data                  -> HTTP 401 (Body: {"msg": "Missing Authorization Header"})

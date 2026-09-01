@@ -1,0 +1,115 @@
+# Environment & Dependency Package Audit Report
+Generated: 2026-09-01
+Baseline Commit: ac3c158c41 (Upstream master)
+Base Docker Image: apachesuperset.docker.scarf.sh/apache/superset:latest-dev (ID: 25015af8efd5)
+
+================================================================================
+1. HOST ENVIRONMENT INVENTORY
+================================================================================
+OS: Linux Mint 22.3 (Zena) / Ubuntu 24.04 noble (Kernel 7.0.0-30-generic x86_64)
+Host Python: 3.12.3 (/usr/bin/python3)
+Host Node.js: v22.23.2
+Host npm: 10.9.8
+Docker Engine: 29.7.2 (build a7dcaa6)
+Docker Compose: v5.5.0
+
+================================================================================
+2. ORIGINAL BASE DOCKER CONTAINER PACKAGE INVENTORY (uv pip list)
+================================================================================
+Package                        Version
+------------------------------ -----------
+apache-superset                0.0.0.dev0
+apache-superset-core           0.1.0 (from PyPI / stale cache)
+apache-superset-extensions-cli 0.1.0
+celery                         5.4.0
+flask                          2.3.3
+flask-appbuilder               5.0.2
+flask-caching                  2.3.1
+flask-compress                 1.17
+flask-cors                     6.0.2
+flask-jwt-extended             4.7.1
+flask-login                    0.6.3
+flask-migrate                  3.1.0
+flask-sqlalchemy               2.5.1
+flask-talisman                 1.1.0
+flask-wtf                      1.2.2
+gunicorn                       23.0.0
+kombu                          5.5.3
+marshmallow                    3.26.2
+marshmallow-sqlalchemy         1.4.0
+mcp                            1.24.0
+nh3                            0.2.21
+numpy                          1.26.4
+pandas                         2.1.4
+psycopg2-binary                2.9.9
+pyarrow                        16.1.0
+pydantic                       2.11.7
+redis                          5.3.1
+sqlalchemy                     1.4.54
+sqlalchemy-bigquery            1.15.0
+sqlalchemy-utils               0.42.0
+sqlglot                        28.10.0
+werkzeug                       3.1.6
+wtforms                        3.2.1
+
+================================================================================
+3. CHECKED-OUT MASTER REPOSITORY SPECIFICATION (pyproject.toml)
+================================================================================
+Root pyproject.toml:
+  - sqlalchemy>=2.0.52, <2.1
+  - flask-sqlalchemy>=3.1.1, <4.0
+  - marshmallow-sqlalchemy>=1.5.0
+  - flask-appbuilder>=5.2.2, <6.0.0
+  - sqlglot>=30.8.0, <31
+  - apache-superset-core (workspace path: ./superset-core)
+
+superset-core/pyproject.toml:
+  - sqlalchemy>=2.0.0, <2.1
+  - flask-appbuilder>=5.2.0, <6
+  - sqlglot>=30.8.0, <31
+
+================================================================================
+4. ROOT CAUSE OF STARTUP FAILURE IN DOCKER COMPOSE
+================================================================================
+When `docker-bootstrap.sh` executes in development mode:
+Line 31: `uv pip install -e .` runs inside the container without `--no-deps`.
+
+Error observed:
+  × No solution found when resolving dependencies:
+  ╰─▶ Because only apache-superset-core==0.1.0 is available and
+      apache-superset-core==0.1.0 depends on sqlalchemy>=2.0.0,<2.1, we
+      can conclude that all versions of apache-superset-core depend on
+      sqlalchemy>=2.0.0,<2.1.
+      And because apache-superset==0.0.0.dev0 depends on
+      apache-superset-core and sqlalchemy>=1.4.43,<2, we can conclude that
+      apache-superset==0.0.0.dev0 cannot be used.
+
+Furthermore, importing `superset.app` against the base image's `sqlalchemy==1.4.54`
+triggers an immediate runtime failure:
+  AttributeError: 'Connection' object has no attribute 'rollback'
+  at `superset/utils/core.py:862` in `ping_connection()`
+
+================================================================================
+5. TEMPORARY PACKAGES INSTALLED IN EPHEMERAL DIAGNOSTIC CONTAINERS ONLY
+================================================================================
+The following packages were installed transiently in disposable containers
+(`superset-superset-init-run-*`) to inspect URL maps and test WSGI dispatch:
+  - apache-superset-core==0.1.0 (via `uv pip install --no-deps -e /app/superset-core`)
+  - sqlalchemy==2.0.52
+  - flask-sqlalchemy==3.1.1
+  - marshmallow-sqlalchemy==1.5.0
+
+NOTE: These temporary modifications existed exclusively in discarded test
+containers. No Docker images were rebuilt, no host application files were
+modified, and no dependencies were changed in the repository.
+
+================================================================================
+6. PROPOSED REPRODUCIBLE SOLUTION (FOR PHASE 0.5 BASELINE REPAIR)
+================================================================================
+1. Pin explicit dependencies in requirements lockfiles (`requirements/*.txt`).
+2. Build a dedicated local Docker image layer pinned to commit `ac3c158c41`
+   incorporating SQLAlchemy 2.0 dependencies.
+3. Update `docker-bootstrap.sh` to install editable packages with `--no-deps`
+   (`uv pip install --no-deps -e /app/superset-core -e .`).
+4. Execute `superset db upgrade` to apply pending migration `b1c2d3e4f5a6`
+   prior to enabling authenticated features.

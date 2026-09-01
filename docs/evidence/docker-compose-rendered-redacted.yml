@@ -1,0 +1,700 @@
+name: superset
+services:
+  db:
+    environment:
+      BUILD_SUPERSET_FRONTEND_IN_DOCKER: "true"
+      COMPOSE_PROJECT_NAME: superset
+      CYPRESS_CONFIG: "false"
+      DATABASE_DB: superset
+      DATABASE_DIALECT: postgresql
+      DATABASE_HOST: db
+      DATABASE_PASSWORD: [REDACTED]
+      DATABASE_PORT: "5432"
+      DATABASE_USER: [REDACTED]
+      DEV_MODE: "true"
+      ENABLE_PLAYWRIGHT: "false"
+      EXAMPLES_DB: examples
+      EXAMPLES_HOST: db
+      EXAMPLES_PASSWORD: [REDACTED]
+      EXAMPLES_PORT: "5432"
+      EXAMPLES_USER: [REDACTED]
+      FLASK_DEBUG: "true"
+      MAPBOX_API_KEY: [REDACTED]
+      POSTGRES_DB: superset
+      POSTGRES_PASSWORD: [REDACTED]
+      POSTGRES_USER: [REDACTED]
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      PYTHONPATH: /app/pythonpath:/app/docker/pythonpath_dev
+      PYTHONUNBUFFERED: "1"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      SUPERSET_APP_ROOT: /
+      SUPERSET_DASHBOARD_POSITION_DATA_LIMIT: "1048576"
+      SUPERSET_ENABLE_SWAGGER_UI: "true"
+      SUPERSET_ENV: development
+      SUPERSET_LOAD_EXAMPLES: 'yes'
+      SUPERSET_LOG_LEVEL: info
+      SUPERSET_PORT: "8088"
+      SUPERSET_SECRET_KEY: [REDACTED]
+    image: postgres:17
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 5432
+        published: "5432"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: db_home
+        target: /var/lib/postgresql/data
+        volume: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/docker/docker-entrypoint-initdb.d
+        target: /docker-entrypoint-initdb.d
+        bind: {}
+  nginx:
+    command:
+      - /bin/bash
+      - -c
+      - |
+        url="http://host.docker.internal:9000/static/assets/manifest.json"
+        max_attempts=300  # ~10 minutes at 2s intervals; first build can be slow
+        echo "Waiting for webpack dev server at $$url..."
+        attempt=0
+        until curl -sf --max-time 5 -H "Host: localhost" -o /dev/null "$$url"; do
+          attempt=$$((attempt + 1))
+          if [ "$$attempt" -ge "$$max_attempts" ]; then
+            echo "ERROR: webpack dev server did not serve $$url after $$max_attempts attempts." >&2
+            echo "Is the dev server running? With BUILD_SUPERSET_FRONTEND_IN_DOCKER=false you must start it on the host (e.g. 'npm run dev' in superset-frontend)." >&2
+            exit 1
+          fi
+          if [ $$((attempt % 15)) -eq 0 ]; then
+            echo "Still waiting for webpack dev server... ($$attempt/$$max_attempts)"
+          fi
+          sleep 2
+        done
+        echo "Webpack dev server is ready; starting nginx."
+        exec /docker-entrypoint.sh nginx -g 'daemon off;'
+    environment:
+      BUILD_SUPERSET_FRONTEND_IN_DOCKER: "true"
+      COMPOSE_PROJECT_NAME: superset
+      CYPRESS_CONFIG: "false"
+      DATABASE_DB: superset
+      DATABASE_DIALECT: postgresql
+      DATABASE_HOST: db
+      DATABASE_PASSWORD: [REDACTED]
+      DATABASE_PORT: "5432"
+      DATABASE_USER: [REDACTED]
+      DEV_MODE: "true"
+      ENABLE_PLAYWRIGHT: "false"
+      EXAMPLES_DB: examples
+      EXAMPLES_HOST: db
+      EXAMPLES_PASSWORD: [REDACTED]
+      EXAMPLES_PORT: "5432"
+      EXAMPLES_USER: [REDACTED]
+      FLASK_DEBUG: "true"
+      MAPBOX_API_KEY: [REDACTED]
+      POSTGRES_DB: superset
+      POSTGRES_PASSWORD: [REDACTED]
+      POSTGRES_USER: [REDACTED]
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      PYTHONPATH: /app/pythonpath:/app/docker/pythonpath_dev
+      PYTHONUNBUFFERED: "1"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      SUPERSET_APP_ROOT: /
+      SUPERSET_DASHBOARD_POSITION_DATA_LIMIT: "1048576"
+      SUPERSET_ENABLE_SWAGGER_UI: "true"
+      SUPERSET_ENV: development
+      SUPERSET_LOAD_EXAMPLES: 'yes'
+      SUPERSET_LOG_LEVEL: info
+      SUPERSET_PORT: "8088"
+      SUPERSET_SECRET_KEY: [REDACTED]
+    extra_hosts:
+      - host.docker.internal=host-gateway
+    image: nginx:latest
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 80
+        published: "80"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/docker/nginx/nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+        bind: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/docker/nginx/templates
+        target: /etc/nginx/templates
+        read_only: true
+        bind: {}
+  redis:
+    image: redis:7
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 6379
+        published: "6379"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: volume
+        source: redis
+        target: /data
+        volume: {}
+  superset:
+    build:
+      context: /home/bi-tool-ryobilao/Documents/superset
+      dockerfile: Dockerfile
+      args:
+        BUILD_TRANSLATIONS: "false"
+        DEV_MODE: "true"
+        INCLUDE_CHROMIUM: "false"
+        INCLUDE_FIREFOX: "false"
+      cache_from:
+        - apache/superset-cache:3.11-slim-trixie
+      target: dev
+    command:
+      - /app/docker/docker-bootstrap.sh
+      - app
+    depends_on:
+      superset-init:
+        condition: service_completed_successfully
+        required: true
+    environment:
+      BUILD_SUPERSET_FRONTEND_IN_DOCKER: "true"
+      COMPOSE_PROJECT_NAME: superset
+      CYPRESS_CONFIG: "false"
+      DATABASE_DB: superset
+      DATABASE_DIALECT: postgresql
+      DATABASE_HOST: db
+      DATABASE_PASSWORD: [REDACTED]
+      DATABASE_PORT: "5432"
+      DATABASE_USER: [REDACTED]
+      DEV_MODE: "true"
+      ENABLE_PLAYWRIGHT: "false"
+      EXAMPLES_DB: examples
+      EXAMPLES_HOST: db
+      EXAMPLES_PASSWORD: [REDACTED]
+      EXAMPLES_PORT: "5432"
+      EXAMPLES_USER: [REDACTED]
+      FLASK_DEBUG: "true"
+      MAPBOX_API_KEY: [REDACTED]
+      POSTGRES_DB: superset
+      POSTGRES_PASSWORD: [REDACTED]
+      POSTGRES_USER: [REDACTED]
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      PYTHONPATH: /app/pythonpath:/app/docker/pythonpath_dev
+      PYTHONUNBUFFERED: "1"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      SUPERSET_APP_ROOT: /
+      SUPERSET_DASHBOARD_POSITION_DATA_LIMIT: "1048576"
+      SUPERSET_ENABLE_SWAGGER_UI: "true"
+      SUPERSET_ENV: development
+      SUPERSET_LOAD_EXAMPLES: 'yes'
+      SUPERSET_LOG_LEVEL: info
+      SUPERSET_PORT: "8088"
+      SUPERSET_SECRET_KEY: [REDACTED]
+    extra_hosts:
+      - host.docker.internal=host-gateway
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8088
+        published: "8088"
+        protocol: tcp
+      - mode: ingress
+        target: 8081
+        published: "8081"
+        protocol: tcp
+    restart: unless-stopped
+    user: root
+    volumes:
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/docker
+        target: /app/docker
+        bind: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/superset
+        target: /app/superset
+        bind: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/superset-core
+        target: /app/superset-core
+        bind: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/superset-frontend
+        target: /app/superset-frontend
+        bind: {}
+      - type: volume
+        source: superset_home
+        target: /app/superset_home
+        volume: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/tests
+        target: /app/tests
+        bind: {}
+      - type: volume
+        source: superset_data
+        target: /app/data
+        volume: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/local_extensions
+        target: /app/local_extensions
+        bind: {}
+  superset-init:
+    build:
+      context: /home/bi-tool-ryobilao/Documents/superset
+      dockerfile: Dockerfile
+      args:
+        BUILD_TRANSLATIONS: "false"
+        DEV_MODE: "true"
+        INCLUDE_CHROMIUM: "false"
+        INCLUDE_FIREFOX: "false"
+      cache_from:
+        - apache/superset-cache:3.11-slim-trixie
+      target: dev
+    command:
+      - /app/docker/docker-init.sh
+    depends_on:
+      db:
+        condition: service_started
+        required: true
+      redis:
+        condition: service_started
+        required: true
+    environment:
+      BUILD_SUPERSET_FRONTEND_IN_DOCKER: "true"
+      COMPOSE_PROJECT_NAME: superset
+      CYPRESS_CONFIG: "false"
+      DATABASE_DB: superset
+      DATABASE_DIALECT: postgresql
+      DATABASE_HOST: db
+      DATABASE_PASSWORD: [REDACTED]
+      DATABASE_PORT: "5432"
+      DATABASE_USER: [REDACTED]
+      DEV_MODE: "true"
+      ENABLE_PLAYWRIGHT: "false"
+      EXAMPLES_DB: examples
+      EXAMPLES_HOST: db
+      EXAMPLES_PASSWORD: [REDACTED]
+      EXAMPLES_PORT: "5432"
+      EXAMPLES_USER: [REDACTED]
+      FLASK_DEBUG: "true"
+      MAPBOX_API_KEY: [REDACTED]
+      POSTGRES_DB: superset
+      POSTGRES_PASSWORD: [REDACTED]
+      POSTGRES_USER: [REDACTED]
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      PYTHONPATH: /app/pythonpath:/app/docker/pythonpath_dev
+      PYTHONUNBUFFERED: "1"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      SUPERSET_APP_ROOT: /
+      SUPERSET_DASHBOARD_POSITION_DATA_LIMIT: "1048576"
+      SUPERSET_ENABLE_SWAGGER_UI: "true"
+      SUPERSET_ENV: development
+      SUPERSET_LOAD_EXAMPLES: 'yes'
+      SUPERSET_LOG_LEVEL: info
+      SUPERSET_PORT: "8088"
+      SUPERSET_SECRET_KEY: [REDACTED]
+    healthcheck:
+      disable: true
+    networks:
+      default: null
+    user: root
+    volumes:
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/docker
+        target: /app/docker
+        bind: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/superset
+        target: /app/superset
+        bind: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/superset-core
+        target: /app/superset-core
+        bind: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/superset-frontend
+        target: /app/superset-frontend
+        bind: {}
+      - type: volume
+        source: superset_home
+        target: /app/superset_home
+        volume: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/tests
+        target: /app/tests
+        bind: {}
+      - type: volume
+        source: superset_data
+        target: /app/data
+        volume: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/local_extensions
+        target: /app/local_extensions
+        bind: {}
+  superset-node:
+    build:
+      context: /home/bi-tool-ryobilao/Documents/superset
+      dockerfile: Dockerfile
+      args:
+        BUILD_TRANSLATIONS: "false"
+        DEV_MODE: "true"
+      target: superset-node
+    command:
+      - /app/docker/docker-frontend.sh
+    environment:
+      BUILD_SUPERSET_FRONTEND_IN_DOCKER: "true"
+      COMPOSE_PROJECT_NAME: superset
+      CYPRESS_CONFIG: "false"
+      DATABASE_DB: superset
+      DATABASE_DIALECT: postgresql
+      DATABASE_HOST: db
+      DATABASE_PASSWORD: [REDACTED]
+      DATABASE_PORT: "5432"
+      DATABASE_USER: [REDACTED]
+      DEV_MODE: "true"
+      ENABLE_PLAYWRIGHT: "false"
+      EXAMPLES_DB: examples
+      EXAMPLES_HOST: db
+      EXAMPLES_PASSWORD: [REDACTED]
+      EXAMPLES_PORT: "5432"
+      EXAMPLES_USER: [REDACTED]
+      FLASK_DEBUG: "true"
+      MAPBOX_API_KEY: [REDACTED]
+      NPM_RUN_PRUNE: "false"
+      POSTGRES_DB: superset
+      POSTGRES_PASSWORD: [REDACTED]
+      POSTGRES_USER: [REDACTED]
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      PYTHONPATH: /app/pythonpath:/app/docker/pythonpath_dev
+      PYTHONUNBUFFERED: "1"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      SCARF_ANALYTICS: ""
+      SUPERSET_APP_ROOT: /
+      SUPERSET_DASHBOARD_POSITION_DATA_LIMIT: "1048576"
+      SUPERSET_ENABLE_SWAGGER_UI: "true"
+      SUPERSET_ENV: development
+      SUPERSET_LOAD_EXAMPLES: 'yes'
+      SUPERSET_LOG_LEVEL: info
+      SUPERSET_PORT: "8088"
+      SUPERSET_SECRET_KEY: [REDACTED]
+      WEBPACK_DEVSERVER_HOST: 0.0.0.0
+      superset: http://superset:8088
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 9000
+        published: "9000"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/docker
+        target: /app/docker
+        bind: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/superset
+        target: /app/superset
+        bind: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/superset-core
+        target: /app/superset-core
+        bind: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/superset-frontend
+        target: /app/superset-frontend
+        bind: {}
+      - type: volume
+        source: superset_home
+        target: /app/superset_home
+        volume: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/tests
+        target: /app/tests
+        bind: {}
+      - type: volume
+        source: superset_data
+        target: /app/data
+        volume: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/local_extensions
+        target: /app/local_extensions
+        bind: {}
+  superset-websocket:
+    build:
+      context: /home/bi-tool-ryobilao/Documents/superset/superset-websocket
+      dockerfile: Dockerfile
+    depends_on:
+      redis:
+        condition: service_started
+        required: true
+    environment:
+      PORT: "8080"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_SSL: "false"
+    extra_hosts:
+      - host.docker.internal=host-gateway
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "8080"
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/superset-websocket
+        target: /home/superset-websocket
+        bind: {}
+      - type: volume
+        target: /home/superset-websocket/node_modules
+        volume: {}
+      - type: volume
+        target: /home/superset-websocket/dist
+        volume: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/docker/superset-websocket/config.example.json
+        target: /home/superset-websocket/config.json
+        read_only: true
+        bind: {}
+  superset-worker:
+    build:
+      context: /home/bi-tool-ryobilao/Documents/superset
+      dockerfile: Dockerfile
+      args:
+        BUILD_TRANSLATIONS: "false"
+        DEV_MODE: "true"
+        INCLUDE_CHROMIUM: "false"
+        INCLUDE_FIREFOX: "false"
+      cache_from:
+        - apache/superset-cache:3.11-slim-trixie
+      target: dev
+    command:
+      - /app/docker/docker-bootstrap.sh
+      - worker
+    depends_on:
+      superset-init:
+        condition: service_completed_successfully
+        required: true
+    environment:
+      BUILD_SUPERSET_FRONTEND_IN_DOCKER: "true"
+      CELERYD_CONCURRENCY: "2"
+      COMPOSE_PROJECT_NAME: superset
+      CYPRESS_CONFIG: "false"
+      DATABASE_DB: superset
+      DATABASE_DIALECT: postgresql
+      DATABASE_HOST: db
+      DATABASE_PASSWORD: [REDACTED]
+      DATABASE_PORT: "5432"
+      DATABASE_USER: [REDACTED]
+      DEV_MODE: "true"
+      ENABLE_PLAYWRIGHT: "false"
+      EXAMPLES_DB: examples
+      EXAMPLES_HOST: db
+      EXAMPLES_PASSWORD: [REDACTED]
+      EXAMPLES_PORT: "5432"
+      EXAMPLES_USER: [REDACTED]
+      FLASK_DEBUG: "true"
+      MAPBOX_API_KEY: [REDACTED]
+      POSTGRES_DB: superset
+      POSTGRES_PASSWORD: [REDACTED]
+      POSTGRES_USER: [REDACTED]
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      PYTHONPATH: /app/pythonpath:/app/docker/pythonpath_dev
+      PYTHONUNBUFFERED: "1"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      SUPERSET_APP_ROOT: /
+      SUPERSET_DASHBOARD_POSITION_DATA_LIMIT: "1048576"
+      SUPERSET_ENABLE_SWAGGER_UI: "true"
+      SUPERSET_ENV: development
+      SUPERSET_LOAD_EXAMPLES: 'yes'
+      SUPERSET_LOG_LEVEL: info
+      SUPERSET_PORT: "8088"
+      SUPERSET_SECRET_KEY: [REDACTED]
+    extra_hosts:
+      - host.docker.internal=host-gateway
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - celery -A superset.tasks.celery_app:app inspect ping -d celery@$$HOSTNAME
+    networks:
+      default: null
+    restart: unless-stopped
+    user: root
+    volumes:
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/docker
+        target: /app/docker
+        bind: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/superset
+        target: /app/superset
+        bind: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/superset-core
+        target: /app/superset-core
+        bind: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/superset-frontend
+        target: /app/superset-frontend
+        bind: {}
+      - type: volume
+        source: superset_home
+        target: /app/superset_home
+        volume: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/tests
+        target: /app/tests
+        bind: {}
+      - type: volume
+        source: superset_data
+        target: /app/data
+        volume: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/local_extensions
+        target: /app/local_extensions
+        bind: {}
+  superset-worker-beat:
+    build:
+      context: /home/bi-tool-ryobilao/Documents/superset
+      dockerfile: Dockerfile
+      args:
+        BUILD_TRANSLATIONS: "false"
+        DEV_MODE: "true"
+        INCLUDE_CHROMIUM: "false"
+        INCLUDE_FIREFOX: "false"
+      cache_from:
+        - apache/superset-cache:3.11-slim-trixie
+      target: dev
+    command:
+      - /app/docker/docker-bootstrap.sh
+      - beat
+    depends_on:
+      superset-worker:
+        condition: service_started
+        required: true
+    environment:
+      BUILD_SUPERSET_FRONTEND_IN_DOCKER: "true"
+      COMPOSE_PROJECT_NAME: superset
+      CYPRESS_CONFIG: "false"
+      DATABASE_DB: superset
+      DATABASE_DIALECT: postgresql
+      DATABASE_HOST: db
+      DATABASE_PASSWORD: [REDACTED]
+      DATABASE_PORT: "5432"
+      DATABASE_USER: [REDACTED]
+      DEV_MODE: "true"
+      ENABLE_PLAYWRIGHT: "false"
+      EXAMPLES_DB: examples
+      EXAMPLES_HOST: db
+      EXAMPLES_PASSWORD: [REDACTED]
+      EXAMPLES_PORT: "5432"
+      EXAMPLES_USER: [REDACTED]
+      FLASK_DEBUG: "true"
+      MAPBOX_API_KEY: [REDACTED]
+      POSTGRES_DB: superset
+      POSTGRES_PASSWORD: [REDACTED]
+      POSTGRES_USER: [REDACTED]
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      PYTHONPATH: /app/pythonpath:/app/docker/pythonpath_dev
+      PYTHONUNBUFFERED: "1"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      SUPERSET_APP_ROOT: /
+      SUPERSET_DASHBOARD_POSITION_DATA_LIMIT: "1048576"
+      SUPERSET_ENABLE_SWAGGER_UI: "true"
+      SUPERSET_ENV: development
+      SUPERSET_LOAD_EXAMPLES: 'yes'
+      SUPERSET_LOG_LEVEL: info
+      SUPERSET_PORT: "8088"
+      SUPERSET_SECRET_KEY: [REDACTED]
+    healthcheck:
+      disable: true
+    networks:
+      default: null
+    restart: unless-stopped
+    user: root
+    volumes:
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/docker
+        target: /app/docker
+        bind: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/superset
+        target: /app/superset
+        bind: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/superset-core
+        target: /app/superset-core
+        bind: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/superset-frontend
+        target: /app/superset-frontend
+        bind: {}
+      - type: volume
+        source: superset_home
+        target: /app/superset_home
+        volume: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/tests
+        target: /app/tests
+        bind: {}
+      - type: volume
+        source: superset_data
+        target: /app/data
+        volume: {}
+      - type: bind
+        source: /home/bi-tool-ryobilao/Documents/superset/local_extensions
+        target: /app/local_extensions
+        bind: {}
+networks:
+  default:
+    name: superset_default
+volumes:
+  db_home:
+    name: superset_db_home
+  redis:
+    name: superset_redis
+  superset_data:
+    name: superset_superset_data
+  superset_home:
+    name: superset_superset_home
+x-common-build:
+  args:
+    BUILD_TRANSLATIONS: "false"
+    DEV_MODE: "true"
+    INCLUDE_CHROMIUM: "false"
+    INCLUDE_FIREFOX: "false"
+  cache_from:
+    - apache/superset-cache:3.11-slim-trixie
+  context: .
+  target: dev
+x-superset-user: root
+x-superset-volumes:
+  - ./docker:/app/docker
+  - ./superset:/app/superset
+  - ./superset-core:/app/superset-core
+  - ./superset-frontend:/app/superset-frontend
+  - superset_home:/app/superset_home
+  - ./tests:/app/tests
+  - superset_data:/app/data
+  - ./local_extensions:/app/local_extensions

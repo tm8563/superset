@@ -1,0 +1,87 @@
+# Phase 0.5 Baseline Repair Command Output Evidence
+Baseline Commit: ac3c158c41
+Timestamp: 2026-09-01T16:15:00+07:00
+
+================================================================================
+1. DOCKER COMPOSE PS STATUS
+================================================================================
+NAME                              IMAGE                           STATUS                    PORTS
+superset-db-1                     postgres:17                     Up (healthy)              127.0.0.1:5432->5432/tcp
+superset-redis-1                  redis:7                         Up (healthy)              127.0.0.1:6379->6379/tcp
+superset-superset-1               superset-superset               Up (healthy)              0.0.0.0:8081->8081/tcp, 0.0.0.0:8088->8088/tcp
+superset-superset-worker-1        superset-superset-worker        Up (healthy)              8088/tcp
+superset-superset-worker-beat-1   superset-superset-worker-beat   Up                        8088/tcp
+
+================================================================================
+2. LIVE NETWORK HTTP HEALTH CHECK (curl -iv http://localhost:8088/health)
+================================================================================
+* Host localhost:8088 was resolved.
+* IPv6: ::1
+* IPv4: 127.0.0.1
+* Connected to localhost (::1) port 8088
+> GET /health HTTP/1.1
+> Host: localhost:8088
+> User-Agent: curl/8.5.0
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Server: Werkzeug/3.1.6 Python/3.11.14
+< Content-Type: text/html; charset=utf-8
+< Content-Length: 2
+< Permissions-Policy: browsing-topics=()
+< X-Frame-Options: SAMEORIGIN
+< X-Content-Type-Options: nosniff
+< Referrer-Policy: strict-origin-when-cross-origin
+< Connection: close
+< 
+OK
+
+================================================================================
+3. LIVE AUTHENTICATED REST API TESTS (via Network HTTP port 8088)
+================================================================================
+POST /api/v1/security/login       -> HTTP 200 (JWT access token returned, redacted)
+GET  /api/v1/chart/               -> HTTP 200 (Record count: 212)
+GET  /api/v1/dashboard/           -> HTTP 200 (Record count: 17)
+GET  /api/v1/dataset/             -> HTTP 200 (Record count: 26)
+GET  /api/v1/database/            -> HTTP 200 (Record count: 2)
+GET  /api/v1/rowlevelsecurity/    -> HTTP 200 (Record count: 0)
+
+================================================================================
+4. LIVE QUERY EXECUTION TEST (POST /api/v1/chart/data)
+================================================================================
+Payload:
+{
+  "datasource": {"id": 7, "type": "table"},
+  "queries": [{
+    "columns": ["country"],
+    "metrics": [{"label": "count", "expressionType": "SQL", "sqlExpression": "COUNT(*)"}],
+    "row_limit": 3
+  }],
+  "result_format": "json",
+  "result_type": "full"
+}
+
+Response Status: HTTP 200 OK
+Returned Data:
+[
+  {"country": "Spain", "count": 342},
+  {"country": "Switzerland", "count": 31},
+  {"country": "Italy", "count": 113}
+]
+
+================================================================================
+5. CELERY WORKER AND BEAT TASK EXECUTION
+================================================================================
+superset-worker-1       | celery@7c5038f341ea ready.
+superset-worker-beat-1  | Scheduler: Sending due task reports.scheduler (reports.scheduler)
+superset-worker-1       | Task reports.scheduler[a664b323-3ecb-49c7-8113-17e33be28178] received
+superset-worker-1       | Task reports.scheduler[a664b323-3ecb-49c7-8113-17e33be28178] succeeded in 0.016787s: None
+
+================================================================================
+6. ALEMBIC MIGRATION VERIFICATION
+================================================================================
+Applied 37 pending migrations up to head revision: 39097d124752
+Final Alembic Version in DB: 39097d124752
+Tables Created: subjects, dashboard_viewers, chart_editors, chart_viewers,
+sqlatable_editors, report_schedule_editors, rls_filter_subjects, version_transaction,
+purge_audit_log, extension_storage, database_user_oauth2_tokens.
