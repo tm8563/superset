@@ -153,7 +153,7 @@ gitGraph
 - **Deliverables**: ADR-005, backend `filter_presets` module and REST API, 9 passing pytest unit tests, frontend React components in `@superset-ui/core` ecosystem, 13 passing Jest unit tests, verified live Docker integration, 0 `: any` occurrences.
 
 ### Phase 11: MCP Server Deployment with JWT Authentication & RBAC Verification
-- **Status**: COMPLETED (Awaiting Final Approval)
+- **Status**: APPROVED (Approved by User on 2026-09-02; all cross-role RBAC/RLS, JWT auth, audit, and failure domain guarantees verified)
 - **Objective**: Stand up the FastMCP service as a real running Docker container (`superset-mcp`), configure HS256 JWT bearer authentication, bind service exclusively to localhost `127.0.0.1:5008`, and prove end-to-end RBAC and cross-role RLS parity over the live MCP protocol.
 - **Architecture**:
   - Independent Docker service (`superset-mcp`) sharing standard environment and volumes without modifying core code.
