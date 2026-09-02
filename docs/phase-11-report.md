@@ -206,9 +206,10 @@ JSON Payload:         {"mcp_call_id": "862b0cdf8f94c1a8d0f6d73f3c230e12", "tool"
 - **Max List Items**: 100 items per list response.
 - **Excluded Tools**: `['generate_explore_link', 'health_check', 'open_sql_lab_with_context', 'search_tools']`.
 
-### 5.3 Concurrency & Rate Limiting Benchmark
+### 5.3 Concurrency & Server Stability Benchmark
 - **Concurrent Load**: 20 parallel requests to `tools/list`.
 - **Result**: 20/20 requests processed successfully (`HTTP 200 OK`) with zero connection drops, task leaks, or server crashes.
+- **Rate Limiting Clarification**: Rate limiting for the MCP endpoint was not verified in this phase — the concurrency test demonstrates stability under load only. Request throttling is deferred to a follow-up if needed.
 
 ### 5.4 Rollback & Stack Isolation Verification
 - **Isolation Test**: Executed `docker compose stop superset-mcp`.
@@ -218,6 +219,7 @@ JSON Payload:         {"mcp_call_id": "862b0cdf8f94c1a8d0f6d73f3c230e12", "tool"
 ---
 
 ## 6. Secret Leak Scan Verification
+
 
 A strict secret leak scan was conducted across all phase artifacts and scripts:
 - **Scan Result**: **0 Unredacted Secrets Found**.

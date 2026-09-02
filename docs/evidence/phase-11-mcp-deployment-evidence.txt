@@ -67,8 +67,9 @@ Query: SELECT id, action, user_id, dttm, duration_ms, json FROM logs WHERE actio
 
 [7. OPERATIONAL SAFEGUARDS]
 - Response Size Guard: Active (token_limit=25000, warn_threshold=20000, max_list_items=100)
-- Concurrency Benchmark: 20/20 concurrent requests succeeded with HTTP 200 OK
+- Concurrency & Stability Benchmark: 20/20 concurrent requests succeeded with HTTP 200 OK (server stability under concurrent load; rate limiting for the MCP endpoint was not verified in this phase and is deferred to a follow-up if needed)
 - Rollback & Isolation: Stopping superset-mcp left main Superset health at HTTP 200 OK
+
 
 [8. SECRET LEAK SCAN]
 - Unredacted Secrets Found: 0
