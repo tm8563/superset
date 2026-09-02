@@ -152,9 +152,23 @@ gitGraph
   - Complete REST API (`/api/v1/dashboard/<pk>/filter_preset`) and intuitive UI controls in the FilterBar header (`FilterPresetsDropdown`, `SavePresetModal`, `DriftWarningModal`).
 - **Deliverables**: ADR-005, backend `filter_presets` module and REST API, 9 passing pytest unit tests, frontend React components in `@superset-ui/core` ecosystem, 13 passing Jest unit tests, verified live Docker integration, 0 `: any` occurrences.
 
+### Phase 11: MCP Server Deployment with JWT Authentication & RBAC Verification
+- **Status**: COMPLETED (Awaiting Final Approval)
+- **Objective**: Stand up the FastMCP service as a real running Docker container (`superset-mcp`), configure HS256 JWT bearer authentication, bind service exclusively to localhost `127.0.0.1:5008`, and prove end-to-end RBAC and cross-role RLS parity over the live MCP protocol.
+- **Architecture**:
+  - Independent Docker service (`superset-mcp`) sharing standard environment and volumes without modifying core code.
+  - Fail-closed HS256 symmetric JWT authentication with audience binding (`MCP_JWT_AUDIENCE="superset-mcp"`) and detailed debug verification without secret leaks.
+  - Dynamic user identity resolution binding incoming MCP requests to real Flask-AppBuilder `User` models (`g.user`).
+  - Strict tool permission gates evaluating `SecurityManager.can_access()` per tool execution.
+  - Dynamic Row-Level Security (RLS) enforcement on all data preview tools (`generate_chart`), guaranteeing identical data isolation between web UI, REST API, and MCP protocol.
+  - Comprehensive audit logging attributing every tool call directly to the caller's `user_id` in PostgreSQL metadata `logs` table (`ActionLog`).
+  - Isolated failure domain: stopping `superset-mcp` has zero effect on the main Superset application or workers.
+- **Deliverables**: Updated `docker-compose.yml`, `docker/.env`, and `docker/pythonpath_dev/superset_config.py`; comprehensive end-to-end verification test suite (`scratch/phase_11_mcp_e2e_verification.py`), verification report (`docs/phase-11-report.md`), 0 secret leaks.
+
 ---
 
 ## 5. Development Cycle Conclusion
 
-With the implementation and verification of **Phase 10**, Tableau-parity saved views and filter presets are fully realized as an isolated extension adhering strictly to Superset architectural boundaries, zero core database modifications, and robust dataset RLS protection.
+With the completion and verification of **Phase 11**, Apache Superset's enterprise capabilities have been fully augmented with Tableau-parity calculation engines, heatmap visualizations, saved filter preset views, and a production-ready, authenticated, RBAC/RLS-enforced Model Context Protocol (MCP) server for secure AI agent integration.
+
 

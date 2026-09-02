@@ -1,0 +1,75 @@
+================================================================================
+PHASE 11 LIVE VERIFICATION EVIDENCE: RUNNING MCP SERVICE & JWT RBAC/RLS PARITY
+================================================================================
+Timestamp: 2026-09-02T04:33:10Z
+Host Port Binding: 127.0.0.1:5008
+Core Modifications: 0 files
+
+[1. MCP CONTAINER & SERVICE STATUS]
+NAME                              IMAGE                           COMMAND                  SERVICE                CREATED         STATUS                   PORTS
+superset-db-1                     postgres:17                     "docker-entrypoint.s…"   db                     6 minutes ago   Up 6 minutes             127.0.0.1:5432->5432/tcp
+superset-nginx-1                  nginx:latest                    "/docker-entrypoint.…"   nginx                  18 hours ago    Up 8 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+superset-redis-1                  redis:7                         "docker-entrypoint.s…"   redis                  18 hours ago    Up 3 hours               127.0.0.1:6379->6379/tcp
+superset-superset-1               superset-superset               "/app/docker/docker-…"   superset               4 minutes ago   Up 4 minutes (healthy)   0.0.0.0:8081->8081/tcp, 0.0.0.0:8088->8088/tcp
+superset-superset-mcp-1           superset-superset-mcp           "/app/docker/docker-…"   superset-mcp           5 minutes ago   Up 5 minutes (healthy)   127.0.0.1:5008->5008/tcp, 8088/tcp
+superset-superset-worker-1        superset-superset-worker        "/app/docker/docker-…"   superset-worker        18 hours ago    Up 3 hours (healthy)     8088/tcp
+superset-superset-worker-beat-1   superset-superset-worker-beat   "/app/docker/docker-…"   superset-worker-beat   18 hours ago    Up 3 hours               8088/tcp
+
+[2. SERVICE HEALTH CHECKS]
+GET http://127.0.0.1:5008/health -> HTTP 200 OK: {"status":"ok"}
+GET http://127.0.0.1:5008/mcp (Accept: text/html) -> HTTP 200 OK (HTML hello page returned)
+GET http://localhost:8088/health -> HTTP 200 OK: OK
+
+[3. AUTHENTICATION REJECTION TESTS]
+- Unauthenticated POST /mcp -> HTTP 401 Unauthorized (WWW-Authenticate: Bearer)
+- Expired Token POST /mcp -> HTTP 401 Unauthorized (WWW-Authenticate: Bearer)
+- Tampered Signature POST /mcp -> HTTP 401 Unauthorized (WWW-Authenticate: Bearer)
+- Wrong Audience POST /mcp -> HTTP 401 Unauthorized (WWW-Authenticate: Bearer)
+
+[4. LIVE RBAC & CROSS-ROLE RLS PARITY TEST ON DATASET 28]
+--- Admin Tool Call: generate_chart (Dataset 28, group by customer_region) ---
+Admin Result: Success=True, Row Count=4
+Admin Observed Regions: ['APAC', 'EMEA', 'LATAM', 'North America']
+Table Output:
+Table Preview
+================================================================================
+customer_region
+---------------
+EMEA           
+LATAM          
+North America  
+APAC           
+
+Total: 4 rows × 1 columns
+
+--- Regional User Tool Call: generate_chart (Dataset 28, group by customer_region) ---
+Regional User Result: Success=True, Row Count=1
+Regional User Observed Regions: ['North America']
+Table Output:
+Table Preview
+================================================================================
+customer_region
+---------------
+North America  
+
+Total: 1 rows × 1 columns
+Outcome: 0 rows leaked from APAC, EMEA, LATAM. 100% RLS parity confirmed.
+
+[5. ELEVATED PRIVILEGE PERMISSION DENIAL TESTS]
+- list_users (regional_user): Error calling tool 'list_users': Permission denied: can_get on User for user regional_user
+- list_roles (regional_user): Error calling tool 'list_roles': Permission denied: can_get on Role for user regional_user
+- list_rls_filters (regional_user): Error calling tool 'list_rls_filters': Permission denied: can_read on Row Level Security for user regional_user
+
+[6. AUDIT LOGGING IN POSTGRESQL METADATA DB]
+Query: SELECT id, action, user_id, dttm, duration_ms, json FROM logs WHERE action = 'mcp_tool_call' ORDER BY dttm DESC;
+- Admin (user_id=1) Log ID: 51319 (action='mcp_tool_call', duration=32ms, tool='call_tool' [list_rls_filters])
+- Regional User (user_id=2) Log ID: 51317 (action='mcp_tool_call', duration=27ms, tool='list_rls_filters')
+
+[7. OPERATIONAL SAFEGUARDS]
+- Response Size Guard: Active (token_limit=25000, warn_threshold=20000, max_list_items=100)
+- Concurrency Benchmark: 20/20 concurrent requests succeeded with HTTP 200 OK
+- Rollback & Isolation: Stopping superset-mcp left main Superset health at HTTP 200 OK
+
+[8. SECRET LEAK SCAN]
+- Unredacted Secrets Found: 0
+- Redaction Token: [REDACTED_FOR_SECURITY]

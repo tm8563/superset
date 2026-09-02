@@ -1,2340 +1,2443 @@
-diff --git a/superset-frontend/package-lock.json b/superset-frontend/package-lock.json
-index 0bf3828a00..67232f7f95 100644
---- a/superset-frontend/package-lock.json
-+++ b/superset-frontend/package-lock.json
-@@ -7639,9 +7639,6 @@
-         "arm64"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -7656,9 +7653,6 @@
-         "arm64"
-       ],
-       "dev": true,
--      "libc": [
--        "musl"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -7673,9 +7667,6 @@
-         "x64"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -7690,9 +7681,6 @@
-         "x64"
-       ],
-       "dev": true,
--      "libc": [
--        "musl"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8222,9 +8210,6 @@
-         "arm64"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8239,9 +8224,6 @@
-         "arm64"
-       ],
-       "dev": true,
--      "libc": [
--        "musl"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8256,9 +8238,6 @@
-         "ppc64"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8273,9 +8252,6 @@
-         "riscv64"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8290,9 +8266,6 @@
-         "riscv64"
-       ],
-       "dev": true,
--      "libc": [
--        "musl"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8307,9 +8280,6 @@
-         "s390x"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8324,9 +8294,6 @@
-         "x64"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8341,9 +8308,6 @@
-         "x64"
-       ],
-       "dev": true,
--      "libc": [
--        "musl"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8605,9 +8569,6 @@
-         "arm64"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8625,9 +8586,6 @@
-         "arm64"
-       ],
-       "dev": true,
--      "libc": [
--        "musl"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8645,9 +8603,6 @@
-         "ppc64"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8665,9 +8620,6 @@
-         "riscv64"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8685,9 +8637,6 @@
-         "riscv64"
-       ],
-       "dev": true,
--      "libc": [
--        "musl"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8705,9 +8654,6 @@
-         "s390x"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8725,9 +8671,6 @@
-         "x64"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8745,9 +8688,6 @@
-         "x64"
-       ],
-       "dev": true,
--      "libc": [
--        "musl"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8952,9 +8892,6 @@
-         "arm64"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8972,9 +8909,6 @@
-         "arm64"
-       ],
-       "dev": true,
--      "libc": [
--        "musl"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -8992,9 +8926,6 @@
-         "ppc64"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -9012,9 +8943,6 @@
-         "riscv64"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -9032,9 +8960,6 @@
-         "riscv64"
-       ],
-       "dev": true,
--      "libc": [
--        "musl"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -9052,9 +8977,6 @@
-         "s390x"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -9072,9 +8994,6 @@
-         "x64"
-       ],
-       "dev": true,
--      "libc": [
--        "glibc"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -9092,9 +9011,6 @@
-         "x64"
-       ],
-       "dev": true,
--      "libc": [
--        "musl"
--      ],
-       "license": "MIT",
-       "optional": true,
-       "os": [
-@@ -11268,6 +11184,10 @@
-       "resolved": "plugins/plugin-chart-echarts",
-       "link": true
-     },
-+    "node_modules/@superset-ui/plugin-chart-enterprise-table": {
-+      "resolved": "plugins/plugin-chart-enterprise-table",
-+      "link": true
-+    },
-     "node_modules/@superset-ui/plugin-chart-handlebars": {
-       "resolved": "plugins/plugin-chart-handlebars",
-       "link": true
-@@ -11683,9 +11603,6 @@
-       "cpu": [
-         "arm64"
-       ],
--      "libc": [
--        "glibc"
--      ],
-       "license": "Apache-2.0 AND MIT",
-       "optional": true,
-       "os": [
-@@ -11702,9 +11619,6 @@
-       "cpu": [
-         "arm64"
-       ],
--      "libc": [
--        "musl"
--      ],
-       "license": "Apache-2.0 AND MIT",
-       "optional": true,
-       "os": [
-@@ -11721,9 +11635,6 @@
-       "cpu": [
-         "ppc64"
-       ],
--      "libc": [
--        "glibc"
--      ],
-       "license": "Apache-2.0 AND MIT",
-       "optional": true,
-       "os": [
-@@ -11740,9 +11651,6 @@
-       "cpu": [
-         "s390x"
-       ],
--      "libc": [
--        "glibc"
--      ],
-       "license": "Apache-2.0 AND MIT",
-       "optional": true,
-       "os": [
-@@ -11759,9 +11667,6 @@
-       "cpu": [
-         "x64"
-       ],
--      "libc": [
--        "glibc"
--      ],
-       "license": "Apache-2.0 AND MIT",
-       "optional": true,
-       "os": [
-@@ -11778,9 +11683,6 @@
-       "cpu": [
-         "x64"
-       ],
--      "libc": [
--        "musl"
--      ],
-       "license": "Apache-2.0 AND MIT",
-       "optional": true,
-       "os": [
-@@ -26875,6 +26777,21 @@
-         }
-       }
-     },
-+    "node_modules/jsdom/node_modules/@noble/hashes": {
-+      "version": "2.4.0",
-+      "resolved": "https://registry.npmjs.org/@noble/hashes/-/hashes-2.4.0.tgz",
-+      "integrity": "sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==",
-+      "dev": true,
-+      "license": "MIT",
-+      "optional": true,
-+      "peer": true,
-+      "engines": {
-+        "node": ">= 20.19.0"
-+      },
-+      "funding": {
-+        "url": "https://paulmillr.com/funding/"
-+      }
-+    },
-     "node_modules/jsdom/node_modules/css-tree": {
-       "version": "3.2.1",
-       "resolved": "https://registry.npmjs.org/css-tree/-/css-tree-3.2.1.tgz",
-@@ -41735,6 +41652,21 @@
-         }
-       }
-     },
-+    "node_modules/whatwg-url/node_modules/@noble/hashes": {
-+      "version": "2.4.0",
-+      "resolved": "https://registry.npmjs.org/@noble/hashes/-/hashes-2.4.0.tgz",
-+      "integrity": "sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==",
-+      "dev": true,
-+      "license": "MIT",
-+      "optional": true,
-+      "peer": true,
-+      "engines": {
-+        "node": ">= 20.19.0"
-+      },
-+      "funding": {
-+        "url": "https://paulmillr.com/funding/"
-+      }
-+    },
-     "node_modules/whatwg-url/node_modules/webidl-conversions": {
-       "version": "8.0.1",
-       "resolved": "https://registry.npmjs.org/webidl-conversions/-/webidl-conversions-8.0.1.tgz",
-@@ -43347,6 +43279,19 @@
-         "node": ">=12"
-       }
-     },
-+    "plugins/plugin-chart-enterprise-table": {
-+      "name": "@superset-ui/plugin-chart-enterprise-table",
-+      "version": "0.1.0",
-+      "license": "Apache-2.0",
-+      "peerDependencies": {
-+        "@ant-design/icons": "^5.6.1",
-+        "@apache-superset/core": "*",
-+        "@superset-ui/chart-controls": "*",
-+        "@superset-ui/core": "*",
-+        "react": "^18.3.0",
-+        "react-dom": "^18.3.0"
-+      }
-+    },
-     "plugins/plugin-chart-handlebars": {
-       "name": "@superset-ui/plugin-chart-handlebars",
-       "version": "0.20.3",
-diff --git a/superset-frontend/packages/superset-ui-core/src/chart/types/VizType.ts b/superset-frontend/packages/superset-ui-core/src/chart/types/VizType.ts
-index fab42d3519..1fcfc9f890 100644
---- a/superset-frontend/packages/superset-ui-core/src/chart/types/VizType.ts
-+++ b/superset-frontend/packages/superset-ui-core/src/chart/types/VizType.ts
-@@ -58,6 +58,7 @@ export enum VizType {
-   Sunburst = 'sunburst_v2',
-   Table = 'table',
-   TableAgGrid = 'ag-grid-table',
-+  EnterpriseTable = 'enterprise_table',
-   TimePivot = 'time_pivot',
-   TimeTable = 'time_table',
-   Timeseries = 'echarts_timeseries',
-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/package.json b/superset-frontend/plugins/plugin-chart-enterprise-table/package.json
-new file mode 100644
-index 0000000000..2f86a4d2c7
---- /dev/null
-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/package.json
-@@ -0,0 +1,40 @@
-+{
-+  "name": "@superset-ui/plugin-chart-enterprise-table",
-+  "version": "0.1.0",
-+  "description": "Enterprise Interactive Table visualization plugin for Apache Superset",
-+  "keywords": [
-+    "superset",
-+    "table",
-+    "enterprise",
-+    "interactive"
-+  ],
-+  "homepage": "https://github.com/apache/superset",
-+  "bugs": {
-+    "url": "https://github.com/apache/superset/issues"
-+  },
-+  "license": "Apache-2.0",
-+  "author": "Apache Superset",
-+  "repository": {
-+    "type": "git",
-+    "url": "https://github.com/apache/superset.git",
-+    "directory": "superset-frontend/plugins/plugin-chart-enterprise-table"
-+  },
-+  "files": [
-+    "esm",
-+    "lib"
-+  ],
-+  "sideEffects": false,
-+  "main": "lib/index.js",
-+  "module": "esm/index.js",
-+  "publishConfig": {
-+    "access": "public"
-+  },
-+  "peerDependencies": {
-+    "@ant-design/icons": "^5.6.1",
-+    "@apache-superset/core": "*",
-+    "@superset-ui/chart-controls": "*",
-+    "@superset-ui/core": "*",
-+    "react": "^18.3.0",
-+    "react-dom": "^18.3.0"
-+  }
-+}
-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/src/EnterpriseTableChart.tsx b/superset-frontend/plugins/plugin-chart-enterprise-table/src/EnterpriseTableChart.tsx
-new file mode 100644
-index 0000000000..c524d8360b
---- /dev/null
-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/src/EnterpriseTableChart.tsx
-@@ -0,0 +1,969 @@
-+/**
-+ * Licensed to the Apache Software Foundation (ASF) under one
-+ * or more contributor license agreements.  See the NOTICE file
-+ * distributed with this work for additional information
-+ * regarding copyright ownership.  The ASF licenses this file
-+ * to you under the Apache License, Version 2.0 (the
-+ * "License"); you may not use this file except in compliance
-+ * with the License.  You may obtain a copy of the License at
-+ *
-+ *   http://www.apache.org/licenses/LICENSE-2.0
-+ *
-+ * Unless required by applicable law or agreed to in writing,
-+ * software distributed under the License is distributed on an
-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-+ * KIND, either express or implied.  See the License for the
-+ * specific language governing permissions and limitations
-+ * under the License.
-+ */
-+
-+import React, {
-+  useMemo,
-+  useState,
-+  useCallback,
-+  useEffect,
-+  ChangeEvent,
-+  MouseEvent as ReactMouseEvent,
-+} from 'react';
-+import { SupersetTheme, styled } from '@apache-superset/core/theme';
-+import { t } from '@apache-superset/core/translation';
-+import { DataRecord } from '@superset-ui/core';
-+import {
-+  EnterpriseTableTransformedProps,
-+  ColumnSortItem,
-+  ColumnFilter,
-+  FilterOperator,
-+} from './types';
-+
-+// ============================================================================
-+// STYLED COMPONENTS
-+// ============================================================================
-+
-+const Container = styled.div<{ width: number; height: number; theme?: SupersetTheme }>`
-+  width: ${({ width }: { width: number }) => width}px;
-+  height: ${({ height }: { height: number }) => height}px;
-+  display: flex;
-+  flex-direction: column;
-+  overflow: hidden;
-+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorText};
-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorBgContainer};
-+  border: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorderSecondary};
-+  border-radius: ${({ theme }: { theme: SupersetTheme }) => theme.borderRadius}px;
-+`;
-+
-+const HeaderBar = styled.div<{ theme?: SupersetTheme }>`
-+  display: flex;
-+  align-items: center;
-+  justify-content: space-between;
-+  padding: 8px 12px;
-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorFillAlter};
-+  border-bottom: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorderSecondary};
-+  gap: 12px;
-+  flex-shrink: 0;
-+`;
-+
-+const TitleContainer = styled.div`
-+  display: flex;
-+  align-items: center;
-+  gap: 8px;
-+  flex-shrink: 0;
-+`;
-+
-+const Title = styled.span`
-+  font-weight: 600;
-+  font-size: 13px;
-+`;
-+
-+const Badge = styled.span<{ theme?: SupersetTheme }>`
-+  font-size: 11px;
-+  padding: 2px 6px;
-+  border-radius: 4px;
-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorPrimaryBg};
-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorPrimary};
-+  font-weight: 500;
-+`;
-+
-+const ControlsGroup = styled.div`
-+  display: flex;
-+  align-items: center;
-+  gap: 8px;
-+`;
-+
-+const SearchInput = styled.input<{ theme?: SupersetTheme }>`
-+  padding: 4px 8px;
-+  border: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorder};
-+  border-radius: 4px;
-+  font-size: 12px;
-+  outline: none;
-+  width: 180px;
-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorBgContainer};
-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorText};
-+  &:focus {
-+    border-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorPrimary};
-+  }
-+`;
-+
-+const ActionButton = styled.button<{ active?: boolean; theme?: SupersetTheme }>`
-+  padding: 3px 8px;
-+  font-size: 11px;
-+  border-radius: 4px;
-+  cursor: pointer;
-+  border: 1px solid
-+    ${({ active, theme }: { active?: boolean; theme: SupersetTheme }) =>
-+      active ? theme.colorPrimary : theme.colorBorder};
-+  background-color: ${({ active, theme }: { active?: boolean; theme: SupersetTheme }) =>
-+    active ? theme.colorPrimaryBg : theme.colorBgContainer};
-+  color: ${({ active, theme }: { active?: boolean; theme: SupersetTheme }) =>
-+    active ? theme.colorPrimary : theme.colorText};
-+  &:hover {
-+    border-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorPrimary};
-+  }
-+  &:disabled {
-+    opacity: 0.5;
-+    cursor: not-allowed;
-+  }
-+`;
-+
-+const TableWrapper = styled.div`
-+  flex: 1;
-+  overflow: auto;
-+  position: relative;
-+`;
-+
-+const StyledTable = styled.table`
-+  width: 100%;
-+  border-collapse: collapse;
-+  font-size: 12px;
-+  text-align: left;
-+  table-layout: fixed;
-+`;
-+
-+const TableHead = styled.thead<{ theme?: SupersetTheme }>`
-+  position: sticky;
-+  top: 0;
-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorFillSecondary};
-+  z-index: 3;
-+`;
-+
-+const HeaderCell = styled.th<{ width?: number; isMetric?: boolean; theme?: SupersetTheme }>`
-+  position: relative;
-+  padding: 8px 10px;
-+  font-weight: 600;
-+  border-bottom: 2px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorderSecondary};
-+  text-align: ${({ isMetric }: { isMetric?: boolean }) => (isMetric ? 'right' : 'left')};
-+  white-space: nowrap;
-+  width: ${({ width }: { width?: number }) => (width ? `${width}px` : 'auto')};
-+  min-width: 60px;
-+  user-select: none;
-+  box-sizing: border-box;
-+`;
-+
-+const HeaderContent = styled.div<{ isMetric?: boolean }>`
-+  display: flex;
-+  align-items: center;
-+  justify-content: ${({ isMetric }: { isMetric?: boolean }) =>
-+    isMetric ? 'flex-end' : 'flex-start'};
-+  gap: 6px;
-+`;
-+
-+const HeaderLabel = styled.span`
-+  cursor: pointer;
-+  overflow: hidden;
-+  text-overflow: ellipsis;
-+  &:hover {
-+    color: ${({ theme }: { theme?: SupersetTheme }) => theme?.colorPrimary};
-+  }
-+`;
-+
-+const SortIndicator = styled.span<{ theme?: SupersetTheme }>`
-+  display: inline-flex;
-+  align-items: center;
-+  gap: 2px;
-+  font-size: 10px;
-+  font-weight: 700;
-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorPrimary};
-+`;
-+
-+const SortPriority = styled.span`
-+  font-size: 9px;
-+  opacity: 0.85;
-+`;
-+
-+const ResizeHandle = styled.div<{ theme?: SupersetTheme }>`
-+  position: absolute;
-+  right: 0;
-+  top: 0;
-+  bottom: 0;
-+  width: 5px;
-+  cursor: col-resize;
-+  z-index: 4;
-+  &:hover {
-+    background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorPrimary};
-+  }
-+`;
-+
-+const HeaderIcons = styled.div`
-+  display: flex;
-+  align-items: center;
-+  gap: 2px;
-+`;
-+
-+const IconButton = styled.button<{ active?: boolean; theme?: SupersetTheme }>`
-+  background: none;
-+  border: none;
-+  padding: 2px;
-+  font-size: 10px;
-+  cursor: pointer;
-+  border-radius: 2px;
-+  line-height: 1;
-+  color: ${({ active, theme }: { active?: boolean; theme: SupersetTheme }) =>
-+    active ? theme.colorPrimary : theme.colorTextSecondary};
-+  &:hover {
-+    color: ${({ theme }: { theme: SupersetTheme }) => theme.colorPrimary};
-+    background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorFillTertiary};
-+  }
-+  &:disabled {
-+    opacity: 0.3;
-+    cursor: default;
-+  }
-+`;
-+
-+const FilterPopover = styled.div<{ isMetric?: boolean; theme?: SupersetTheme }>`
-+  position: absolute;
-+  top: 100%;
-+  ${({ isMetric }: { isMetric?: boolean }) => (isMetric ? 'right: 4px;' : 'left: 4px;')}
-+  z-index: 10;
-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorBgElevated};
-+  border: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorderSecondary};
-+  border-radius: 6px;
-+  padding: 8px;
-+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-+  display: flex;
-+  flex-direction: column;
-+  gap: 6px;
-+  min-width: 170px;
-+  font-weight: normal;
-+  text-align: left;
-+`;
-+
-+const FilterSelect = styled.select<{ theme?: SupersetTheme }>`
-+  padding: 3px 6px;
-+  font-size: 11px;
-+  border-radius: 4px;
-+  border: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorder};
-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorBgContainer};
-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorText};
-+`;
-+
-+const FilterInput = styled.input<{ theme?: SupersetTheme }>`
-+  padding: 3px 6px;
-+  font-size: 11px;
-+  border-radius: 4px;
-+  border: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorder};
-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorBgContainer};
-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorText};
-+  width: 100%;
-+  box-sizing: border-box;
-+`;
-+
-+const FilterActions = styled.div`
-+  display: flex;
-+  justify-content: flex-end;
-+  gap: 4px;
-+  margin-top: 4px;
-+`;
-+
-+const TableRow = styled.tr<{ theme?: SupersetTheme }>`
-+  &:nth-of-type(even) {
-+    background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorFillAlter};
-+  }
-+  &:hover {
-+    background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorFillTertiary};
-+  }
-+`;
-+
-+const Cell = styled.td<{ width?: number; isMetric?: boolean; theme?: SupersetTheme }>`
-+  padding: 6px 10px;
-+  border-bottom: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorderSecondary};
-+  text-align: ${({ isMetric }: { isMetric?: boolean }) => (isMetric ? 'right' : 'left')};
-+  white-space: nowrap;
-+  overflow: hidden;
-+  text-overflow: ellipsis;
-+  width: ${({ width }: { width?: number }) => (width ? `${width}px` : 'auto')};
-+  min-width: 60px;
-+  box-sizing: border-box;
-+`;
-+
-+const PaginationFooter = styled.div<{ theme?: SupersetTheme }>`
-+  display: flex;
-+  align-items: center;
-+  justify-content: space-between;
-+  padding: 6px 12px;
-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorFillAlter};
-+  border-top: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorderSecondary};
-+  font-size: 12px;
-+  flex-shrink: 0;
-+  gap: 12px;
-+`;
-+
-+const PaginationInfo = styled.span<{ theme?: SupersetTheme }>`
-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorTextSecondary};
-+  font-size: 11px;
-+`;
-+
-+const PaginationControls = styled.div`
-+  display: flex;
-+  align-items: center;
-+  gap: 6px;
-+`;
-+
-+const PageSizeSelect = styled.select<{ theme?: SupersetTheme }>`
-+  padding: 2px 6px;
-+  font-size: 11px;
-+  border-radius: 4px;
-+  border: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorder};
-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorBgContainer};
-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorText};
-+`;
-+
-+const EmptyStateContainer = styled.div<{ theme?: SupersetTheme }>`
-+  display: flex;
-+  flex-direction: column;
-+  align-items: center;
-+  justify-content: center;
-+  height: 100%;
-+  padding: 24px;
-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorTextSecondary};
-+  font-size: 13px;
-+`;
-+
-+const LoadingStateContainer = styled.div<{ theme?: SupersetTheme }>`
-+  display: flex;
-+  align-items: center;
-+  justify-content: center;
-+  height: 100%;
-+  font-size: 13px;
-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorTextSecondary};
-+`;
-+
-+const ErrorStateContainer = styled.div<{ theme?: SupersetTheme }>`
-+  display: flex;
-+  align-items: center;
-+  justify-content: center;
-+  height: 100%;
-+  padding: 16px;
-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorError};
-+  font-size: 13px;
-+`;
-+
-+// ============================================================================
-+// MAIN COMPONENT
-+// ============================================================================
-+
-+export const EnterpriseTableChart: React.FC<EnterpriseTableTransformedProps> = ({
-+  data,
-+  columns,
-+  width,
-+  height,
-+  isLoading = false,
-+  errorMessage,
-+  pageSize: initialPageSize = 20,
-+  includeSearch = true,
-+  enableColumnSort = true,
-+  enableColumnResize = true,
-+  enableColumnReorder = true,
-+  enableColumnFilters = true,
-+}) => {
-+  // --- 1. State ---
-+  const [searchTerm, setSearchTerm] = useState<string>('');
-+  const [sortConfig, setSortConfig] = useState<ColumnSortItem[]>([]);
-+  const [columnOrder, setColumnOrder] = useState<string[]>([]);
-+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
-+  const [columnFilters, setColumnFilters] = useState<Record<string, ColumnFilter>>({});
-+  const [activeFilterPopover, setActiveFilterPopover] = useState<string | null>(null);
-+  const [currentPage, setCurrentPage] = useState<number>(0);
-+  const [pageSize, setPageSize] = useState<number>(initialPageSize);
-+
-+  // Initialize and synchronize column order when columns change
-+  useEffect(() => {
-+    const colKeys = columns.map(c => c.key);
-+    setColumnOrder(prev => {
-+      if (prev.length === 0 || !colKeys.every(k => prev.includes(k))) {
-+        return colKeys;
-+      }
-+      return prev;
-+    });
-+  }, [columns]);
-+
-+  // Order columns according to columnOrder state
-+  const orderedColumns = useMemo(() => {
-+    if (columnOrder.length === 0) return columns;
-+    const colMap = new Map(columns.map(c => [c.key, c]));
-+    const result: typeof columns = [];
-+    columnOrder.forEach(k => {
-+      const col = colMap.get(k);
-+      if (col) result.push(col);
-+    });
-+    // Add any newly added columns that might not be in columnOrder yet
-+    columns.forEach(col => {
-+      if (!result.some(c => c.key === col.key)) {
-+        result.push(col);
-+      }
-+    });
-+    return result;
-+  }, [columns, columnOrder]);
-+
-+  // --- 2. Multi-Column Sorting Logic ---
-+  const handleSort = useCallback(
-+    (colKey: string, isShiftPressed: boolean) => {
-+      if (!enableColumnSort) return;
-+      setSortConfig(prevSorts => {
-+        const existingIndex = prevSorts.findIndex(s => s.key === colKey);
-+        if (isShiftPressed) {
-+          // Multi-sort: cycle through asc -> desc -> remove
-+          if (existingIndex === -1) {
-+            return [...prevSorts, { key: colKey, direction: 'asc' }];
-+          }
-+          const existing = prevSorts[existingIndex];
-+          if (existing.direction === 'asc') {
-+            const next = [...prevSorts];
-+            next[existingIndex] = { key: colKey, direction: 'desc' };
-+            return next;
-+          }
-+          // Remove from multi-sort
-+          return prevSorts.filter(s => s.key !== colKey);
-+        }
-+
-+        // Single sort:
-+        if (existingIndex !== -1 && prevSorts.length === 1) {
-+          const existing = prevSorts[0];
-+          if (existing.direction === 'asc') {
-+            return [{ key: colKey, direction: 'desc' }];
-+          }
-+          return [];
-+        }
-+        return [{ key: colKey, direction: 'asc' }];
-+      });
-+      setCurrentPage(0);
-+    },
-+    [enableColumnSort],
-+  );
-+
-+  // --- 3. Column Reorder Logic ---
-+  const handleMoveColumn = useCallback(
-+    (colKey: string, direction: 'left' | 'right') => {
-+      if (!enableColumnReorder) return;
-+      setColumnOrder(prevOrder => {
-+        const currentIndex = prevOrder.indexOf(colKey);
-+        if (currentIndex === -1) return prevOrder;
-+        const targetIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
-+        if (targetIndex < 0 || targetIndex >= prevOrder.length) return prevOrder;
-+
-+        const newOrder = [...prevOrder];
-+        const temp = newOrder[currentIndex];
-+        newOrder[currentIndex] = newOrder[targetIndex];
-+        newOrder[targetIndex] = temp;
-+        return newOrder;
-+      });
-+    },
-+    [enableColumnReorder],
-+  );
-+
-+  // --- 4. Column Resizing Logic ---
-+  const handleResizeMouseDown = useCallback(
-+    (colKey: string, e: ReactMouseEvent) => {
-+      if (!enableColumnResize) return;
-+      e.preventDefault();
-+      e.stopPropagation();
-+
-+      const startX = e.clientX;
-+      const startWidth = columnWidths[colKey] || 120;
-+
-+      const handleMouseMove = (moveEvent: MouseEvent) => {
-+        const delta = moveEvent.clientX - startX;
-+        const newWidth = Math.max(60, Math.min(800, startWidth + delta));
-+        setColumnWidths(prev => ({
-+          ...prev,
-+          [colKey]: newWidth,
-+        }));
-+      };
-+
-+      const handleMouseUp = () => {
-+        window.removeEventListener('mousemove', handleMouseMove);
-+        window.removeEventListener('mouseup', handleMouseUp);
-+      };
-+
-+      window.addEventListener('mousemove', handleMouseMove);
-+      window.addEventListener('mouseup', handleMouseUp);
-+    },
-+    [columnWidths, enableColumnResize],
-+  );
-+
-+  // --- 5. Column Filtering Logic ---
-+  const handleSetColumnFilter = useCallback(
-+    (colKey: string, operator: FilterOperator, value: string, secondaryValue?: string) => {
-+      setColumnFilters(prev => ({
-+        ...prev,
-+        [colKey]: { key: colKey, operator, value, secondaryValue },
-+      }));
-+      setCurrentPage(0);
-+    },
-+    [],
-+  );
-+
-+  const handleClearColumnFilter = useCallback((colKey: string) => {
-+    setColumnFilters(prev => {
-+      const next = { ...prev };
-+      delete next[colKey];
-+      return next;
-+    });
-+    setCurrentPage(0);
-+  }, []);
-+
-+  const handleResetAll = useCallback(() => {
-+    setSearchTerm('');
-+    setSortConfig([]);
-+    setColumnFilters({});
-+    setColumnOrder(columns.map(c => c.key));
-+    setCurrentPage(0);
-+  }, [columns]);
-+
-+  // --- 6. Data Filtering & Sorting Pipeline ---
-+  const processedData = useMemo(() => {
-+    let result = [...data];
-+
-+    // A. Global Substring Search Filter
-+    if (searchTerm.trim()) {
-+      const lower = searchTerm.toLowerCase();
-+      result = result.filter(row =>
-+        Object.values(row).some(
-+          val => val !== null && val !== undefined && String(val).toLowerCase().includes(lower),
-+        ),
-+      );
-+    }
-+
-+    // B. Per-Column Filters
-+    Object.values(columnFilters).forEach(filter => {
-+      if (!filter.value && filter.operator !== 'between') return;
-+
-+      result = result.filter(row => {
-+        const rawVal = row[filter.key];
-+        if (rawVal === null || rawVal === undefined) return false;
-+
-+        const valStr = String(rawVal).toLowerCase();
-+        const filterValStr = String(filter.value).toLowerCase();
-+
-+        switch (filter.operator) {
-+          case 'contains':
-+            return valStr.includes(filterValStr);
-+          case 'equals':
-+            if (typeof rawVal === 'number') {
-+              return Number(rawVal) === Number(filter.value);
-+            }
-+            return valStr === filterValStr;
-+          case 'startsWith':
-+            return valStr.startsWith(filterValStr);
-+          case 'greaterThan':
-+            return Number(rawVal) > Number(filter.value);
-+          case 'lessThan':
-+            return Number(rawVal) < Number(filter.value);
-+          case 'between': {
-+            const num = Number(rawVal);
-+            const min = Number(filter.value);
-+            const max = Number(filter.secondaryValue ?? filter.value);
-+            return num >= min && num <= max;
-+          }
-+          default:
-+            return true;
-+        }
-+      });
-+    });
-+
-+    // C. Multi-Column Sorting
-+    if (sortConfig.length > 0) {
-+      result.sort((a, b) => {
-+        for (const sort of sortConfig) {
-+          const valA = a[sort.key];
-+          const valB = b[sort.key];
-+
-+          if (valA === valB) continue;
-+          if (valA === null || valA === undefined) return 1;
-+          if (valB === null || valB === undefined) return -1;
-+
-+          let comp = 0;
-+          if (typeof valA === 'number' && typeof valB === 'number') {
-+            comp = valA - valB;
-+          } else {
-+            comp = String(valA).localeCompare(String(valB));
-+          }
-+
-+          if (comp !== 0) {
-+            return sort.direction === 'asc' ? comp : -comp;
-+          }
-+        }
-+        return 0;
-+      });
-+    }
-+
-+    return result;
-+  }, [data, searchTerm, columnFilters, sortConfig]);
-+
-+  // --- 7. Pagination Slicing ---
-+  const totalEntries = processedData.length;
-+  const totalPages = Math.ceil(totalEntries / pageSize) || 1;
-+  const safeCurrentPage = Math.min(currentPage, totalPages - 1);
-+
-+  const paginatedData = useMemo(() => {
-+    const start = safeCurrentPage * pageSize;
-+    return processedData.slice(start, start + pageSize);
-+  }, [processedData, safeCurrentPage, pageSize]);
-+
-+  const hasActiveCustomizations =
-+    searchTerm !== '' ||
-+    sortConfig.length > 0 ||
-+    Object.keys(columnFilters).length > 0;
-+
-+  // --- 8. Render States ---
-+  if (isLoading) {
-+    return (
-+      <Container width={width} height={height} data-test="enterprise-table-loading">
-+        <LoadingStateContainer>{t('Loading Enterprise Table...')}</LoadingStateContainer>
-+      </Container>
-+    );
-+  }
-+
-+  if (errorMessage) {
-+    return (
-+      <Container width={width} height={height} data-test="enterprise-table-error">
-+        <ErrorStateContainer>{errorMessage}</ErrorStateContainer>
-+      </Container>
-+    );
-+  }
-+
-+  if (!data || data.length === 0 || columns.length === 0) {
-+    return (
-+      <Container width={width} height={height} data-test="enterprise-table-empty">
-+        <EmptyStateContainer>{t('No data records available')}</EmptyStateContainer>
-+      </Container>
-+    );
-+  }
-+
-+  return (
-+    <Container width={width} height={height} data-test="enterprise-table-container">
-+      {/* Top Header Controls Bar */}
-+      <HeaderBar>
-+        <TitleContainer>
-+          <Title>{t('Enterprise Interactive Table')}</Title>
-+          <Badge>Phase 3 MVP</Badge>
-+          <Badge>{t('%s rows', totalEntries)}</Badge>
-+        </TitleContainer>
-+
-+        <ControlsGroup>
-+          {includeSearch && (
-+            <SearchInput
-+              type="text"
-+              placeholder={t('Search table...')}
-+              value={searchTerm}
-+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-+                setSearchTerm(e.target.value);
-+                setCurrentPage(0);
-+              }}
-+              data-test="enterprise-table-search"
-+            />
-+          )}
-+          {hasActiveCustomizations && (
-+            <ActionButton
-+              onClick={handleResetAll}
-+              data-test="reset-filters-btn"
-+              title={t('Reset search, sort, and column filters')}
-+            >
-+              {t('Reset Filters')}
-+            </ActionButton>
-+          )}
-+        </ControlsGroup>
-+      </HeaderBar>
-+
-+      {/* Main Grid View */}
-+      <TableWrapper>
-+        <StyledTable data-test="enterprise-table-grid">
-+          <TableHead>
-+            <tr>
-+              {orderedColumns.map((col, colIdx) => {
-+                const sortItem = sortConfig.find(s => s.key === col.key);
-+                const sortIndex = sortConfig.findIndex(s => s.key === col.key);
-+                const isFiltered = Boolean(columnFilters[col.key]);
-+                const isPopoverOpen = activeFilterPopover === col.key;
-+                const colWidth = columnWidths[col.key];
-+
-+                return (
-+                  <HeaderCell
-+                    key={col.key}
-+                    width={colWidth}
-+                    isMetric={col.isMetric}
-+                    data-test={`header-${col.key}`}
-+                  >
-+                    <HeaderContent isMetric={col.isMetric}>
-+                      {/* Left/Right Reorder Buttons */}
-+                      {enableColumnReorder && (
-+                        <HeaderIcons>
-+                          <IconButton
-+                            disabled={colIdx === 0}
-+                            onClick={() => handleMoveColumn(col.key, 'left')}
-+                            data-test={`reorder-left-${col.key}`}
-+                            title={t('Move column left')}
-+                          >
-+                            ◀
-+                          </IconButton>
-+                          <IconButton
-+                            disabled={colIdx === orderedColumns.length - 1}
-+                            onClick={() => handleMoveColumn(col.key, 'right')}
-+                            data-test={`reorder-right-${col.key}`}
-+                            title={t('Move column right')}
-+                          >
-+                            ▶
-+                          </IconButton>
-+                        </HeaderIcons>
-+                      )}
-+
-+                      {/* Header Label and Sort Toggle */}
-+                      <HeaderLabel
-+                        onClick={(e: ReactMouseEvent) => handleSort(col.key, e.shiftKey)}
-+                        data-test={`sort-btn-${col.key}`}
-+                        title={
-+                          enableColumnSort
-+                            ? t('Click to sort, Shift+Click for multi-column sort')
-+                            : undefined
-+                        }
-+                      >
-+                        {col.label}
-+                      </HeaderLabel>
-+
-+                      {/* Sort Direction Indicator */}
-+                      {sortItem && (
-+                        <SortIndicator data-test={`sort-indicator-${col.key}`}>
-+                          {sortItem.direction === 'asc' ? '▲' : '▼'}
-+                          {sortConfig.length > 1 && (
-+                            <SortPriority>{sortIndex + 1}</SortPriority>
-+                          )}
-+                        </SortIndicator>
-+                      )}
-+
-+                      {/* Per-Column Filter Button */}
-+                      {enableColumnFilters && (
-+                        <IconButton
-+                          active={isFiltered || isPopoverOpen}
-+                          onClick={() =>
-+                            setActiveFilterPopover(isPopoverOpen ? null : col.key)
-+                          }
-+                          data-test={`filter-toggle-${col.key}`}
-+                          title={t('Filter column')}
-+                        >
-+                          {isFiltered ? '●' : '🔍'}
-+                        </IconButton>
-+                      )}
-+                    </HeaderContent>
-+
-+                    {/* In-Header Filter Popover */}
-+                    {isPopoverOpen && (
-+                      <FilterPopover
-+                        isMetric={col.isMetric}
-+                        data-test={`filter-popover-${col.key}`}
-+                      >
-+                        <FilterSelect
-+                          value={
-+                            columnFilters[col.key]?.operator ??
-+                            (col.isMetric ? 'greaterThan' : 'contains')
-+                          }
-+                          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-+                            const op = e.target.value as FilterOperator;
-+                            const currentVal = columnFilters[col.key]?.value ?? '';
-+                            handleSetColumnFilter(col.key, op, currentVal);
-+                          }}
-+                          data-test={`filter-operator-${col.key}`}
-+                        >
-+                          {col.isMetric ? (
-+                            <>
-+                              <option value="greaterThan">{t('Greater than (> )')}</option>
-+                              <option value="lessThan">{t('Less than (<)')}</option>
-+                              <option value="equals">{t('Equals (=)')}</option>
-+                              <option value="between">{t('Between')}</option>
-+                            </>
-+                          ) : (
-+                            <>
-+                              <option value="contains">{t('Contains')}</option>
-+                              <option value="equals">{t('Equals')}</option>
-+                              <option value="startsWith">{t('Starts with')}</option>
-+                            </>
-+                          )}
-+                        </FilterSelect>
-+
-+                        <FilterInput
-+                          type={col.isMetric ? 'number' : 'text'}
-+                          placeholder={t('Filter value...')}
-+                          value={columnFilters[col.key]?.value ?? ''}
-+                          onChange={(e: ChangeEvent<HTMLInputElement>) => {
-+                            const currentOp =
-+                              columnFilters[col.key]?.operator ??
-+                              (col.isMetric ? 'greaterThan' : 'contains');
-+                            handleSetColumnFilter(
-+                              col.key,
-+                              currentOp,
-+                              e.target.value,
-+                              columnFilters[col.key]?.secondaryValue,
-+                            );
-+                          }}
-+                          data-test={`filter-input-${col.key}`}
-+                        />
-+
-+                        {columnFilters[col.key]?.operator === 'between' && (
-+                          <FilterInput
-+                            type="number"
-+                            placeholder={t('Max value...')}
-+                            value={columnFilters[col.key]?.secondaryValue ?? ''}
-+                            onChange={(e: ChangeEvent<HTMLInputElement>) => {
-+                              handleSetColumnFilter(
-+                                col.key,
-+                                'between',
-+                                columnFilters[col.key]?.value ?? '',
-+                                e.target.value,
-+                              );
-+                            }}
-+                            data-test={`filter-secondary-input-${col.key}`}
-+                          />
-+                        )}
-+
-+                        <FilterActions>
-+                          <ActionButton
-+                            onClick={() => {
-+                              handleClearColumnFilter(col.key);
-+                              setActiveFilterPopover(null);
-+                            }}
-+                            data-test={`filter-clear-${col.key}`}
-+                          >
-+                            {t('Clear')}
-+                          </ActionButton>
-+                          <ActionButton
-+                            active
-+                            onClick={() => setActiveFilterPopover(null)}
-+                            data-test={`filter-apply-${col.key}`}
-+                          >
-+                            {t('Close')}
-+                          </ActionButton>
-+                        </FilterActions>
-+                      </FilterPopover>
-+                    )}
-+
-+                    {/* Column Resizing Handle */}
-+                    {enableColumnResize && (
-+                      <ResizeHandle
-+                        onMouseDown={(e: ReactMouseEvent) =>
-+                          handleResizeMouseDown(col.key, e)
-+                        }
-+                        data-test={`resize-handle-${col.key}`}
-+                      />
-+                    )}
-+                  </HeaderCell>
-+                );
-+              })}
-+            </tr>
-+          </TableHead>
-+          <tbody>
-+            {paginatedData.map((row: DataRecord, rowIndex: number) => (
-+              <TableRow key={`row-${rowIndex}`} data-test={`row-${rowIndex}`}>
-+                {orderedColumns.map(col => {
-+                  const val = row[col.key];
-+                  const colWidth = columnWidths[col.key];
-+                  const displayVal =
-+                    val === null || val === undefined ? '-' : String(val);
-+                  return (
-+                    <Cell
-+                      key={`cell-${col.key}-${rowIndex}`}
-+                      width={colWidth}
-+                      isMetric={col.isMetric}
-+                      data-test={`cell-${col.key}-${rowIndex}`}
-+                    >
-+                      {displayVal}
-+                    </Cell>
-+                  );
-+                })}
-+              </TableRow>
-+            ))}
-+          </tbody>
-+        </StyledTable>
-+      </TableWrapper>
-+
-+      {/* Bottom Pagination Footer */}
-+      <PaginationFooter data-test="pagination-footer">
-+        <PaginationInfo>
-+          {t(
-+            'Showing %s to %s of %s entries',
-+            totalEntries === 0 ? 0 : safeCurrentPage * pageSize + 1,
-+            Math.min((safeCurrentPage + 1) * pageSize, totalEntries),
-+            totalEntries,
-+          )}
-+          {totalEntries !== data.length && (
-+            <span> {t('(filtered from %s total entries)', data.length)}</span>
-+          )}
-+        </PaginationInfo>
-+
-+        <PaginationControls>
-+          <PageSizeSelect
-+            value={pageSize}
-+            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-+              setPageSize(Number(e.target.value));
-+              setCurrentPage(0);
-+            }}
-+            data-test="page-size-select"
-+          >
-+            <option value={10}>10 / page</option>
-+            <option value={20}>20 / page</option>
-+            <option value={50}>50 / page</option>
-+            <option value={100}>100 / page</option>
-+            <option value={200}>200 / page</option>
-+          </PageSizeSelect>
-+
-+          <ActionButton
-+            disabled={safeCurrentPage === 0}
-+            onClick={() => setCurrentPage(0)}
-+            data-test="page-first"
-+            title={t('First page')}
-+          >
-+            ⏮
-+          </ActionButton>
-+          <ActionButton
-+            disabled={safeCurrentPage === 0}
-+            onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
-+            data-test="page-prev"
-+            title={t('Previous page')}
-+          >
-+            ◀
-+          </ActionButton>
-+
-+          <span data-test="page-indicator">
-+            {t('Page %s of %s', safeCurrentPage + 1, totalPages)}
-+          </span>
-+
-+          <ActionButton
-+            disabled={safeCurrentPage >= totalPages - 1}
-+            onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
-+            data-test="page-next"
-+            title={t('Next page')}
-+          >
-+            ▶
-+          </ActionButton>
-+          <ActionButton
-+            disabled={safeCurrentPage >= totalPages - 1}
-+            onClick={() => setCurrentPage(totalPages - 1)}
-+            data-test="page-last"
-+            title={t('Last page')}
-+          >
-+            ⏭
-+          </ActionButton>
-+        </PaginationControls>
-+      </PaginationFooter>
-+    </Container>
-+  );
-+};
-+
-+export default EnterpriseTableChart;
-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/src/buildQuery.ts b/superset-frontend/plugins/plugin-chart-enterprise-table/src/buildQuery.ts
-new file mode 100644
-index 0000000000..0a311ca204
---- /dev/null
-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/src/buildQuery.ts
-@@ -0,0 +1,47 @@
-+/**
-+ * Licensed to the Apache Software Foundation (ASF) under one
-+ * or more contributor license agreements.  See the NOTICE file
-+ * distributed with this work for additional information
-+ * regarding copyright ownership.  The ASF licenses this file
-+ * to you under the Apache License, Version 2.0 (the
-+ * "License"); you may not use this file except in compliance
-+ * with the License.  You may obtain a copy of the License at
-+ *
-+ *   http://www.apache.org/licenses/LICENSE-2.0
-+ *
-+ * Unless required by applicable law or agreed to in writing,
-+ * software distributed under the License is distributed on an
-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-+ * KIND, either express or implied.  See the License for the
-+ * specific language governing permissions and limitations
-+ * under the License.
-+ */
-+
-+import {
-+  buildQueryContext,
-+  BuildQuery,
-+  ensureIsArray,
-+  QueryObject,
-+} from '@superset-ui/core';
-+import { EnterpriseTableFormData } from './types';
-+
-+export const buildQuery: BuildQuery<EnterpriseTableFormData> = (
-+  formData: EnterpriseTableFormData,
-+  options?: Parameters<BuildQuery<EnterpriseTableFormData>>[1],
-+) => {
-+  return buildQueryContext(formData, (baseQueryObject: QueryObject) => {
-+    const columns = ensureIsArray(formData.groupby);
-+    const metrics = ensureIsArray(formData.metrics);
-+
-+    const queryObject: QueryObject = {
-+      ...baseQueryObject,
-+      columns,
-+      metrics,
-+      row_limit: formData.row_limit ?? 100,
-+    };
-+
-+    return [queryObject];
-+  });
-+};
-+
-+export default buildQuery;
-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/src/controlPanel.tsx b/superset-frontend/plugins/plugin-chart-enterprise-table/src/controlPanel.tsx
-new file mode 100644
-index 0000000000..0bf8afea1d
---- /dev/null
-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/src/controlPanel.tsx
-@@ -0,0 +1,140 @@
-+/**
-+ * Licensed to the Apache Software Foundation (ASF) under one
-+ * or more contributor license agreements.  See the NOTICE file
-+ * distributed with this work for additional information
-+ * regarding copyright ownership.  The ASF licenses this file
-+ * to you under the Apache License, Version 2.0 (the
-+ * "License"); you may not use this file except in compliance
-+ * with the License.  You may obtain a copy of the License at
-+ *
-+ *   http://www.apache.org/licenses/LICENSE-2.0
-+ *
-+ * Unless required by applicable law or agreed to in writing,
-+ * software distributed under the License is distributed on an
-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-+ * KIND, either express or implied.  See the License for the
-+ * specific language governing permissions and limitations
-+ * under the License.
-+ */
-+
-+import { t } from '@apache-superset/core/translation';
-+import {
-+  ControlPanelConfig,
-+  formatSelectOptions,
-+  sharedControls,
-+} from '@superset-ui/chart-controls';
-+
-+const PAGE_SIZE_OPTIONS = formatSelectOptions<number>([10, 20, 50, 100, 200]);
-+
-+const config: ControlPanelConfig = {
-+  controlPanelSections: [
-+    {
-+      label: t('Query'),
-+      expanded: true,
-+      controlSetRows: [
-+        [
-+          {
-+            name: 'groupby',
-+            config: {
-+              ...sharedControls.groupby,
-+              label: t('Dimensions'),
-+              description: t('Select one or more dimension columns to group by'),
-+            },
-+          },
-+        ],
-+        [
-+          {
-+            name: 'metrics',
-+            config: {
-+              ...sharedControls.metrics,
-+              label: t('Metrics'),
-+              description: t('Select one or more metric aggregations'),
-+            },
-+          },
-+        ],
-+        ['adhoc_filters'],
-+        [
-+          {
-+            name: 'row_limit',
-+            config: sharedControls.row_limit,
-+          },
-+        ],
-+      ],
-+    },
-+    {
-+      label: t('Table Options'),
-+      expanded: true,
-+      controlSetRows: [
-+        [
-+          {
-+            name: 'page_size',
-+            config: {
-+              type: 'SelectControl',
-+              label: t('Page size'),
-+              default: 20,
-+              choices: PAGE_SIZE_OPTIONS,
-+              description: t('Number of rows displayed per page'),
-+            },
-+          },
-+        ],
-+        [
-+          {
-+            name: 'include_search',
-+            config: {
-+              type: 'CheckboxControl',
-+              label: t('Search box'),
-+              default: true,
-+              description: t('Show quick text filter search input above table'),
-+            },
-+          },
-+        ],
-+        [
-+          {
-+            name: 'enable_column_sort',
-+            config: {
-+              type: 'CheckboxControl',
-+              label: t('Enable sorting'),
-+              default: true,
-+              description: t('Allow interactive single and multi-column sorting'),
-+            },
-+          },
-+        ],
-+        [
-+          {
-+            name: 'enable_column_resize',
-+            config: {
-+              type: 'CheckboxControl',
-+              label: t('Enable resizing'),
-+              default: true,
-+              description: t('Allow interactive column width resizing'),
-+            },
-+          },
-+        ],
-+        [
-+          {
-+            name: 'enable_column_reorder',
-+            config: {
-+              type: 'CheckboxControl',
-+              label: t('Enable reordering'),
-+              default: true,
-+              description: t('Allow interactive column reordering'),
-+            },
-+          },
-+        ],
-+        [
-+          {
-+            name: 'enable_column_filters',
-+            config: {
-+              type: 'CheckboxControl',
-+              label: t('Enable column filters'),
-+              default: true,
-+              description: t('Show per-column text and numeric filter popovers'),
-+            },
-+          },
-+        ],
-+      ],
-+    },
-+  ],
-+};
-+
-+export default config;
-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/src/images/thumbnail-dark.png b/superset-frontend/plugins/plugin-chart-enterprise-table/src/images/thumbnail-dark.png
-new file mode 100644
-index 0000000000..919eaa2118
-Binary files /dev/null and b/superset-frontend/plugins/plugin-chart-enterprise-table/src/images/thumbnail-dark.png differ
-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/src/images/thumbnail.png b/superset-frontend/plugins/plugin-chart-enterprise-table/src/images/thumbnail.png
-new file mode 100644
-index 0000000000..296702c954
-Binary files /dev/null and b/superset-frontend/plugins/plugin-chart-enterprise-table/src/images/thumbnail.png differ
-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/src/index.ts b/superset-frontend/plugins/plugin-chart-enterprise-table/src/index.ts
-new file mode 100644
-index 0000000000..9fe934208a
---- /dev/null
-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/src/index.ts
-@@ -0,0 +1,67 @@
-+/**
-+ * Licensed to the Apache Software Foundation (ASF) under one
-+ * or more contributor license agreements.  See the NOTICE file
-+ * distributed with this work for additional information
-+ * regarding copyright ownership.  The ASF licenses this file
-+ * to you under the Apache License, Version 2.0 (the
-+ * "License"); you may not use this file except in compliance
-+ * with the License.  You may obtain a copy of the License at
-+ *
-+ *   http://www.apache.org/licenses/LICENSE-2.0
-+ *
-+ * Unless required by applicable law or agreed to in writing,
-+ * software distributed under the License is distributed on an
-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-+ * KIND, either express or implied.  See the License for the
-+ * specific language governing permissions and limitations
-+ * under the License.
-+ */
-+
-+import { t } from '@apache-superset/core/translation';
-+import { Behavior, ChartMetadata, ChartPlugin } from '@superset-ui/core';
-+import transformProps from './transformProps';
-+import thumbnail from './images/thumbnail.png';
-+import thumbnailDark from './images/thumbnail-dark.png';
-+import controlPanel from './controlPanel';
-+import buildQuery from './buildQuery';
-+import { EnterpriseTableFormData, EnterpriseTableProps } from './types';
-+
-+export * from './types';
-+
-+const metadata = new ChartMetadata({
-+  behaviors: [
-+    Behavior.InteractiveChart,
-+    Behavior.DrillToDetail,
-+    Behavior.DrillBy,
-+  ],
-+  category: t('Table'),
-+  description: t(
-+    'Enterprise interactive table with rich formatting, client and server-side controls, and high-performance dataset rendering.',
-+  ),
-+  name: t('Enterprise Interactive Table'),
-+  tags: [
-+    t('Table'),
-+    t('Enterprise'),
-+    t('Interactive'),
-+    t('Preset-like'),
-+  ],
-+  thumbnail,
-+  thumbnailDark,
-+});
-+
-+export class EnterpriseTableChartPlugin extends ChartPlugin<
-+  EnterpriseTableFormData,
-+  EnterpriseTableProps
-+> {
-+  constructor() {
-+    super({
-+      buildQuery,
-+      controlPanel,
-+      loadChart: () => import('./EnterpriseTableChart'),
-+      metadata,
-+      transformProps,
-+    });
-+  }
-+}
-+
-+export default EnterpriseTableChartPlugin;
-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/src/transformProps.ts b/superset-frontend/plugins/plugin-chart-enterprise-table/src/transformProps.ts
-new file mode 100644
-index 0000000000..cc3b8a1f8d
---- /dev/null
-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/src/transformProps.ts
-@@ -0,0 +1,73 @@
-+/**
-+ * Licensed to the Apache Software Foundation (ASF) under one
-+ * or more contributor license agreements.  See the NOTICE file
-+ * distributed with this work for additional information
-+ * regarding copyright ownership.  The ASF licenses this file
-+ * to you under the Apache License, Version 2.0 (the
-+ * "License"); you may not use this file except in compliance
-+ * with the License.  You may obtain a copy of the License at
-+ *
-+ *   http://www.apache.org/licenses/LICENSE-2.0
-+ *
-+ * Unless required by applicable law or agreed to in writing,
-+ * software distributed under the License is distributed on an
-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-+ * KIND, either express or implied.  See the License for the
-+ * specific language governing permissions and limitations
-+ * under the License.
-+ */
-+
-+import {
-+  ChartProps,
-+  DataRecord,
-+  getColumnLabel,
-+  getMetricLabel,
-+} from '@superset-ui/core';
-+import {
-+  EnterpriseTableColumn,
-+  EnterpriseTableFormData,
-+  EnterpriseTableTransformedProps,
-+} from './types';
-+
-+export function transformProps(chartProps: ChartProps): EnterpriseTableTransformedProps {
-+  const { width, height, formData, rawFormData, queriesData } = chartProps;
-+  const typedFormData = (rawFormData ?? formData) as EnterpriseTableFormData;
-+
-+  const data: DataRecord[] = (queriesData[0]?.data as DataRecord[]) ?? [];
-+  const colnames: string[] = queriesData[0]?.colnames ?? [];
-+
-+  const metricLabels = new Set(
-+    (typedFormData.metrics ?? []).map(m => getMetricLabel(m)),
-+  );
-+
-+  const columns: EnterpriseTableColumn[] = colnames.map(colName => {
-+    const isMetric = metricLabels.has(colName);
-+    const sampleVal = data.find(
-+      row => row[colName] !== null && row[colName] !== undefined,
-+    )?.[colName];
-+    const isNumeric = isMetric || typeof sampleVal === 'number';
-+
-+    return {
-+      key: colName,
-+      label: getColumnLabel(colName),
-+      isMetric,
-+      dataType: isNumeric ? 'number' : 'string',
-+    };
-+  });
-+
-+  return {
-+    data,
-+    columns,
-+    width,
-+    height,
-+    pageSize: typedFormData.page_size ?? 20,
-+    includeSearch: Boolean(typedFormData.include_search),
-+    enableColumnSort: typedFormData.enable_column_sort !== false,
-+    enableColumnResize: typedFormData.enable_column_resize !== false,
-+    enableColumnReorder: typedFormData.enable_column_reorder !== false,
-+    enableColumnFilters: typedFormData.enable_column_filters !== false,
-+    rawFormData: typedFormData,
-+  };
-+}
-+
-+export default transformProps;
-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/src/types.ts b/superset-frontend/plugins/plugin-chart-enterprise-table/src/types.ts
-new file mode 100644
-index 0000000000..6783e8bdb8
---- /dev/null
-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/src/types.ts
-@@ -0,0 +1,91 @@
-+/**
-+ * Licensed to the Apache Software Foundation (ASF) under one
-+ * or more contributor license agreements.  See the NOTICE file
-+ * distributed with this work for additional information
-+ * regarding copyright ownership.  The ASF licenses this file
-+ * to you under the Apache License, Version 2.0 (the
-+ * "License"); you may not use this file except in compliance
-+ * with the License.  You may obtain a copy of the License at
-+ *
-+ *   http://www.apache.org/licenses/LICENSE-2.0
-+ *
-+ * Unless required by applicable law or agreed to in writing,
-+ * software distributed under the License is distributed on an
-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-+ * KIND, either express or implied.  See the License for the
-+ * specific language governing permissions and limitations
-+ * under the License.
-+ */
-+
-+import {
-+  ChartProps,
-+  DataRecord,
-+  DataRecordValue,
-+  QueryFormData,
-+  QueryFormColumn,
-+  QueryFormMetric,
-+  JsonObject,
-+} from '@superset-ui/core';
-+
-+export type SortDirection = 'asc' | 'desc';
-+
-+export interface ColumnSortItem {
-+  key: string;
-+  direction: SortDirection;
-+}
-+
-+export type FilterOperator =
-+  | 'contains'
-+  | 'equals'
-+  | 'startsWith'
-+  | 'greaterThan'
-+  | 'lessThan'
-+  | 'between';
-+
-+export interface ColumnFilter {
-+  key: string;
-+  operator: FilterOperator;
-+  value: string;
-+  secondaryValue?: string;
-+}
-+
-+export interface EnterpriseTableFormData extends QueryFormData {
-+  groupby?: QueryFormColumn[];
-+  metrics?: QueryFormMetric[];
-+  row_limit?: number;
-+  include_search?: boolean;
-+  page_size?: number;
-+  enable_column_sort?: boolean;
-+  enable_column_resize?: boolean;
-+  enable_column_reorder?: boolean;
-+  enable_column_filters?: boolean;
-+  table_timestamp_format?: string;
-+}
-+
-+export interface EnterpriseTableColumn {
-+  key: string;
-+  label: string;
-+  isMetric?: boolean;
-+  dataType?: 'string' | 'number' | 'boolean' | 'date';
-+  formatter?: (value: DataRecordValue) => string;
-+}
-+
-+export interface EnterpriseTableTransformedProps {
-+  data: DataRecord[];
-+  columns: EnterpriseTableColumn[];
-+  width: number;
-+  height: number;
-+  isLoading?: boolean;
-+  errorMessage?: string;
-+  pageSize: number;
-+  includeSearch: boolean;
-+  enableColumnSort: boolean;
-+  enableColumnResize: boolean;
-+  enableColumnReorder: boolean;
-+  enableColumnFilters: boolean;
-+  rawFormData: JsonObject;
-+}
-+
-+export type EnterpriseTableProps = ChartProps & {
-+  formData: EnterpriseTableFormData;
-+};
-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/test/EnterpriseTableChart.test.tsx b/superset-frontend/plugins/plugin-chart-enterprise-table/test/EnterpriseTableChart.test.tsx
-new file mode 100644
-index 0000000000..ca1c732381
---- /dev/null
-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/test/EnterpriseTableChart.test.tsx
-@@ -0,0 +1,222 @@
-+/**
-+ * Licensed to the Apache Software Foundation (ASF) under one
-+ * or more contributor license agreements.  See the NOTICE file
-+ * distributed with this work for additional information
-+ * regarding copyright ownership.  The ASF licenses this file
-+ * to you under the Apache License, Version 2.0 (the
-+ * "License"); you may not use this file except in compliance
-+ * with the License.  You may obtain a copy of the License at
-+ *
-+ *   http://www.apache.org/licenses/LICENSE-2.0
-+ *
-+ * Unless required by applicable law or agreed to in writing,
-+ * software distributed under the License is distributed on an
-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-+ * KIND, either express or implied.  See the License for the
-+ * specific language governing permissions and limitations
-+ * under the License.
-+ */
-+
-+import React from 'react';
-+import { render, screen, fireEvent } from '@testing-library/react';
-+import '@testing-library/jest-dom';
-+import { EnterpriseTableChart } from '../src/EnterpriseTableChart';
-+import { EnterpriseTableTransformedProps } from '../src/types';
-+
-+const defaultProps: EnterpriseTableTransformedProps = {
-+  data: [
-+    { region: 'North America', sales: 100, profit: 20 },
-+    { region: 'EMEA', sales: 200, profit: 50 },
-+    { region: 'APAC', sales: 150, profit: 30 },
-+    { region: 'LATAM', sales: 80, profit: 15 },
-+  ],
-+  columns: [
-+    { key: 'region', label: 'Region', isMetric: false, dataType: 'string' },
-+    { key: 'sales', label: 'Sales', isMetric: true, dataType: 'number' },
-+    { key: 'profit', label: 'Profit', isMetric: true, dataType: 'number' },
-+  ],
-+  width: 800,
-+  height: 600,
-+  pageSize: 2,
-+  includeSearch: true,
-+  enableColumnSort: true,
-+  enableColumnResize: true,
-+  enableColumnReorder: true,
-+  enableColumnFilters: true,
-+  rawFormData: {},
-+};
-+
-+test('renders empty state when data array is empty', () => {
-+  render(<EnterpriseTableChart {...defaultProps} data={[]} />);
-+  expect(screen.getByTestId('enterprise-table-empty')).toBeInTheDocument();
-+  expect(screen.getByText('No data records available')).toBeInTheDocument();
-+});
-+
-+test('renders loading state when isLoading is true', () => {
-+  render(<EnterpriseTableChart {...defaultProps} isLoading />);
-+  expect(screen.getByTestId('enterprise-table-loading')).toBeInTheDocument();
-+  expect(screen.getByText('Loading Enterprise Table...')).toBeInTheDocument();
-+});
-+
-+test('renders error state when errorMessage is provided', () => {
-+  render(
-+    <EnterpriseTableChart
-+      {...defaultProps}
-+      errorMessage="Failed to fetch query data"
-+    />,
-+  );
-+  expect(screen.getByTestId('enterprise-table-error')).toBeInTheDocument();
-+  expect(screen.getByText('Failed to fetch query data')).toBeInTheDocument();
-+});
-+
-+test('renders table headers and data rows correctly with pagination', () => {
-+  render(<EnterpriseTableChart {...defaultProps} />);
-+  expect(screen.getByTestId('enterprise-table-container')).toBeInTheDocument();
-+  expect(screen.getByTestId('enterprise-table-grid')).toBeInTheDocument();
-+  expect(screen.getByTestId('header-region')).toHaveTextContent('Region');
-+  expect(screen.getByTestId('header-sales')).toHaveTextContent('Sales');
-+  expect(screen.getByTestId('header-profit')).toHaveTextContent('Profit');
-+
-+  // Since pageSize=2, first page displays 2 rows
-+  expect(screen.getByTestId('row-0')).toBeInTheDocument();
-+  expect(screen.getByTestId('row-1')).toBeInTheDocument();
-+  expect(screen.queryByTestId('row-2')).not.toBeInTheDocument();
-+});
-+
-+test('supports single column sorting and multi-column sorting', () => {
-+  render(<EnterpriseTableChart {...defaultProps} pageSize={10} />);
-+
-+  const regionSortBtn = screen.getByTestId('sort-btn-region');
-+  const salesSortBtn = screen.getByTestId('sort-btn-sales');
-+
-+  // 1. Single click on Region -> Sorts Region ASC (APAC, EMEA, LATAM, North America)
-+  fireEvent.click(regionSortBtn);
-+  expect(screen.getByTestId('sort-indicator-region')).toHaveTextContent('▲');
-+  expect(screen.getByTestId('cell-region-0')).toHaveTextContent('APAC');
-+
-+  // 2. Click Region again -> Sorts Region DESC (North America, LATAM, EMEA, APAC)
-+  fireEvent.click(regionSortBtn);
-+  expect(screen.getByTestId('sort-indicator-region')).toHaveTextContent('▼');
-+  expect(screen.getByTestId('cell-region-0')).toHaveTextContent('North America');
-+
-+  // 3. Shift+Click Sales -> Adds multi-sort: Region DESC + Sales ASC
-+  fireEvent.click(salesSortBtn, { shiftKey: true });
-+  expect(screen.getByTestId('sort-indicator-region')).toHaveTextContent('▼');
-+  expect(screen.getByTestId('sort-indicator-sales')).toHaveTextContent('▲');
-+});
-+
-+test('supports column reordering with left/right buttons', () => {
-+  render(<EnterpriseTableChart {...defaultProps} />);
-+
-+  // Initial order: Region, Sales, Profit
-+  const reorderRightRegion = screen.getByTestId('reorder-right-region');
-+  fireEvent.click(reorderRightRegion);
-+
-+  // After moving Region right, new order is: Sales, Region, Profit
-+  const headers = screen.getAllByRole('columnheader');
-+  expect(headers[0]).toHaveAttribute('data-test', 'header-sales');
-+  expect(headers[1]).toHaveAttribute('data-test', 'header-region');
-+  expect(headers[2]).toHaveAttribute('data-test', 'header-profit');
-+});
-+
-+test('supports column resizing drag handle interaction', () => {
-+  render(<EnterpriseTableChart {...defaultProps} />);
-+  const resizeHandle = screen.getByTestId('resize-handle-region');
-+  expect(resizeHandle).toBeInTheDocument();
-+
-+  // Test mouse down event on resize handle
-+  fireEvent.mouseDown(resizeHandle, { clientX: 100 });
-+});
-+
-+test('filters rows with per-column text filter', () => {
-+  render(<EnterpriseTableChart {...defaultProps} pageSize={10} />);
-+
-+  // Open filter popover on Region column
-+  const filterToggle = screen.getByTestId('filter-toggle-region');
-+  fireEvent.click(filterToggle);
-+  expect(screen.getByTestId('filter-popover-region')).toBeInTheDocument();
-+
-+  // Type filter value "North"
-+  const filterInput = screen.getByTestId('filter-input-region');
-+  fireEvent.change(filterInput, { target: { value: 'North' } });
-+
-+  // Only North America should be visible
-+  expect(screen.getByTestId('cell-region-0')).toHaveTextContent('North America');
-+  expect(screen.queryByTestId('row-1')).not.toBeInTheDocument();
-+
-+  // Clear filter
-+  const clearBtn = screen.getByTestId('filter-clear-region');
-+  fireEvent.click(clearBtn);
-+  expect(screen.getByTestId('row-1')).toBeInTheDocument();
-+});
-+
-+test('filters rows with per-column numeric filter', () => {
-+  render(<EnterpriseTableChart {...defaultProps} pageSize={10} />);
-+
-+  // Open filter popover on Sales column
-+  const filterToggle = screen.getByTestId('filter-toggle-sales');
-+  fireEvent.click(filterToggle);
-+
-+  // Set operator to greaterThan and value to 120
-+  const operatorSelect = screen.getByTestId('filter-operator-sales');
-+  fireEvent.change(operatorSelect, { target: { value: 'greaterThan' } });
-+
-+  const filterInput = screen.getByTestId('filter-input-sales');
-+  fireEvent.change(filterInput, { target: { value: '120' } });
-+
-+  // Should display EMEA (200) and APAC (150)
-+  expect(screen.getByTestId('cell-region-0')).toHaveTextContent('EMEA');
-+  expect(screen.getByTestId('cell-region-1')).toHaveTextContent('APAC');
-+  expect(screen.queryByTestId('row-2')).not.toBeInTheDocument();
-+});
-+
-+test('filters rows when global search term is entered', () => {
-+  render(<EnterpriseTableChart {...defaultProps} pageSize={10} />);
-+  const searchInput = screen.getByTestId('enterprise-table-search');
-+  fireEvent.change(searchInput, { target: { value: 'latam' } });
-+
-+  expect(screen.getByTestId('cell-region-0')).toHaveTextContent('LATAM');
-+  expect(screen.queryByTestId('row-1')).not.toBeInTheDocument();
-+});
-+
-+test('supports pagination next, prev, and page size selection', () => {
-+  render(<EnterpriseTableChart {...defaultProps} pageSize={2} />);
-+
-+  // First page shows North America and EMEA
-+  expect(screen.getByTestId('page-indicator')).toHaveTextContent('Page 1 of 2');
-+  expect(screen.getByTestId('cell-region-0')).toHaveTextContent('North America');
-+
-+  // Go to next page
-+  const nextBtn = screen.getByTestId('page-next');
-+  fireEvent.click(nextBtn);
-+  expect(screen.getByTestId('page-indicator')).toHaveTextContent('Page 2 of 2');
-+  expect(screen.getByTestId('cell-region-0')).toHaveTextContent('APAC');
-+
-+  // Go back to prev page
-+  const prevBtn = screen.getByTestId('page-prev');
-+  fireEvent.click(prevBtn);
-+  expect(screen.getByTestId('page-indicator')).toHaveTextContent('Page 1 of 2');
-+
-+  // Change page size to 10
-+  const pageSizeSelect = screen.getByTestId('page-size-select');
-+  fireEvent.change(pageSizeSelect, { target: { value: '10' } });
-+  expect(screen.getByTestId('page-indicator')).toHaveTextContent('Page 1 of 1');
-+  expect(screen.getByTestId('row-3')).toBeInTheDocument();
-+});
-+
-+test('resets all filters, search, and sorts when reset button is clicked', () => {
-+  render(<EnterpriseTableChart {...defaultProps} pageSize={10} />);
-+
-+  // Add search term
-+  const searchInput = screen.getByTestId('enterprise-table-search');
-+  fireEvent.change(searchInput, { target: { value: 'latam' } });
-+  expect(screen.getByTestId('reset-filters-btn')).toBeInTheDocument();
-+
-+  // Click reset button
-+  const resetBtn = screen.getByTestId('reset-filters-btn');
-+  fireEvent.click(resetBtn);
-+
-+  // All rows restored
-+  expect(screen.queryByTestId('reset-filters-btn')).not.toBeInTheDocument();
-+  expect(screen.getByTestId('row-3')).toBeInTheDocument();
-+});
-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/test/buildQuery.test.ts b/superset-frontend/plugins/plugin-chart-enterprise-table/test/buildQuery.test.ts
-new file mode 100644
-index 0000000000..2290e8d6a8
---- /dev/null
-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/test/buildQuery.test.ts
-@@ -0,0 +1,50 @@
-+/**
-+ * Licensed to the Apache Software Foundation (ASF) under one
-+ * or more contributor license agreements.  See the NOTICE file
-+ * distributed with this work for additional information
-+ * regarding copyright ownership.  The ASF licenses this file
-+ * to you under the Apache License, Version 2.0 (the
-+ * "License"); you may not use this file except in compliance
-+ * with the License.  You may obtain a copy of the License at
-+ *
-+ *   http://www.apache.org/licenses/LICENSE-2.0
-+ *
-+ * Unless required by applicable law or agreed to in writing,
-+ * software distributed under the License is distributed on an
-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-+ * KIND, either express or implied.  See the License for the
-+ * specific language governing permissions and limitations
-+ * under the License.
-+ */
-+
-+import { buildQuery } from '../src/buildQuery';
-+import { EnterpriseTableFormData } from '../src/types';
-+
-+test('builds correct query context with dimensions and metrics', () => {
-+  const formData: EnterpriseTableFormData = {
-+    datasource: '28__table',
-+    viz_type: 'enterprise_table',
-+    groupby: ['customer_region', 'product_category'],
-+    metrics: ['sum__sales_amount'],
-+    row_limit: 50,
-+  };
-+
-+  const queryContext = buildQuery(formData);
-+  expect(queryContext.queries).toHaveLength(1);
-+  const query = queryContext.queries[0];
-+  expect(query.columns).toEqual(['customer_region', 'product_category']);
-+  expect(query.metrics).toEqual(['sum__sales_amount']);
-+  expect(query.row_limit).toBe(50);
-+});
-+
-+test('applies default row limit when unspecified', () => {
-+  const formData: EnterpriseTableFormData = {
-+    datasource: '28__table',
-+    viz_type: 'enterprise_table',
-+    groupby: ['country'],
-+    metrics: ['count'],
-+  };
-+
-+  const queryContext = buildQuery(formData);
-+  expect(queryContext.queries[0].row_limit).toBe(100);
-+});
-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/test/transformProps.test.ts b/superset-frontend/plugins/plugin-chart-enterprise-table/test/transformProps.test.ts
-new file mode 100644
-index 0000000000..d389a93324
---- /dev/null
-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/test/transformProps.test.ts
-@@ -0,0 +1,65 @@
-+/**
-+ * Licensed to the Apache Software Foundation (ASF) under one
-+ * or more contributor license agreements.  See the NOTICE file
-+ * distributed with this work for additional information
-+ * regarding copyright ownership.  The ASF licenses this file
-+ * to you under the Apache License, Version 2.0 (the
-+ * "License"); you may not use this file except in compliance
-+ * with the License.  You may obtain a copy of the License at
-+ *
-+ *   http://www.apache.org/licenses/LICENSE-2.0
-+ *
-+ * Unless required by applicable law or agreed to in writing,
-+ * software distributed under the License is distributed on an
-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-+ * KIND, either express or implied.  See the License for the
-+ * specific language governing permissions and limitations
-+ * under the License.
-+ */
-+
-+import { ChartProps } from '@superset-ui/core';
-+import { transformProps } from '../src/transformProps';
-+import { EnterpriseTableFormData } from '../src/types';
-+
-+test('transforms chart props into component props correctly with snake_case formData', () => {
-+  const formData: EnterpriseTableFormData = {
-+    datasource: '28__table',
-+    viz_type: 'enterprise_table',
-+    groupby: ['region'],
-+    metrics: ['sum_sales'],
-+    page_size: 50,
-+    include_search: true,
-+    enable_column_sort: true,
-+    enable_column_resize: true,
-+    enable_column_reorder: true,
-+    enable_column_filters: true,
-+  };
-+
-+  const chartProps = new ChartProps({
-+    formData,
-+    width: 800,
-+    height: 600,
-+    queriesData: [
-+      {
-+        colnames: ['region', 'sum_sales'],
-+        coltypes: [1, 0],
-+        data: [{ region: 'North America', sum_sales: 100000 }],
-+      },
-+    ],
-+  });
-+
-+  const transformed = transformProps(chartProps);
-+  expect(transformed.width).toBe(800);
-+  expect(transformed.height).toBe(600);
-+  expect(transformed.pageSize).toBe(50);
-+  expect(transformed.includeSearch).toBe(true);
-+  expect(transformed.enableColumnSort).toBe(true);
-+  expect(transformed.enableColumnResize).toBe(true);
-+  expect(transformed.enableColumnReorder).toBe(true);
-+  expect(transformed.enableColumnFilters).toBe(true);
-+  expect(transformed.data).toHaveLength(1);
-+  expect(transformed.columns).toEqual([
-+    { key: 'region', label: 'region', isMetric: false, dataType: 'string' },
-+    { key: 'sum_sales', label: 'sum_sales', isMetric: true, dataType: 'number' },
-+  ]);
-+});
-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/tsconfig.json b/superset-frontend/plugins/plugin-chart-enterprise-table/tsconfig.json
-new file mode 100644
-index 0000000000..8992e79cb1
---- /dev/null
-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/tsconfig.json
-@@ -0,0 +1,21 @@
-+{
-+  "extends": "../../tsconfig.json",
-+  "compilerOptions": {
-+    "baseUrl": "../..",
-+    "outDir": "lib",
-+    "rootDir": "src",
-+    "declarationDir": "lib"
-+  },
-+  "include": ["src/**/*.ts", "src/**/*.tsx", "types/**/*"],
-+  "exclude": [
-+    "src/**/*.js",
-+    "src/**/*.jsx",
-+    "src/**/*.test.*",
-+    "src/**/*.stories.*"
-+  ],
-+  "references": [
-+    { "path": "../../packages/superset-core" },
-+    { "path": "../../packages/superset-ui-core" },
-+    { "path": "../../packages/superset-ui-chart-controls" }
-+  ]
-+}
-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/types/external.d.ts b/superset-frontend/plugins/plugin-chart-enterprise-table/types/external.d.ts
-new file mode 100644
-index 0000000000..6bfdcdf999
---- /dev/null
-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/types/external.d.ts
-@@ -0,0 +1,22 @@
-+/*
-+ * Licensed to the Apache Software Foundation (ASF) under one
-+ * or more contributor license agreements.  See the NOTICE file
-+ * distributed with this work for additional information
-+ * regarding copyright ownership.  The ASF licenses this file
-+ * to you under the Apache License, Version 2.0 (the
-+ * "License"); you may not use this file except in compliance
-+ * with the License.  You may obtain a copy of the License at
-+ *
-+ *   http://www.apache.org/licenses/LICENSE-2.0
-+ *
-+ * Unless required by applicable law or agreed to in writing,
-+ * software distributed under the License is distributed on an
-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-+ * KIND, either express or implied.  See the License for the
-+ * specific language governing permissions and limitations
-+ * under the License.
-+ */
-+
-+declare module '*.png';
-+declare module '*.jpg';
-+declare module '*.svg';
-diff --git a/superset-frontend/src/visualizations/presets/MainPreset.ts b/superset-frontend/src/visualizations/presets/MainPreset.ts
-index 5f2bc28571..3e8e6f90c4 100644
---- a/superset-frontend/src/visualizations/presets/MainPreset.ts
-+++ b/superset-frontend/src/visualizations/presets/MainPreset.ts
-@@ -84,6 +84,7 @@ import { PivotTableChartPlugin as PivotTableChartPluginV2 } from '@superset-ui/p
- import { HandlebarsChartPlugin } from '@superset-ui/plugin-chart-handlebars';
- import { ChartCustomizationPlugins, FilterPlugins } from 'src/constants';
- import AgGridTableChartPlugin from '@superset-ui/plugin-chart-ag-grid-table';
-+import EnterpriseTableChartPlugin from '@superset-ui/plugin-chart-enterprise-table';
- import TimeTableChartPlugin from '../TimeTable';
+diff --git a/docker-compose.yml b/docker-compose.yml
+index b549844848..d7dae8b915 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -135,6 +135,27 @@ services:
+         condition: service_completed_successfully
+     volumes: *superset-volumes
  
- export default class MainPreset extends Preset {
-@@ -207,6 +208,9 @@ export default class MainPreset extends Preset {
-             },
-           ],
-         }).configure({ key: VizType.Cartodiagram }),
-+        new EnterpriseTableChartPlugin().configure({
-+          key: VizType.EnterpriseTable,
-+        }),
-         ...experimentalPlugins,
-         ...agGridTablePlugin,
-       ],
++  superset-mcp:
++    env_file:
++      - path: docker/.env # default
++        required: true
++      - path: docker/.env-local # optional override
++        required: false
++    build:
++      <<: *common-build
++    command: ["/app/docker/docker-bootstrap.sh", "mcp"]
++    restart: unless-stopped
++    ports:
++      - "127.0.0.1:${MCP_PORT:-5008}:5008"
++    extra_hosts:
++      - "host.docker.internal:host-gateway"
++    user: *superset-user
++    depends_on:
++      superset-init:
++        condition: service_completed_successfully
++    volumes: *superset-volumes
++
++
+   superset-websocket:
+     build: ./superset-websocket
+     ports:
+diff --git a/docker/.env b/docker/.env
+index df72b69c55..07a97b3954 100644
+--- a/docker/.env
++++ b/docker/.env
+@@ -87,3 +87,9 @@ BUILD_SUPERSET_FRONTEND_IN_DOCKER=true
+ # Default is 65535; set to ~1 MB to allow very large dashboards to save.
+ # Read by docker/pythonpath_dev/superset_config.py.
+ SUPERSET_DASHBOARD_POSITION_DATA_LIMIT=1048576
++
++# MCP Service Configuration (Phase 11)
++MCP_PORT=5008
++MCP_JWT_SECRET=[REDACTED_FOR_SECURITY]
++MCP_JWT_AUDIENCE=superset-mcp
++
+diff --git a/docker/pythonpath_dev/superset_config.py b/docker/pythonpath_dev/superset_config.py
+index e286a042c8..498dec8856 100644
+--- a/docker/pythonpath_dev/superset_config.py
++++ b/docker/pythonpath_dev/superset_config.py
+@@ -161,8 +161,18 @@ if os.getenv("CYPRESS_CONFIG") == "true":
+ 
+     sys.path.pop(0)
+ 
++# MCP Service Configuration (Phase 11)
++MCP_AUTH_ENABLED = True
++MCP_JWT_ALGORITHM = "HS256"
++MCP_JWT_SECRET = os.getenv("MCP_JWT_SECRET")
++MCP_JWT_AUDIENCE = os.getenv("MCP_JWT_AUDIENCE", "superset-mcp")
++MCP_RBAC_ENABLED = True
++MCP_JWT_DEBUG_ERRORS = True
++
++
+ #
+ # Optionally import superset_config_docker.py (which will have been included on
++
+ # the PYTHONPATH) in order to allow for local settings to be overridden
+ #
+ try:
+diff --git a/docs/evidence/git-diff-redacted.txt b/docs/evidence/git-diff-redacted.txt
+index b12db6f1da..e69de29bb2 100644
+--- a/docs/evidence/git-diff-redacted.txt
++++ b/docs/evidence/git-diff-redacted.txt
+@@ -1,2340 +0,0 @@
+-diff --git a/superset-frontend/package-lock.json b/superset-frontend/package-lock.json
+-index 0bf3828a00..67232f7f95 100644
+---- a/superset-frontend/package-lock.json
+-+++ b/superset-frontend/package-lock.json
+-@@ -7639,9 +7639,6 @@
+-         "arm64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -7656,9 +7653,6 @@
+-         "arm64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "musl"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -7673,9 +7667,6 @@
+-         "x64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -7690,9 +7681,6 @@
+-         "x64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "musl"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8222,9 +8210,6 @@
+-         "arm64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8239,9 +8224,6 @@
+-         "arm64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "musl"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8256,9 +8238,6 @@
+-         "ppc64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8273,9 +8252,6 @@
+-         "riscv64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8290,9 +8266,6 @@
+-         "riscv64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "musl"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8307,9 +8280,6 @@
+-         "s390x"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8324,9 +8294,6 @@
+-         "x64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8341,9 +8308,6 @@
+-         "x64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "musl"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8605,9 +8569,6 @@
+-         "arm64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8625,9 +8586,6 @@
+-         "arm64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "musl"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8645,9 +8603,6 @@
+-         "ppc64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8665,9 +8620,6 @@
+-         "riscv64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8685,9 +8637,6 @@
+-         "riscv64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "musl"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8705,9 +8654,6 @@
+-         "s390x"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8725,9 +8671,6 @@
+-         "x64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8745,9 +8688,6 @@
+-         "x64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "musl"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8952,9 +8892,6 @@
+-         "arm64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8972,9 +8909,6 @@
+-         "arm64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "musl"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -8992,9 +8926,6 @@
+-         "ppc64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -9012,9 +8943,6 @@
+-         "riscv64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -9032,9 +8960,6 @@
+-         "riscv64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "musl"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -9052,9 +8977,6 @@
+-         "s390x"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -9072,9 +8994,6 @@
+-         "x64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -9092,9 +9011,6 @@
+-         "x64"
+-       ],
+-       "dev": true,
+--      "libc": [
+--        "musl"
+--      ],
+-       "license": "MIT",
+-       "optional": true,
+-       "os": [
+-@@ -11268,6 +11184,10 @@
+-       "resolved": "plugins/plugin-chart-echarts",
+-       "link": true
+-     },
+-+    "node_modules/@superset-ui/plugin-chart-enterprise-table": {
+-+      "resolved": "plugins/plugin-chart-enterprise-table",
+-+      "link": true
+-+    },
+-     "node_modules/@superset-ui/plugin-chart-handlebars": {
+-       "resolved": "plugins/plugin-chart-handlebars",
+-       "link": true
+-@@ -11683,9 +11603,6 @@
+-       "cpu": [
+-         "arm64"
+-       ],
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "Apache-2.0 AND MIT",
+-       "optional": true,
+-       "os": [
+-@@ -11702,9 +11619,6 @@
+-       "cpu": [
+-         "arm64"
+-       ],
+--      "libc": [
+--        "musl"
+--      ],
+-       "license": "Apache-2.0 AND MIT",
+-       "optional": true,
+-       "os": [
+-@@ -11721,9 +11635,6 @@
+-       "cpu": [
+-         "ppc64"
+-       ],
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "Apache-2.0 AND MIT",
+-       "optional": true,
+-       "os": [
+-@@ -11740,9 +11651,6 @@
+-       "cpu": [
+-         "s390x"
+-       ],
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "Apache-2.0 AND MIT",
+-       "optional": true,
+-       "os": [
+-@@ -11759,9 +11667,6 @@
+-       "cpu": [
+-         "x64"
+-       ],
+--      "libc": [
+--        "glibc"
+--      ],
+-       "license": "Apache-2.0 AND MIT",
+-       "optional": true,
+-       "os": [
+-@@ -11778,9 +11683,6 @@
+-       "cpu": [
+-         "x64"
+-       ],
+--      "libc": [
+--        "musl"
+--      ],
+-       "license": "Apache-2.0 AND MIT",
+-       "optional": true,
+-       "os": [
+-@@ -26875,6 +26777,21 @@
+-         }
+-       }
+-     },
+-+    "node_modules/jsdom/node_modules/@noble/hashes": {
+-+      "version": "2.4.0",
+-+      "resolved": "https://registry.npmjs.org/@noble/hashes/-/hashes-2.4.0.tgz",
+-+      "integrity": "sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==",
+-+      "dev": true,
+-+      "license": "MIT",
+-+      "optional": true,
+-+      "peer": true,
+-+      "engines": {
+-+        "node": ">= 20.19.0"
+-+      },
+-+      "funding": {
+-+        "url": "https://paulmillr.com/funding/"
+-+      }
+-+    },
+-     "node_modules/jsdom/node_modules/css-tree": {
+-       "version": "3.2.1",
+-       "resolved": "https://registry.npmjs.org/css-tree/-/css-tree-3.2.1.tgz",
+-@@ -41735,6 +41652,21 @@
+-         }
+-       }
+-     },
+-+    "node_modules/whatwg-url/node_modules/@noble/hashes": {
+-+      "version": "2.4.0",
+-+      "resolved": "https://registry.npmjs.org/@noble/hashes/-/hashes-2.4.0.tgz",
+-+      "integrity": "sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==",
+-+      "dev": true,
+-+      "license": "MIT",
+-+      "optional": true,
+-+      "peer": true,
+-+      "engines": {
+-+        "node": ">= 20.19.0"
+-+      },
+-+      "funding": {
+-+        "url": "https://paulmillr.com/funding/"
+-+      }
+-+    },
+-     "node_modules/whatwg-url/node_modules/webidl-conversions": {
+-       "version": "8.0.1",
+-       "resolved": "https://registry.npmjs.org/webidl-conversions/-/webidl-conversions-8.0.1.tgz",
+-@@ -43347,6 +43279,19 @@
+-         "node": ">=12"
+-       }
+-     },
+-+    "plugins/plugin-chart-enterprise-table": {
+-+      "name": "@superset-ui/plugin-chart-enterprise-table",
+-+      "version": "0.1.0",
+-+      "license": "Apache-2.0",
+-+      "peerDependencies": {
+-+        "@ant-design/icons": "^5.6.1",
+-+        "@apache-superset/core": "*",
+-+        "@superset-ui/chart-controls": "*",
+-+        "@superset-ui/core": "*",
+-+        "react": "^18.3.0",
+-+        "react-dom": "^18.3.0"
+-+      }
+-+    },
+-     "plugins/plugin-chart-handlebars": {
+-       "name": "@superset-ui/plugin-chart-handlebars",
+-       "version": "0.20.3",
+-diff --git a/superset-frontend/packages/superset-ui-core/src/chart/types/VizType.ts b/superset-frontend/packages/superset-ui-core/src/chart/types/VizType.ts
+-index fab42d3519..1fcfc9f890 100644
+---- a/superset-frontend/packages/superset-ui-core/src/chart/types/VizType.ts
+-+++ b/superset-frontend/packages/superset-ui-core/src/chart/types/VizType.ts
+-@@ -58,6 +58,7 @@ export enum VizType {
+-   Sunburst = 'sunburst_v2',
+-   Table = 'table',
+-   TableAgGrid = 'ag-grid-table',
+-+  EnterpriseTable = 'enterprise_table',
+-   TimePivot = 'time_pivot',
+-   TimeTable = 'time_table',
+-   Timeseries = 'echarts_timeseries',
+-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/package.json b/superset-frontend/plugins/plugin-chart-enterprise-table/package.json
+-new file mode 100644
+-index 0000000000..2f86a4d2c7
+---- /dev/null
+-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/package.json
+-@@ -0,0 +1,40 @@
+-+{
+-+  "name": "@superset-ui/plugin-chart-enterprise-table",
+-+  "version": "0.1.0",
+-+  "description": "Enterprise Interactive Table visualization plugin for Apache Superset",
+-+  "keywords": [
+-+    "superset",
+-+    "table",
+-+    "enterprise",
+-+    "interactive"
+-+  ],
+-+  "homepage": "https://github.com/apache/superset",
+-+  "bugs": {
+-+    "url": "https://github.com/apache/superset/issues"
+-+  },
+-+  "license": "Apache-2.0",
+-+  "author": "Apache Superset",
+-+  "repository": {
+-+    "type": "git",
+-+    "url": "https://github.com/apache/superset.git",
+-+    "directory": "superset-frontend/plugins/plugin-chart-enterprise-table"
+-+  },
+-+  "files": [
+-+    "esm",
+-+    "lib"
+-+  ],
+-+  "sideEffects": false,
+-+  "main": "lib/index.js",
+-+  "module": "esm/index.js",
+-+  "publishConfig": {
+-+    "access": "public"
+-+  },
+-+  "peerDependencies": {
+-+    "@ant-design/icons": "^5.6.1",
+-+    "@apache-superset/core": "*",
+-+    "@superset-ui/chart-controls": "*",
+-+    "@superset-ui/core": "*",
+-+    "react": "^18.3.0",
+-+    "react-dom": "^18.3.0"
+-+  }
+-+}
+-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/src/EnterpriseTableChart.tsx b/superset-frontend/plugins/plugin-chart-enterprise-table/src/EnterpriseTableChart.tsx
+-new file mode 100644
+-index 0000000000..c524d8360b
+---- /dev/null
+-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/src/EnterpriseTableChart.tsx
+-@@ -0,0 +1,969 @@
+-+/**
+-+ * Licensed to the Apache Software Foundation (ASF) under one
+-+ * or more contributor license agreements.  See the NOTICE file
+-+ * distributed with this work for additional information
+-+ * regarding copyright ownership.  The ASF licenses this file
+-+ * to you under the Apache License, Version 2.0 (the
+-+ * "License"); you may not use this file except in compliance
+-+ * with the License.  You may obtain a copy of the License at
+-+ *
+-+ *   http://www.apache.org/licenses/LICENSE-2.0
+-+ *
+-+ * Unless required by applicable law or agreed to in writing,
+-+ * software distributed under the License is distributed on an
+-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-+ * KIND, either express or implied.  See the License for the
+-+ * specific language governing permissions and limitations
+-+ * under the License.
+-+ */
+-+
+-+import React, {
+-+  useMemo,
+-+  useState,
+-+  useCallback,
+-+  useEffect,
+-+  ChangeEvent,
+-+  MouseEvent as ReactMouseEvent,
+-+} from 'react';
+-+import { SupersetTheme, styled } from '@apache-superset/core/theme';
+-+import { t } from '@apache-superset/core/translation';
+-+import { DataRecord } from '@superset-ui/core';
+-+import {
+-+  EnterpriseTableTransformedProps,
+-+  ColumnSortItem,
+-+  ColumnFilter,
+-+  FilterOperator,
+-+} from './types';
+-+
+-+// ============================================================================
+-+// STYLED COMPONENTS
+-+// ============================================================================
+-+
+-+const Container = styled.div<{ width: number; height: number; theme?: SupersetTheme }>`
+-+  width: ${({ width }: { width: number }) => width}px;
+-+  height: ${({ height }: { height: number }) => height}px;
+-+  display: flex;
+-+  flex-direction: column;
+-+  overflow: hidden;
+-+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorText};
+-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorBgContainer};
+-+  border: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorderSecondary};
+-+  border-radius: ${({ theme }: { theme: SupersetTheme }) => theme.borderRadius}px;
+-+`;
+-+
+-+const HeaderBar = styled.div<{ theme?: SupersetTheme }>`
+-+  display: flex;
+-+  align-items: center;
+-+  justify-content: space-between;
+-+  padding: 8px 12px;
+-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorFillAlter};
+-+  border-bottom: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorderSecondary};
+-+  gap: 12px;
+-+  flex-shrink: 0;
+-+`;
+-+
+-+const TitleContainer = styled.div`
+-+  display: flex;
+-+  align-items: center;
+-+  gap: 8px;
+-+  flex-shrink: 0;
+-+`;
+-+
+-+const Title = styled.span`
+-+  font-weight: 600;
+-+  font-size: 13px;
+-+`;
+-+
+-+const Badge = styled.span<{ theme?: SupersetTheme }>`
+-+  font-size: 11px;
+-+  padding: 2px 6px;
+-+  border-radius: 4px;
+-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorPrimaryBg};
+-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorPrimary};
+-+  font-weight: 500;
+-+`;
+-+
+-+const ControlsGroup = styled.div`
+-+  display: flex;
+-+  align-items: center;
+-+  gap: 8px;
+-+`;
+-+
+-+const SearchInput = styled.input<{ theme?: SupersetTheme }>`
+-+  padding: 4px 8px;
+-+  border: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorder};
+-+  border-radius: 4px;
+-+  font-size: 12px;
+-+  outline: none;
+-+  width: 180px;
+-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorBgContainer};
+-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorText};
+-+  &:focus {
+-+    border-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorPrimary};
+-+  }
+-+`;
+-+
+-+const ActionButton = styled.button<{ active?: boolean; theme?: SupersetTheme }>`
+-+  padding: 3px 8px;
+-+  font-size: 11px;
+-+  border-radius: 4px;
+-+  cursor: pointer;
+-+  border: 1px solid
+-+    ${({ active, theme }: { active?: boolean; theme: SupersetTheme }) =>
+-+      active ? theme.colorPrimary : theme.colorBorder};
+-+  background-color: ${({ active, theme }: { active?: boolean; theme: SupersetTheme }) =>
+-+    active ? theme.colorPrimaryBg : theme.colorBgContainer};
+-+  color: ${({ active, theme }: { active?: boolean; theme: SupersetTheme }) =>
+-+    active ? theme.colorPrimary : theme.colorText};
+-+  &:hover {
+-+    border-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorPrimary};
+-+  }
+-+  &:disabled {
+-+    opacity: 0.5;
+-+    cursor: not-allowed;
+-+  }
+-+`;
+-+
+-+const TableWrapper = styled.div`
+-+  flex: 1;
+-+  overflow: auto;
+-+  position: relative;
+-+`;
+-+
+-+const StyledTable = styled.table`
+-+  width: 100%;
+-+  border-collapse: collapse;
+-+  font-size: 12px;
+-+  text-align: left;
+-+  table-layout: fixed;
+-+`;
+-+
+-+const TableHead = styled.thead<{ theme?: SupersetTheme }>`
+-+  position: sticky;
+-+  top: 0;
+-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorFillSecondary};
+-+  z-index: 3;
+-+`;
+-+
+-+const HeaderCell = styled.th<{ width?: number; isMetric?: boolean; theme?: SupersetTheme }>`
+-+  position: relative;
+-+  padding: 8px 10px;
+-+  font-weight: 600;
+-+  border-bottom: 2px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorderSecondary};
+-+  text-align: ${({ isMetric }: { isMetric?: boolean }) => (isMetric ? 'right' : 'left')};
+-+  white-space: nowrap;
+-+  width: ${({ width }: { width?: number }) => (width ? `${width}px` : 'auto')};
+-+  min-width: 60px;
+-+  user-select: none;
+-+  box-sizing: border-box;
+-+`;
+-+
+-+const HeaderContent = styled.div<{ isMetric?: boolean }>`
+-+  display: flex;
+-+  align-items: center;
+-+  justify-content: ${({ isMetric }: { isMetric?: boolean }) =>
+-+    isMetric ? 'flex-end' : 'flex-start'};
+-+  gap: 6px;
+-+`;
+-+
+-+const HeaderLabel = styled.span`
+-+  cursor: pointer;
+-+  overflow: hidden;
+-+  text-overflow: ellipsis;
+-+  &:hover {
+-+    color: ${({ theme }: { theme?: SupersetTheme }) => theme?.colorPrimary};
+-+  }
+-+`;
+-+
+-+const SortIndicator = styled.span<{ theme?: SupersetTheme }>`
+-+  display: inline-flex;
+-+  align-items: center;
+-+  gap: 2px;
+-+  font-size: 10px;
+-+  font-weight: 700;
+-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorPrimary};
+-+`;
+-+
+-+const SortPriority = styled.span`
+-+  font-size: 9px;
+-+  opacity: 0.85;
+-+`;
+-+
+-+const ResizeHandle = styled.div<{ theme?: SupersetTheme }>`
+-+  position: absolute;
+-+  right: 0;
+-+  top: 0;
+-+  bottom: 0;
+-+  width: 5px;
+-+  cursor: col-resize;
+-+  z-index: 4;
+-+  &:hover {
+-+    background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorPrimary};
+-+  }
+-+`;
+-+
+-+const HeaderIcons = styled.div`
+-+  display: flex;
+-+  align-items: center;
+-+  gap: 2px;
+-+`;
+-+
+-+const IconButton = styled.button<{ active?: boolean; theme?: SupersetTheme }>`
+-+  background: none;
+-+  border: none;
+-+  padding: 2px;
+-+  font-size: 10px;
+-+  cursor: pointer;
+-+  border-radius: 2px;
+-+  line-height: 1;
+-+  color: ${({ active, theme }: { active?: boolean; theme: SupersetTheme }) =>
+-+    active ? theme.colorPrimary : theme.colorTextSecondary};
+-+  &:hover {
+-+    color: ${({ theme }: { theme: SupersetTheme }) => theme.colorPrimary};
+-+    background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorFillTertiary};
+-+  }
+-+  &:disabled {
+-+    opacity: 0.3;
+-+    cursor: default;
+-+  }
+-+`;
+-+
+-+const FilterPopover = styled.div<{ isMetric?: boolean; theme?: SupersetTheme }>`
+-+  position: absolute;
+-+  top: 100%;
+-+  ${({ isMetric }: { isMetric?: boolean }) => (isMetric ? 'right: 4px;' : 'left: 4px;')}
+-+  z-index: 10;
+-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorBgElevated};
+-+  border: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorderSecondary};
+-+  border-radius: 6px;
+-+  padding: 8px;
+-+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+-+  display: flex;
+-+  flex-direction: column;
+-+  gap: 6px;
+-+  min-width: 170px;
+-+  font-weight: normal;
+-+  text-align: left;
+-+`;
+-+
+-+const FilterSelect = styled.select<{ theme?: SupersetTheme }>`
+-+  padding: 3px 6px;
+-+  font-size: 11px;
+-+  border-radius: 4px;
+-+  border: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorder};
+-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorBgContainer};
+-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorText};
+-+`;
+-+
+-+const FilterInput = styled.input<{ theme?: SupersetTheme }>`
+-+  padding: 3px 6px;
+-+  font-size: 11px;
+-+  border-radius: 4px;
+-+  border: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorder};
+-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorBgContainer};
+-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorText};
+-+  width: 100%;
+-+  box-sizing: border-box;
+-+`;
+-+
+-+const FilterActions = styled.div`
+-+  display: flex;
+-+  justify-content: flex-end;
+-+  gap: 4px;
+-+  margin-top: 4px;
+-+`;
+-+
+-+const TableRow = styled.tr<{ theme?: SupersetTheme }>`
+-+  &:nth-of-type(even) {
+-+    background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorFillAlter};
+-+  }
+-+  &:hover {
+-+    background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorFillTertiary};
+-+  }
+-+`;
+-+
+-+const Cell = styled.td<{ width?: number; isMetric?: boolean; theme?: SupersetTheme }>`
+-+  padding: 6px 10px;
+-+  border-bottom: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorderSecondary};
+-+  text-align: ${({ isMetric }: { isMetric?: boolean }) => (isMetric ? 'right' : 'left')};
+-+  white-space: nowrap;
+-+  overflow: hidden;
+-+  text-overflow: ellipsis;
+-+  width: ${({ width }: { width?: number }) => (width ? `${width}px` : 'auto')};
+-+  min-width: 60px;
+-+  box-sizing: border-box;
+-+`;
+-+
+-+const PaginationFooter = styled.div<{ theme?: SupersetTheme }>`
+-+  display: flex;
+-+  align-items: center;
+-+  justify-content: space-between;
+-+  padding: 6px 12px;
+-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorFillAlter};
+-+  border-top: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorderSecondary};
+-+  font-size: 12px;
+-+  flex-shrink: 0;
+-+  gap: 12px;
+-+`;
+-+
+-+const PaginationInfo = styled.span<{ theme?: SupersetTheme }>`
+-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorTextSecondary};
+-+  font-size: 11px;
+-+`;
+-+
+-+const PaginationControls = styled.div`
+-+  display: flex;
+-+  align-items: center;
+-+  gap: 6px;
+-+`;
+-+
+-+const PageSizeSelect = styled.select<{ theme?: SupersetTheme }>`
+-+  padding: 2px 6px;
+-+  font-size: 11px;
+-+  border-radius: 4px;
+-+  border: 1px solid ${({ theme }: { theme: SupersetTheme }) => theme.colorBorder};
+-+  background-color: ${({ theme }: { theme: SupersetTheme }) => theme.colorBgContainer};
+-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorText};
+-+`;
+-+
+-+const EmptyStateContainer = styled.div<{ theme?: SupersetTheme }>`
+-+  display: flex;
+-+  flex-direction: column;
+-+  align-items: center;
+-+  justify-content: center;
+-+  height: 100%;
+-+  padding: 24px;
+-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorTextSecondary};
+-+  font-size: 13px;
+-+`;
+-+
+-+const LoadingStateContainer = styled.div<{ theme?: SupersetTheme }>`
+-+  display: flex;
+-+  align-items: center;
+-+  justify-content: center;
+-+  height: 100%;
+-+  font-size: 13px;
+-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorTextSecondary};
+-+`;
+-+
+-+const ErrorStateContainer = styled.div<{ theme?: SupersetTheme }>`
+-+  display: flex;
+-+  align-items: center;
+-+  justify-content: center;
+-+  height: 100%;
+-+  padding: 16px;
+-+  color: ${({ theme }: { theme: SupersetTheme }) => theme.colorError};
+-+  font-size: 13px;
+-+`;
+-+
+-+// ============================================================================
+-+// MAIN COMPONENT
+-+// ============================================================================
+-+
+-+export const EnterpriseTableChart: React.FC<EnterpriseTableTransformedProps> = ({
+-+  data,
+-+  columns,
+-+  width,
+-+  height,
+-+  isLoading = false,
+-+  errorMessage,
+-+  pageSize: initialPageSize = 20,
+-+  includeSearch = true,
+-+  enableColumnSort = true,
+-+  enableColumnResize = true,
+-+  enableColumnReorder = true,
+-+  enableColumnFilters = true,
+-+}) => {
+-+  // --- 1. State ---
+-+  const [searchTerm, setSearchTerm] = useState<string>('');
+-+  const [sortConfig, setSortConfig] = useState<ColumnSortItem[]>([]);
+-+  const [columnOrder, setColumnOrder] = useState<string[]>([]);
+-+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
+-+  const [columnFilters, setColumnFilters] = useState<Record<string, ColumnFilter>>({});
+-+  const [activeFilterPopover, setActiveFilterPopover] = useState<string | null>(null);
+-+  const [currentPage, setCurrentPage] = useState<number>(0);
+-+  const [pageSize, setPageSize] = useState<number>(initialPageSize);
+-+
+-+  // Initialize and synchronize column order when columns change
+-+  useEffect(() => {
+-+    const colKeys = columns.map(c => c.key);
+-+    setColumnOrder(prev => {
+-+      if (prev.length === 0 || !colKeys.every(k => prev.includes(k))) {
+-+        return colKeys;
+-+      }
+-+      return prev;
+-+    });
+-+  }, [columns]);
+-+
+-+  // Order columns according to columnOrder state
+-+  const orderedColumns = useMemo(() => {
+-+    if (columnOrder.length === 0) return columns;
+-+    const colMap = new Map(columns.map(c => [c.key, c]));
+-+    const result: typeof columns = [];
+-+    columnOrder.forEach(k => {
+-+      const col = colMap.get(k);
+-+      if (col) result.push(col);
+-+    });
+-+    // Add any newly added columns that might not be in columnOrder yet
+-+    columns.forEach(col => {
+-+      if (!result.some(c => c.key === col.key)) {
+-+        result.push(col);
+-+      }
+-+    });
+-+    return result;
+-+  }, [columns, columnOrder]);
+-+
+-+  // --- 2. Multi-Column Sorting Logic ---
+-+  const handleSort = useCallback(
+-+    (colKey: string, isShiftPressed: boolean) => {
+-+      if (!enableColumnSort) return;
+-+      setSortConfig(prevSorts => {
+-+        const existingIndex = prevSorts.findIndex(s => s.key === colKey);
+-+        if (isShiftPressed) {
+-+          // Multi-sort: cycle through asc -> desc -> remove
+-+          if (existingIndex === -1) {
+-+            return [...prevSorts, { key: colKey, direction: 'asc' }];
+-+          }
+-+          const existing = prevSorts[existingIndex];
+-+          if (existing.direction === 'asc') {
+-+            const next = [...prevSorts];
+-+            next[existingIndex] = { key: colKey, direction: 'desc' };
+-+            return next;
+-+          }
+-+          // Remove from multi-sort
+-+          return prevSorts.filter(s => s.key !== colKey);
+-+        }
+-+
+-+        // Single sort:
+-+        if (existingIndex !== -1 && prevSorts.length === 1) {
+-+          const existing = prevSorts[0];
+-+          if (existing.direction === 'asc') {
+-+            return [{ key: colKey, direction: 'desc' }];
+-+          }
+-+          return [];
+-+        }
+-+        return [{ key: colKey, direction: 'asc' }];
+-+      });
+-+      setCurrentPage(0);
+-+    },
+-+    [enableColumnSort],
+-+  );
+-+
+-+  // --- 3. Column Reorder Logic ---
+-+  const handleMoveColumn = useCallback(
+-+    (colKey: string, direction: 'left' | 'right') => {
+-+      if (!enableColumnReorder) return;
+-+      setColumnOrder(prevOrder => {
+-+        const currentIndex = prevOrder.indexOf(colKey);
+-+        if (currentIndex === -1) return prevOrder;
+-+        const targetIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
+-+        if (targetIndex < 0 || targetIndex >= prevOrder.length) return prevOrder;
+-+
+-+        const newOrder = [...prevOrder];
+-+        const temp = newOrder[currentIndex];
+-+        newOrder[currentIndex] = newOrder[targetIndex];
+-+        newOrder[targetIndex] = temp;
+-+        return newOrder;
+-+      });
+-+    },
+-+    [enableColumnReorder],
+-+  );
+-+
+-+  // --- 4. Column Resizing Logic ---
+-+  const handleResizeMouseDown = useCallback(
+-+    (colKey: string, e: ReactMouseEvent) => {
+-+      if (!enableColumnResize) return;
+-+      e.preventDefault();
+-+      e.stopPropagation();
+-+
+-+      const startX = e.clientX;
+-+      const startWidth = columnWidths[colKey] || 120;
+-+
+-+      const handleMouseMove = (moveEvent: MouseEvent) => {
+-+        const delta = moveEvent.clientX - startX;
+-+        const newWidth = Math.max(60, Math.min(800, startWidth + delta));
+-+        setColumnWidths(prev => ({
+-+          ...prev,
+-+          [colKey]: newWidth,
+-+        }));
+-+      };
+-+
+-+      const handleMouseUp = () => {
+-+        window.removeEventListener('mousemove', handleMouseMove);
+-+        window.removeEventListener('mouseup', handleMouseUp);
+-+      };
+-+
+-+      window.addEventListener('mousemove', handleMouseMove);
+-+      window.addEventListener('mouseup', handleMouseUp);
+-+    },
+-+    [columnWidths, enableColumnResize],
+-+  );
+-+
+-+  // --- 5. Column Filtering Logic ---
+-+  const handleSetColumnFilter = useCallback(
+-+    (colKey: string, operator: FilterOperator, value: string, secondaryValue?: string) => {
+-+      setColumnFilters(prev => ({
+-+        ...prev,
+-+        [colKey]: { key: colKey, operator, value, secondaryValue },
+-+      }));
+-+      setCurrentPage(0);
+-+    },
+-+    [],
+-+  );
+-+
+-+  const handleClearColumnFilter = useCallback((colKey: string) => {
+-+    setColumnFilters(prev => {
+-+      const next = { ...prev };
+-+      delete next[colKey];
+-+      return next;
+-+    });
+-+    setCurrentPage(0);
+-+  }, []);
+-+
+-+  const handleResetAll = useCallback(() => {
+-+    setSearchTerm('');
+-+    setSortConfig([]);
+-+    setColumnFilters({});
+-+    setColumnOrder(columns.map(c => c.key));
+-+    setCurrentPage(0);
+-+  }, [columns]);
+-+
+-+  // --- 6. Data Filtering & Sorting Pipeline ---
+-+  const processedData = useMemo(() => {
+-+    let result = [...data];
+-+
+-+    // A. Global Substring Search Filter
+-+    if (searchTerm.trim()) {
+-+      const lower = searchTerm.toLowerCase();
+-+      result = result.filter(row =>
+-+        Object.values(row).some(
+-+          val => val !== null && val !== undefined && String(val).toLowerCase().includes(lower),
+-+        ),
+-+      );
+-+    }
+-+
+-+    // B. Per-Column Filters
+-+    Object.values(columnFilters).forEach(filter => {
+-+      if (!filter.value && filter.operator !== 'between') return;
+-+
+-+      result = result.filter(row => {
+-+        const rawVal = row[filter.key];
+-+        if (rawVal === null || rawVal === undefined) return false;
+-+
+-+        const valStr = String(rawVal).toLowerCase();
+-+        const filterValStr = String(filter.value).toLowerCase();
+-+
+-+        switch (filter.operator) {
+-+          case 'contains':
+-+            return valStr.includes(filterValStr);
+-+          case 'equals':
+-+            if (typeof rawVal === 'number') {
+-+              return Number(rawVal) === Number(filter.value);
+-+            }
+-+            return valStr === filterValStr;
+-+          case 'startsWith':
+-+            return valStr.startsWith(filterValStr);
+-+          case 'greaterThan':
+-+            return Number(rawVal) > Number(filter.value);
+-+          case 'lessThan':
+-+            return Number(rawVal) < Number(filter.value);
+-+          case 'between': {
+-+            const num = Number(rawVal);
+-+            const min = Number(filter.value);
+-+            const max = Number(filter.secondaryValue ?? filter.value);
+-+            return num >= min && num <= max;
+-+          }
+-+          default:
+-+            return true;
+-+        }
+-+      });
+-+    });
+-+
+-+    // C. Multi-Column Sorting
+-+    if (sortConfig.length > 0) {
+-+      result.sort((a, b) => {
+-+        for (const sort of sortConfig) {
+-+          const valA = a[sort.key];
+-+          const valB = b[sort.key];
+-+
+-+          if (valA === valB) continue;
+-+          if (valA === null || valA === undefined) return 1;
+-+          if (valB === null || valB === undefined) return -1;
+-+
+-+          let comp = 0;
+-+          if (typeof valA === 'number' && typeof valB === 'number') {
+-+            comp = valA - valB;
+-+          } else {
+-+            comp = String(valA).localeCompare(String(valB));
+-+          }
+-+
+-+          if (comp !== 0) {
+-+            return sort.direction === 'asc' ? comp : -comp;
+-+          }
+-+        }
+-+        return 0;
+-+      });
+-+    }
+-+
+-+    return result;
+-+  }, [data, searchTerm, columnFilters, sortConfig]);
+-+
+-+  // --- 7. Pagination Slicing ---
+-+  const totalEntries = processedData.length;
+-+  const totalPages = Math.ceil(totalEntries / pageSize) || 1;
+-+  const safeCurrentPage = Math.min(currentPage, totalPages - 1);
+-+
+-+  const paginatedData = useMemo(() => {
+-+    const start = safeCurrentPage * pageSize;
+-+    return processedData.slice(start, start + pageSize);
+-+  }, [processedData, safeCurrentPage, pageSize]);
+-+
+-+  const hasActiveCustomizations =
+-+    searchTerm !== '' ||
+-+    sortConfig.length > 0 ||
+-+    Object.keys(columnFilters).length > 0;
+-+
+-+  // --- 8. Render States ---
+-+  if (isLoading) {
+-+    return (
+-+      <Container width={width} height={height} data-test="enterprise-table-loading">
+-+        <LoadingStateContainer>{t('Loading Enterprise Table...')}</LoadingStateContainer>
+-+      </Container>
+-+    );
+-+  }
+-+
+-+  if (errorMessage) {
+-+    return (
+-+      <Container width={width} height={height} data-test="enterprise-table-error">
+-+        <ErrorStateContainer>{errorMessage}</ErrorStateContainer>
+-+      </Container>
+-+    );
+-+  }
+-+
+-+  if (!data || data.length === 0 || columns.length === 0) {
+-+    return (
+-+      <Container width={width} height={height} data-test="enterprise-table-empty">
+-+        <EmptyStateContainer>{t('No data records available')}</EmptyStateContainer>
+-+      </Container>
+-+    );
+-+  }
+-+
+-+  return (
+-+    <Container width={width} height={height} data-test="enterprise-table-container">
+-+      {/* Top Header Controls Bar */}
+-+      <HeaderBar>
+-+        <TitleContainer>
+-+          <Title>{t('Enterprise Interactive Table')}</Title>
+-+          <Badge>Phase 3 MVP</Badge>
+-+          <Badge>{t('%s rows', totalEntries)}</Badge>
+-+        </TitleContainer>
+-+
+-+        <ControlsGroup>
+-+          {includeSearch && (
+-+            <SearchInput
+-+              type="text"
+-+              placeholder={t('Search table...')}
+-+              value={searchTerm}
+-+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+-+                setSearchTerm(e.target.value);
+-+                setCurrentPage(0);
+-+              }}
+-+              data-test="enterprise-table-search"
+-+            />
+-+          )}
+-+          {hasActiveCustomizations && (
+-+            <ActionButton
+-+              onClick={handleResetAll}
+-+              data-test="reset-filters-btn"
+-+              title={t('Reset search, sort, and column filters')}
+-+            >
+-+              {t('Reset Filters')}
+-+            </ActionButton>
+-+          )}
+-+        </ControlsGroup>
+-+      </HeaderBar>
+-+
+-+      {/* Main Grid View */}
+-+      <TableWrapper>
+-+        <StyledTable data-test="enterprise-table-grid">
+-+          <TableHead>
+-+            <tr>
+-+              {orderedColumns.map((col, colIdx) => {
+-+                const sortItem = sortConfig.find(s => s.key === col.key);
+-+                const sortIndex = sortConfig.findIndex(s => s.key === col.key);
+-+                const isFiltered = Boolean(columnFilters[col.key]);
+-+                const isPopoverOpen = activeFilterPopover === col.key;
+-+                const colWidth = columnWidths[col.key];
+-+
+-+                return (
+-+                  <HeaderCell
+-+                    key={col.key}
+-+                    width={colWidth}
+-+                    isMetric={col.isMetric}
+-+                    data-test={`header-${col.key}`}
+-+                  >
+-+                    <HeaderContent isMetric={col.isMetric}>
+-+                      {/* Left/Right Reorder Buttons */}
+-+                      {enableColumnReorder && (
+-+                        <HeaderIcons>
+-+                          <IconButton
+-+                            disabled={colIdx === 0}
+-+                            onClick={() => handleMoveColumn(col.key, 'left')}
+-+                            data-test={`reorder-left-${col.key}`}
+-+                            title={t('Move column left')}
+-+                          >
+-+                            ◀
+-+                          </IconButton>
+-+                          <IconButton
+-+                            disabled={colIdx === orderedColumns.length - 1}
+-+                            onClick={() => handleMoveColumn(col.key, 'right')}
+-+                            data-test={`reorder-right-${col.key}`}
+-+                            title={t('Move column right')}
+-+                          >
+-+                            ▶
+-+                          </IconButton>
+-+                        </HeaderIcons>
+-+                      )}
+-+
+-+                      {/* Header Label and Sort Toggle */}
+-+                      <HeaderLabel
+-+                        onClick={(e: ReactMouseEvent) => handleSort(col.key, e.shiftKey)}
+-+                        data-test={`sort-btn-${col.key}`}
+-+                        title={
+-+                          enableColumnSort
+-+                            ? t('Click to sort, Shift+Click for multi-column sort')
+-+                            : undefined
+-+                        }
+-+                      >
+-+                        {col.label}
+-+                      </HeaderLabel>
+-+
+-+                      {/* Sort Direction Indicator */}
+-+                      {sortItem && (
+-+                        <SortIndicator data-test={`sort-indicator-${col.key}`}>
+-+                          {sortItem.direction === 'asc' ? '▲' : '▼'}
+-+                          {sortConfig.length > 1 && (
+-+                            <SortPriority>{sortIndex + 1}</SortPriority>
+-+                          )}
+-+                        </SortIndicator>
+-+                      )}
+-+
+-+                      {/* Per-Column Filter Button */}
+-+                      {enableColumnFilters && (
+-+                        <IconButton
+-+                          active={isFiltered || isPopoverOpen}
+-+                          onClick={() =>
+-+                            setActiveFilterPopover(isPopoverOpen ? null : col.key)
+-+                          }
+-+                          data-test={`filter-toggle-${col.key}`}
+-+                          title={t('Filter column')}
+-+                        >
+-+                          {isFiltered ? '●' : '🔍'}
+-+                        </IconButton>
+-+                      )}
+-+                    </HeaderContent>
+-+
+-+                    {/* In-Header Filter Popover */}
+-+                    {isPopoverOpen && (
+-+                      <FilterPopover
+-+                        isMetric={col.isMetric}
+-+                        data-test={`filter-popover-${col.key}`}
+-+                      >
+-+                        <FilterSelect
+-+                          value={
+-+                            columnFilters[col.key]?.operator ??
+-+                            (col.isMetric ? 'greaterThan' : 'contains')
+-+                          }
+-+                          onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+-+                            const op = e.target.value as FilterOperator;
+-+                            const currentVal = columnFilters[col.key]?.value ?? '';
+-+                            handleSetColumnFilter(col.key, op, currentVal);
+-+                          }}
+-+                          data-test={`filter-operator-${col.key}`}
+-+                        >
+-+                          {col.isMetric ? (
+-+                            <>
+-+                              <option value="greaterThan">{t('Greater than (> )')}</option>
+-+                              <option value="lessThan">{t('Less than (<)')}</option>
+-+                              <option value="equals">{t('Equals (=)')}</option>
+-+                              <option value="between">{t('Between')}</option>
+-+                            </>
+-+                          ) : (
+-+                            <>
+-+                              <option value="contains">{t('Contains')}</option>
+-+                              <option value="equals">{t('Equals')}</option>
+-+                              <option value="startsWith">{t('Starts with')}</option>
+-+                            </>
+-+                          )}
+-+                        </FilterSelect>
+-+
+-+                        <FilterInput
+-+                          type={col.isMetric ? 'number' : 'text'}
+-+                          placeholder={t('Filter value...')}
+-+                          value={columnFilters[col.key]?.value ?? ''}
+-+                          onChange={(e: ChangeEvent<HTMLInputElement>) => {
+-+                            const currentOp =
+-+                              columnFilters[col.key]?.operator ??
+-+                              (col.isMetric ? 'greaterThan' : 'contains');
+-+                            handleSetColumnFilter(
+-+                              col.key,
+-+                              currentOp,
+-+                              e.target.value,
+-+                              columnFilters[col.key]?.secondaryValue,
+-+                            );
+-+                          }}
+-+                          data-test={`filter-input-${col.key}`}
+-+                        />
+-+
+-+                        {columnFilters[col.key]?.operator === 'between' && (
+-+                          <FilterInput
+-+                            type="number"
+-+                            placeholder={t('Max value...')}
+-+                            value={columnFilters[col.key]?.secondaryValue ?? ''}
+-+                            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+-+                              handleSetColumnFilter(
+-+                                col.key,
+-+                                'between',
+-+                                columnFilters[col.key]?.value ?? '',
+-+                                e.target.value,
+-+                              );
+-+                            }}
+-+                            data-test={`filter-secondary-input-${col.key}`}
+-+                          />
+-+                        )}
+-+
+-+                        <FilterActions>
+-+                          <ActionButton
+-+                            onClick={() => {
+-+                              handleClearColumnFilter(col.key);
+-+                              setActiveFilterPopover(null);
+-+                            }}
+-+                            data-test={`filter-clear-${col.key}`}
+-+                          >
+-+                            {t('Clear')}
+-+                          </ActionButton>
+-+                          <ActionButton
+-+                            active
+-+                            onClick={() => setActiveFilterPopover(null)}
+-+                            data-test={`filter-apply-${col.key}`}
+-+                          >
+-+                            {t('Close')}
+-+                          </ActionButton>
+-+                        </FilterActions>
+-+                      </FilterPopover>
+-+                    )}
+-+
+-+                    {/* Column Resizing Handle */}
+-+                    {enableColumnResize && (
+-+                      <ResizeHandle
+-+                        onMouseDown={(e: ReactMouseEvent) =>
+-+                          handleResizeMouseDown(col.key, e)
+-+                        }
+-+                        data-test={`resize-handle-${col.key}`}
+-+                      />
+-+                    )}
+-+                  </HeaderCell>
+-+                );
+-+              })}
+-+            </tr>
+-+          </TableHead>
+-+          <tbody>
+-+            {paginatedData.map((row: DataRecord, rowIndex: number) => (
+-+              <TableRow key={`row-${rowIndex}`} data-test={`row-${rowIndex}`}>
+-+                {orderedColumns.map(col => {
+-+                  const val = row[col.key];
+-+                  const colWidth = columnWidths[col.key];
+-+                  const displayVal =
+-+                    val === null || val === undefined ? '-' : String(val);
+-+                  return (
+-+                    <Cell
+-+                      key={`cell-${col.key}-${rowIndex}`}
+-+                      width={colWidth}
+-+                      isMetric={col.isMetric}
+-+                      data-test={`cell-${col.key}-${rowIndex}`}
+-+                    >
+-+                      {displayVal}
+-+                    </Cell>
+-+                  );
+-+                })}
+-+              </TableRow>
+-+            ))}
+-+          </tbody>
+-+        </StyledTable>
+-+      </TableWrapper>
+-+
+-+      {/* Bottom Pagination Footer */}
+-+      <PaginationFooter data-test="pagination-footer">
+-+        <PaginationInfo>
+-+          {t(
+-+            'Showing %s to %s of %s entries',
+-+            totalEntries === 0 ? 0 : safeCurrentPage * pageSize + 1,
+-+            Math.min((safeCurrentPage + 1) * pageSize, totalEntries),
+-+            totalEntries,
+-+          )}
+-+          {totalEntries !== data.length && (
+-+            <span> {t('(filtered from %s total entries)', data.length)}</span>
+-+          )}
+-+        </PaginationInfo>
+-+
+-+        <PaginationControls>
+-+          <PageSizeSelect
+-+            value={pageSize}
+-+            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+-+              setPageSize(Number(e.target.value));
+-+              setCurrentPage(0);
+-+            }}
+-+            data-test="page-size-select"
+-+          >
+-+            <option value={10}>10 / page</option>
+-+            <option value={20}>20 / page</option>
+-+            <option value={50}>50 / page</option>
+-+            <option value={100}>100 / page</option>
+-+            <option value={200}>200 / page</option>
+-+          </PageSizeSelect>
+-+
+-+          <ActionButton
+-+            disabled={safeCurrentPage === 0}
+-+            onClick={() => setCurrentPage(0)}
+-+            data-test="page-first"
+-+            title={t('First page')}
+-+          >
+-+            ⏮
+-+          </ActionButton>
+-+          <ActionButton
+-+            disabled={safeCurrentPage === 0}
+-+            onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+-+            data-test="page-prev"
+-+            title={t('Previous page')}
+-+          >
+-+            ◀
+-+          </ActionButton>
+-+
+-+          <span data-test="page-indicator">
+-+            {t('Page %s of %s', safeCurrentPage + 1, totalPages)}
+-+          </span>
+-+
+-+          <ActionButton
+-+            disabled={safeCurrentPage >= totalPages - 1}
+-+            onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+-+            data-test="page-next"
+-+            title={t('Next page')}
+-+          >
+-+            ▶
+-+          </ActionButton>
+-+          <ActionButton
+-+            disabled={safeCurrentPage >= totalPages - 1}
+-+            onClick={() => setCurrentPage(totalPages - 1)}
+-+            data-test="page-last"
+-+            title={t('Last page')}
+-+          >
+-+            ⏭
+-+          </ActionButton>
+-+        </PaginationControls>
+-+      </PaginationFooter>
+-+    </Container>
+-+  );
+-+};
+-+
+-+export default EnterpriseTableChart;
+-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/src/buildQuery.ts b/superset-frontend/plugins/plugin-chart-enterprise-table/src/buildQuery.ts
+-new file mode 100644
+-index 0000000000..0a311ca204
+---- /dev/null
+-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/src/buildQuery.ts
+-@@ -0,0 +1,47 @@
+-+/**
+-+ * Licensed to the Apache Software Foundation (ASF) under one
+-+ * or more contributor license agreements.  See the NOTICE file
+-+ * distributed with this work for additional information
+-+ * regarding copyright ownership.  The ASF licenses this file
+-+ * to you under the Apache License, Version 2.0 (the
+-+ * "License"); you may not use this file except in compliance
+-+ * with the License.  You may obtain a copy of the License at
+-+ *
+-+ *   http://www.apache.org/licenses/LICENSE-2.0
+-+ *
+-+ * Unless required by applicable law or agreed to in writing,
+-+ * software distributed under the License is distributed on an
+-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-+ * KIND, either express or implied.  See the License for the
+-+ * specific language governing permissions and limitations
+-+ * under the License.
+-+ */
+-+
+-+import {
+-+  buildQueryContext,
+-+  BuildQuery,
+-+  ensureIsArray,
+-+  QueryObject,
+-+} from '@superset-ui/core';
+-+import { EnterpriseTableFormData } from './types';
+-+
+-+export const buildQuery: BuildQuery<EnterpriseTableFormData> = (
+-+  formData: EnterpriseTableFormData,
+-+  options?: Parameters<BuildQuery<EnterpriseTableFormData>>[1],
+-+) => {
+-+  return buildQueryContext(formData, (baseQueryObject: QueryObject) => {
+-+    const columns = ensureIsArray(formData.groupby);
+-+    const metrics = ensureIsArray(formData.metrics);
+-+
+-+    const queryObject: QueryObject = {
+-+      ...baseQueryObject,
+-+      columns,
+-+      metrics,
+-+      row_limit: formData.row_limit ?? 100,
+-+    };
+-+
+-+    return [queryObject];
+-+  });
+-+};
+-+
+-+export default buildQuery;
+-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/src/controlPanel.tsx b/superset-frontend/plugins/plugin-chart-enterprise-table/src/controlPanel.tsx
+-new file mode 100644
+-index 0000000000..0bf8afea1d
+---- /dev/null
+-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/src/controlPanel.tsx
+-@@ -0,0 +1,140 @@
+-+/**
+-+ * Licensed to the Apache Software Foundation (ASF) under one
+-+ * or more contributor license agreements.  See the NOTICE file
+-+ * distributed with this work for additional information
+-+ * regarding copyright ownership.  The ASF licenses this file
+-+ * to you under the Apache License, Version 2.0 (the
+-+ * "License"); you may not use this file except in compliance
+-+ * with the License.  You may obtain a copy of the License at
+-+ *
+-+ *   http://www.apache.org/licenses/LICENSE-2.0
+-+ *
+-+ * Unless required by applicable law or agreed to in writing,
+-+ * software distributed under the License is distributed on an
+-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-+ * KIND, either express or implied.  See the License for the
+-+ * specific language governing permissions and limitations
+-+ * under the License.
+-+ */
+-+
+-+import { t } from '@apache-superset/core/translation';
+-+import {
+-+  ControlPanelConfig,
+-+  formatSelectOptions,
+-+  sharedControls,
+-+} from '@superset-ui/chart-controls';
+-+
+-+const PAGE_SIZE_OPTIONS = formatSelectOptions<number>([10, 20, 50, 100, 200]);
+-+
+-+const config: ControlPanelConfig = {
+-+  controlPanelSections: [
+-+    {
+-+      label: t('Query'),
+-+      expanded: true,
+-+      controlSetRows: [
+-+        [
+-+          {
+-+            name: 'groupby',
+-+            config: {
+-+              ...sharedControls.groupby,
+-+              label: t('Dimensions'),
+-+              description: t('Select one or more dimension columns to group by'),
+-+            },
+-+          },
+-+        ],
+-+        [
+-+          {
+-+            name: 'metrics',
+-+            config: {
+-+              ...sharedControls.metrics,
+-+              label: t('Metrics'),
+-+              description: t('Select one or more metric aggregations'),
+-+            },
+-+          },
+-+        ],
+-+        ['adhoc_filters'],
+-+        [
+-+          {
+-+            name: 'row_limit',
+-+            config: sharedControls.row_limit,
+-+          },
+-+        ],
+-+      ],
+-+    },
+-+    {
+-+      label: t('Table Options'),
+-+      expanded: true,
+-+      controlSetRows: [
+-+        [
+-+          {
+-+            name: 'page_size',
+-+            config: {
+-+              type: 'SelectControl',
+-+              label: t('Page size'),
+-+              default: 20,
+-+              choices: PAGE_SIZE_OPTIONS,
+-+              description: t('Number of rows displayed per page'),
+-+            },
+-+          },
+-+        ],
+-+        [
+-+          {
+-+            name: 'include_search',
+-+            config: {
+-+              type: 'CheckboxControl',
+-+              label: t('Search box'),
+-+              default: true,
+-+              description: t('Show quick text filter search input above table'),
+-+            },
+-+          },
+-+        ],
+-+        [
+-+          {
+-+            name: 'enable_column_sort',
+-+            config: {
+-+              type: 'CheckboxControl',
+-+              label: t('Enable sorting'),
+-+              default: true,
+-+              description: t('Allow interactive single and multi-column sorting'),
+-+            },
+-+          },
+-+        ],
+-+        [
+-+          {
+-+            name: 'enable_column_resize',
+-+            config: {
+-+              type: 'CheckboxControl',
+-+              label: t('Enable resizing'),
+-+              default: true,
+-+              description: t('Allow interactive column width resizing'),
+-+            },
+-+          },
+-+        ],
+-+        [
+-+          {
+-+            name: 'enable_column_reorder',
+-+            config: {
+-+              type: 'CheckboxControl',
+-+              label: t('Enable reordering'),
+-+              default: true,
+-+              description: t('Allow interactive column reordering'),
+-+            },
+-+          },
+-+        ],
+-+        [
+-+          {
+-+            name: 'enable_column_filters',
+-+            config: {
+-+              type: 'CheckboxControl',
+-+              label: t('Enable column filters'),
+-+              default: true,
+-+              description: t('Show per-column text and numeric filter popovers'),
+-+            },
+-+          },
+-+        ],
+-+      ],
+-+    },
+-+  ],
+-+};
+-+
+-+export default config;
+-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/src/images/thumbnail-dark.png b/superset-frontend/plugins/plugin-chart-enterprise-table/src/images/thumbnail-dark.png
+-new file mode 100644
+-index 0000000000..919eaa2118
+-Binary files /dev/null and b/superset-frontend/plugins/plugin-chart-enterprise-table/src/images/thumbnail-dark.png differ
+-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/src/images/thumbnail.png b/superset-frontend/plugins/plugin-chart-enterprise-table/src/images/thumbnail.png
+-new file mode 100644
+-index 0000000000..296702c954
+-Binary files /dev/null and b/superset-frontend/plugins/plugin-chart-enterprise-table/src/images/thumbnail.png differ
+-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/src/index.ts b/superset-frontend/plugins/plugin-chart-enterprise-table/src/index.ts
+-new file mode 100644
+-index 0000000000..9fe934208a
+---- /dev/null
+-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/src/index.ts
+-@@ -0,0 +1,67 @@
+-+/**
+-+ * Licensed to the Apache Software Foundation (ASF) under one
+-+ * or more contributor license agreements.  See the NOTICE file
+-+ * distributed with this work for additional information
+-+ * regarding copyright ownership.  The ASF licenses this file
+-+ * to you under the Apache License, Version 2.0 (the
+-+ * "License"); you may not use this file except in compliance
+-+ * with the License.  You may obtain a copy of the License at
+-+ *
+-+ *   http://www.apache.org/licenses/LICENSE-2.0
+-+ *
+-+ * Unless required by applicable law or agreed to in writing,
+-+ * software distributed under the License is distributed on an
+-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-+ * KIND, either express or implied.  See the License for the
+-+ * specific language governing permissions and limitations
+-+ * under the License.
+-+ */
+-+
+-+import { t } from '@apache-superset/core/translation';
+-+import { Behavior, ChartMetadata, ChartPlugin } from '@superset-ui/core';
+-+import transformProps from './transformProps';
+-+import thumbnail from './images/thumbnail.png';
+-+import thumbnailDark from './images/thumbnail-dark.png';
+-+import controlPanel from './controlPanel';
+-+import buildQuery from './buildQuery';
+-+import { EnterpriseTableFormData, EnterpriseTableProps } from './types';
+-+
+-+export * from './types';
+-+
+-+const metadata = new ChartMetadata({
+-+  behaviors: [
+-+    Behavior.InteractiveChart,
+-+    Behavior.DrillToDetail,
+-+    Behavior.DrillBy,
+-+  ],
+-+  category: t('Table'),
+-+  description: t(
+-+    'Enterprise interactive table with rich formatting, client and server-side controls, and high-performance dataset rendering.',
+-+  ),
+-+  name: t('Enterprise Interactive Table'),
+-+  tags: [
+-+    t('Table'),
+-+    t('Enterprise'),
+-+    t('Interactive'),
+-+    t('Preset-like'),
+-+  ],
+-+  thumbnail,
+-+  thumbnailDark,
+-+});
+-+
+-+export class EnterpriseTableChartPlugin extends ChartPlugin<
+-+  EnterpriseTableFormData,
+-+  EnterpriseTableProps
+-+> {
+-+  constructor() {
+-+    super({
+-+      buildQuery,
+-+      controlPanel,
+-+      loadChart: () => import('./EnterpriseTableChart'),
+-+      metadata,
+-+      transformProps,
+-+    });
+-+  }
+-+}
+-+
+-+export default EnterpriseTableChartPlugin;
+-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/src/transformProps.ts b/superset-frontend/plugins/plugin-chart-enterprise-table/src/transformProps.ts
+-new file mode 100644
+-index 0000000000..cc3b8a1f8d
+---- /dev/null
+-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/src/transformProps.ts
+-@@ -0,0 +1,73 @@
+-+/**
+-+ * Licensed to the Apache Software Foundation (ASF) under one
+-+ * or more contributor license agreements.  See the NOTICE file
+-+ * distributed with this work for additional information
+-+ * regarding copyright ownership.  The ASF licenses this file
+-+ * to you under the Apache License, Version 2.0 (the
+-+ * "License"); you may not use this file except in compliance
+-+ * with the License.  You may obtain a copy of the License at
+-+ *
+-+ *   http://www.apache.org/licenses/LICENSE-2.0
+-+ *
+-+ * Unless required by applicable law or agreed to in writing,
+-+ * software distributed under the License is distributed on an
+-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-+ * KIND, either express or implied.  See the License for the
+-+ * specific language governing permissions and limitations
+-+ * under the License.
+-+ */
+-+
+-+import {
+-+  ChartProps,
+-+  DataRecord,
+-+  getColumnLabel,
+-+  getMetricLabel,
+-+} from '@superset-ui/core';
+-+import {
+-+  EnterpriseTableColumn,
+-+  EnterpriseTableFormData,
+-+  EnterpriseTableTransformedProps,
+-+} from './types';
+-+
+-+export function transformProps(chartProps: ChartProps): EnterpriseTableTransformedProps {
+-+  const { width, height, formData, rawFormData, queriesData } = chartProps;
+-+  const typedFormData = (rawFormData ?? formData) as EnterpriseTableFormData;
+-+
+-+  const data: DataRecord[] = (queriesData[0]?.data as DataRecord[]) ?? [];
+-+  const colnames: string[] = queriesData[0]?.colnames ?? [];
+-+
+-+  const metricLabels = new Set(
+-+    (typedFormData.metrics ?? []).map(m => getMetricLabel(m)),
+-+  );
+-+
+-+  const columns: EnterpriseTableColumn[] = colnames.map(colName => {
+-+    const isMetric = metricLabels.has(colName);
+-+    const sampleVal = data.find(
+-+      row => row[colName] !== null && row[colName] !== undefined,
+-+    )?.[colName];
+-+    const isNumeric = isMetric || typeof sampleVal === 'number';
+-+
+-+    return {
+-+      key: colName,
+-+      label: getColumnLabel(colName),
+-+      isMetric,
+-+      dataType: isNumeric ? 'number' : 'string',
+-+    };
+-+  });
+-+
+-+  return {
+-+    data,
+-+    columns,
+-+    width,
+-+    height,
+-+    pageSize: typedFormData.page_size ?? 20,
+-+    includeSearch: Boolean(typedFormData.include_search),
+-+    enableColumnSort: typedFormData.enable_column_sort !== false,
+-+    enableColumnResize: typedFormData.enable_column_resize !== false,
+-+    enableColumnReorder: typedFormData.enable_column_reorder !== false,
+-+    enableColumnFilters: typedFormData.enable_column_filters !== false,
+-+    rawFormData: typedFormData,
+-+  };
+-+}
+-+
+-+export default transformProps;
+-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/src/types.ts b/superset-frontend/plugins/plugin-chart-enterprise-table/src/types.ts
+-new file mode 100644
+-index 0000000000..6783e8bdb8
+---- /dev/null
+-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/src/types.ts
+-@@ -0,0 +1,91 @@
+-+/**
+-+ * Licensed to the Apache Software Foundation (ASF) under one
+-+ * or more contributor license agreements.  See the NOTICE file
+-+ * distributed with this work for additional information
+-+ * regarding copyright ownership.  The ASF licenses this file
+-+ * to you under the Apache License, Version 2.0 (the
+-+ * "License"); you may not use this file except in compliance
+-+ * with the License.  You may obtain a copy of the License at
+-+ *
+-+ *   http://www.apache.org/licenses/LICENSE-2.0
+-+ *
+-+ * Unless required by applicable law or agreed to in writing,
+-+ * software distributed under the License is distributed on an
+-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-+ * KIND, either express or implied.  See the License for the
+-+ * specific language governing permissions and limitations
+-+ * under the License.
+-+ */
+-+
+-+import {
+-+  ChartProps,
+-+  DataRecord,
+-+  DataRecordValue,
+-+  QueryFormData,
+-+  QueryFormColumn,
+-+  QueryFormMetric,
+-+  JsonObject,
+-+} from '@superset-ui/core';
+-+
+-+export type SortDirection = 'asc' | 'desc';
+-+
+-+export interface ColumnSortItem {
+-+  key: string;
+-+  direction: SortDirection;
+-+}
+-+
+-+export type FilterOperator =
+-+  | 'contains'
+-+  | 'equals'
+-+  | 'startsWith'
+-+  | 'greaterThan'
+-+  | 'lessThan'
+-+  | 'between';
+-+
+-+export interface ColumnFilter {
+-+  key: string;
+-+  operator: FilterOperator;
+-+  value: string;
+-+  secondaryValue?: string;
+-+}
+-+
+-+export interface EnterpriseTableFormData extends QueryFormData {
+-+  groupby?: QueryFormColumn[];
+-+  metrics?: QueryFormMetric[];
+-+  row_limit?: number;
+-+  include_search?: boolean;
+-+  page_size?: number;
+-+  enable_column_sort?: boolean;
+-+  enable_column_resize?: boolean;
+-+  enable_column_reorder?: boolean;
+-+  enable_column_filters?: boolean;
+-+  table_timestamp_format?: string;
+-+}
+-+
+-+export interface EnterpriseTableColumn {
+-+  key: string;
+-+  label: string;
+-+  isMetric?: boolean;
+-+  dataType?: 'string' | 'number' | 'boolean' | 'date';
+-+  formatter?: (value: DataRecordValue) => string;
+-+}
+-+
+-+export interface EnterpriseTableTransformedProps {
+-+  data: DataRecord[];
+-+  columns: EnterpriseTableColumn[];
+-+  width: number;
+-+  height: number;
+-+  isLoading?: boolean;
+-+  errorMessage?: string;
+-+  pageSize: number;
+-+  includeSearch: boolean;
+-+  enableColumnSort: boolean;
+-+  enableColumnResize: boolean;
+-+  enableColumnReorder: boolean;
+-+  enableColumnFilters: boolean;
+-+  rawFormData: JsonObject;
+-+}
+-+
+-+export type EnterpriseTableProps = ChartProps & {
+-+  formData: EnterpriseTableFormData;
+-+};
+-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/test/EnterpriseTableChart.test.tsx b/superset-frontend/plugins/plugin-chart-enterprise-table/test/EnterpriseTableChart.test.tsx
+-new file mode 100644
+-index 0000000000..ca1c732381
+---- /dev/null
+-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/test/EnterpriseTableChart.test.tsx
+-@@ -0,0 +1,222 @@
+-+/**
+-+ * Licensed to the Apache Software Foundation (ASF) under one
+-+ * or more contributor license agreements.  See the NOTICE file
+-+ * distributed with this work for additional information
+-+ * regarding copyright ownership.  The ASF licenses this file
+-+ * to you under the Apache License, Version 2.0 (the
+-+ * "License"); you may not use this file except in compliance
+-+ * with the License.  You may obtain a copy of the License at
+-+ *
+-+ *   http://www.apache.org/licenses/LICENSE-2.0
+-+ *
+-+ * Unless required by applicable law or agreed to in writing,
+-+ * software distributed under the License is distributed on an
+-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-+ * KIND, either express or implied.  See the License for the
+-+ * specific language governing permissions and limitations
+-+ * under the License.
+-+ */
+-+
+-+import React from 'react';
+-+import { render, screen, fireEvent } from '@testing-library/react';
+-+import '@testing-library/jest-dom';
+-+import { EnterpriseTableChart } from '../src/EnterpriseTableChart';
+-+import { EnterpriseTableTransformedProps } from '../src/types';
+-+
+-+const defaultProps: EnterpriseTableTransformedProps = {
+-+  data: [
+-+    { region: 'North America', sales: 100, profit: 20 },
+-+    { region: 'EMEA', sales: 200, profit: 50 },
+-+    { region: 'APAC', sales: 150, profit: 30 },
+-+    { region: 'LATAM', sales: 80, profit: 15 },
+-+  ],
+-+  columns: [
+-+    { key: 'region', label: 'Region', isMetric: false, dataType: 'string' },
+-+    { key: 'sales', label: 'Sales', isMetric: true, dataType: 'number' },
+-+    { key: 'profit', label: 'Profit', isMetric: true, dataType: 'number' },
+-+  ],
+-+  width: 800,
+-+  height: 600,
+-+  pageSize: 2,
+-+  includeSearch: true,
+-+  enableColumnSort: true,
+-+  enableColumnResize: true,
+-+  enableColumnReorder: true,
+-+  enableColumnFilters: true,
+-+  rawFormData: {},
+-+};
+-+
+-+test('renders empty state when data array is empty', () => {
+-+  render(<EnterpriseTableChart {...defaultProps} data={[]} />);
+-+  expect(screen.getByTestId('enterprise-table-empty')).toBeInTheDocument();
+-+  expect(screen.getByText('No data records available')).toBeInTheDocument();
+-+});
+-+
+-+test('renders loading state when isLoading is true', () => {
+-+  render(<EnterpriseTableChart {...defaultProps} isLoading />);
+-+  expect(screen.getByTestId('enterprise-table-loading')).toBeInTheDocument();
+-+  expect(screen.getByText('Loading Enterprise Table...')).toBeInTheDocument();
+-+});
+-+
+-+test('renders error state when errorMessage is provided', () => {
+-+  render(
+-+    <EnterpriseTableChart
+-+      {...defaultProps}
+-+      errorMessage="Failed to fetch query data"
+-+    />,
+-+  );
+-+  expect(screen.getByTestId('enterprise-table-error')).toBeInTheDocument();
+-+  expect(screen.getByText('Failed to fetch query data')).toBeInTheDocument();
+-+});
+-+
+-+test('renders table headers and data rows correctly with pagination', () => {
+-+  render(<EnterpriseTableChart {...defaultProps} />);
+-+  expect(screen.getByTestId('enterprise-table-container')).toBeInTheDocument();
+-+  expect(screen.getByTestId('enterprise-table-grid')).toBeInTheDocument();
+-+  expect(screen.getByTestId('header-region')).toHaveTextContent('Region');
+-+  expect(screen.getByTestId('header-sales')).toHaveTextContent('Sales');
+-+  expect(screen.getByTestId('header-profit')).toHaveTextContent('Profit');
+-+
+-+  // Since pageSize=2, first page displays 2 rows
+-+  expect(screen.getByTestId('row-0')).toBeInTheDocument();
+-+  expect(screen.getByTestId('row-1')).toBeInTheDocument();
+-+  expect(screen.queryByTestId('row-2')).not.toBeInTheDocument();
+-+});
+-+
+-+test('supports single column sorting and multi-column sorting', () => {
+-+  render(<EnterpriseTableChart {...defaultProps} pageSize={10} />);
+-+
+-+  const regionSortBtn = screen.getByTestId('sort-btn-region');
+-+  const salesSortBtn = screen.getByTestId('sort-btn-sales');
+-+
+-+  // 1. Single click on Region -> Sorts Region ASC (APAC, EMEA, LATAM, North America)
+-+  fireEvent.click(regionSortBtn);
+-+  expect(screen.getByTestId('sort-indicator-region')).toHaveTextContent('▲');
+-+  expect(screen.getByTestId('cell-region-0')).toHaveTextContent('APAC');
+-+
+-+  // 2. Click Region again -> Sorts Region DESC (North America, LATAM, EMEA, APAC)
+-+  fireEvent.click(regionSortBtn);
+-+  expect(screen.getByTestId('sort-indicator-region')).toHaveTextContent('▼');
+-+  expect(screen.getByTestId('cell-region-0')).toHaveTextContent('North America');
+-+
+-+  // 3. Shift+Click Sales -> Adds multi-sort: Region DESC + Sales ASC
+-+  fireEvent.click(salesSortBtn, { shiftKey: true });
+-+  expect(screen.getByTestId('sort-indicator-region')).toHaveTextContent('▼');
+-+  expect(screen.getByTestId('sort-indicator-sales')).toHaveTextContent('▲');
+-+});
+-+
+-+test('supports column reordering with left/right buttons', () => {
+-+  render(<EnterpriseTableChart {...defaultProps} />);
+-+
+-+  // Initial order: Region, Sales, Profit
+-+  const reorderRightRegion = screen.getByTestId('reorder-right-region');
+-+  fireEvent.click(reorderRightRegion);
+-+
+-+  // After moving Region right, new order is: Sales, Region, Profit
+-+  const headers = screen.getAllByRole('columnheader');
+-+  expect(headers[0]).toHaveAttribute('data-test', 'header-sales');
+-+  expect(headers[1]).toHaveAttribute('data-test', 'header-region');
+-+  expect(headers[2]).toHaveAttribute('data-test', 'header-profit');
+-+});
+-+
+-+test('supports column resizing drag handle interaction', () => {
+-+  render(<EnterpriseTableChart {...defaultProps} />);
+-+  const resizeHandle = screen.getByTestId('resize-handle-region');
+-+  expect(resizeHandle).toBeInTheDocument();
+-+
+-+  // Test mouse down event on resize handle
+-+  fireEvent.mouseDown(resizeHandle, { clientX: 100 });
+-+});
+-+
+-+test('filters rows with per-column text filter', () => {
+-+  render(<EnterpriseTableChart {...defaultProps} pageSize={10} />);
+-+
+-+  // Open filter popover on Region column
+-+  const filterToggle = screen.getByTestId('filter-toggle-region');
+-+  fireEvent.click(filterToggle);
+-+  expect(screen.getByTestId('filter-popover-region')).toBeInTheDocument();
+-+
+-+  // Type filter value "North"
+-+  const filterInput = screen.getByTestId('filter-input-region');
+-+  fireEvent.change(filterInput, { target: { value: 'North' } });
+-+
+-+  // Only North America should be visible
+-+  expect(screen.getByTestId('cell-region-0')).toHaveTextContent('North America');
+-+  expect(screen.queryByTestId('row-1')).not.toBeInTheDocument();
+-+
+-+  // Clear filter
+-+  const clearBtn = screen.getByTestId('filter-clear-region');
+-+  fireEvent.click(clearBtn);
+-+  expect(screen.getByTestId('row-1')).toBeInTheDocument();
+-+});
+-+
+-+test('filters rows with per-column numeric filter', () => {
+-+  render(<EnterpriseTableChart {...defaultProps} pageSize={10} />);
+-+
+-+  // Open filter popover on Sales column
+-+  const filterToggle = screen.getByTestId('filter-toggle-sales');
+-+  fireEvent.click(filterToggle);
+-+
+-+  // Set operator to greaterThan and value to 120
+-+  const operatorSelect = screen.getByTestId('filter-operator-sales');
+-+  fireEvent.change(operatorSelect, { target: { value: 'greaterThan' } });
+-+
+-+  const filterInput = screen.getByTestId('filter-input-sales');
+-+  fireEvent.change(filterInput, { target: { value: '120' } });
+-+
+-+  // Should display EMEA (200) and APAC (150)
+-+  expect(screen.getByTestId('cell-region-0')).toHaveTextContent('EMEA');
+-+  expect(screen.getByTestId('cell-region-1')).toHaveTextContent('APAC');
+-+  expect(screen.queryByTestId('row-2')).not.toBeInTheDocument();
+-+});
+-+
+-+test('filters rows when global search term is entered', () => {
+-+  render(<EnterpriseTableChart {...defaultProps} pageSize={10} />);
+-+  const searchInput = screen.getByTestId('enterprise-table-search');
+-+  fireEvent.change(searchInput, { target: { value: 'latam' } });
+-+
+-+  expect(screen.getByTestId('cell-region-0')).toHaveTextContent('LATAM');
+-+  expect(screen.queryByTestId('row-1')).not.toBeInTheDocument();
+-+});
+-+
+-+test('supports pagination next, prev, and page size selection', () => {
+-+  render(<EnterpriseTableChart {...defaultProps} pageSize={2} />);
+-+
+-+  // First page shows North America and EMEA
+-+  expect(screen.getByTestId('page-indicator')).toHaveTextContent('Page 1 of 2');
+-+  expect(screen.getByTestId('cell-region-0')).toHaveTextContent('North America');
+-+
+-+  // Go to next page
+-+  const nextBtn = screen.getByTestId('page-next');
+-+  fireEvent.click(nextBtn);
+-+  expect(screen.getByTestId('page-indicator')).toHaveTextContent('Page 2 of 2');
+-+  expect(screen.getByTestId('cell-region-0')).toHaveTextContent('APAC');
+-+
+-+  // Go back to prev page
+-+  const prevBtn = screen.getByTestId('page-prev');
+-+  fireEvent.click(prevBtn);
+-+  expect(screen.getByTestId('page-indicator')).toHaveTextContent('Page 1 of 2');
+-+
+-+  // Change page size to 10
+-+  const pageSizeSelect = screen.getByTestId('page-size-select');
+-+  fireEvent.change(pageSizeSelect, { target: { value: '10' } });
+-+  expect(screen.getByTestId('page-indicator')).toHaveTextContent('Page 1 of 1');
+-+  expect(screen.getByTestId('row-3')).toBeInTheDocument();
+-+});
+-+
+-+test('resets all filters, search, and sorts when reset button is clicked', () => {
+-+  render(<EnterpriseTableChart {...defaultProps} pageSize={10} />);
+-+
+-+  // Add search term
+-+  const searchInput = screen.getByTestId('enterprise-table-search');
+-+  fireEvent.change(searchInput, { target: { value: 'latam' } });
+-+  expect(screen.getByTestId('reset-filters-btn')).toBeInTheDocument();
+-+
+-+  // Click reset button
+-+  const resetBtn = screen.getByTestId('reset-filters-btn');
+-+  fireEvent.click(resetBtn);
+-+
+-+  // All rows restored
+-+  expect(screen.queryByTestId('reset-filters-btn')).not.toBeInTheDocument();
+-+  expect(screen.getByTestId('row-3')).toBeInTheDocument();
+-+});
+-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/test/buildQuery.test.ts b/superset-frontend/plugins/plugin-chart-enterprise-table/test/buildQuery.test.ts
+-new file mode 100644
+-index 0000000000..2290e8d6a8
+---- /dev/null
+-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/test/buildQuery.test.ts
+-@@ -0,0 +1,50 @@
+-+/**
+-+ * Licensed to the Apache Software Foundation (ASF) under one
+-+ * or more contributor license agreements.  See the NOTICE file
+-+ * distributed with this work for additional information
+-+ * regarding copyright ownership.  The ASF licenses this file
+-+ * to you under the Apache License, Version 2.0 (the
+-+ * "License"); you may not use this file except in compliance
+-+ * with the License.  You may obtain a copy of the License at
+-+ *
+-+ *   http://www.apache.org/licenses/LICENSE-2.0
+-+ *
+-+ * Unless required by applicable law or agreed to in writing,
+-+ * software distributed under the License is distributed on an
+-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-+ * KIND, either express or implied.  See the License for the
+-+ * specific language governing permissions and limitations
+-+ * under the License.
+-+ */
+-+
+-+import { buildQuery } from '../src/buildQuery';
+-+import { EnterpriseTableFormData } from '../src/types';
+-+
+-+test('builds correct query context with dimensions and metrics', () => {
+-+  const formData: EnterpriseTableFormData = {
+-+    datasource: '28__table',
+-+    viz_type: 'enterprise_table',
+-+    groupby: ['customer_region', 'product_category'],
+-+    metrics: ['sum__sales_amount'],
+-+    row_limit: 50,
+-+  };
+-+
+-+  const queryContext = buildQuery(formData);
+-+  expect(queryContext.queries).toHaveLength(1);
+-+  const query = queryContext.queries[0];
+-+  expect(query.columns).toEqual(['customer_region', 'product_category']);
+-+  expect(query.metrics).toEqual(['sum__sales_amount']);
+-+  expect(query.row_limit).toBe(50);
+-+});
+-+
+-+test('applies default row limit when unspecified', () => {
+-+  const formData: EnterpriseTableFormData = {
+-+    datasource: '28__table',
+-+    viz_type: 'enterprise_table',
+-+    groupby: ['country'],
+-+    metrics: ['count'],
+-+  };
+-+
+-+  const queryContext = buildQuery(formData);
+-+  expect(queryContext.queries[0].row_limit).toBe(100);
+-+});
+-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/test/transformProps.test.ts b/superset-frontend/plugins/plugin-chart-enterprise-table/test/transformProps.test.ts
+-new file mode 100644
+-index 0000000000..d389a93324
+---- /dev/null
+-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/test/transformProps.test.ts
+-@@ -0,0 +1,65 @@
+-+/**
+-+ * Licensed to the Apache Software Foundation (ASF) under one
+-+ * or more contributor license agreements.  See the NOTICE file
+-+ * distributed with this work for additional information
+-+ * regarding copyright ownership.  The ASF licenses this file
+-+ * to you under the Apache License, Version 2.0 (the
+-+ * "License"); you may not use this file except in compliance
+-+ * with the License.  You may obtain a copy of the License at
+-+ *
+-+ *   http://www.apache.org/licenses/LICENSE-2.0
+-+ *
+-+ * Unless required by applicable law or agreed to in writing,
+-+ * software distributed under the License is distributed on an
+-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-+ * KIND, either express or implied.  See the License for the
+-+ * specific language governing permissions and limitations
+-+ * under the License.
+-+ */
+-+
+-+import { ChartProps } from '@superset-ui/core';
+-+import { transformProps } from '../src/transformProps';
+-+import { EnterpriseTableFormData } from '../src/types';
+-+
+-+test('transforms chart props into component props correctly with snake_case formData', () => {
+-+  const formData: EnterpriseTableFormData = {
+-+    datasource: '28__table',
+-+    viz_type: 'enterprise_table',
+-+    groupby: ['region'],
+-+    metrics: ['sum_sales'],
+-+    page_size: 50,
+-+    include_search: true,
+-+    enable_column_sort: true,
+-+    enable_column_resize: true,
+-+    enable_column_reorder: true,
+-+    enable_column_filters: true,
+-+  };
+-+
+-+  const chartProps = new ChartProps({
+-+    formData,
+-+    width: 800,
+-+    height: 600,
+-+    queriesData: [
+-+      {
+-+        colnames: ['region', 'sum_sales'],
+-+        coltypes: [1, 0],
+-+        data: [{ region: 'North America', sum_sales: 100000 }],
+-+      },
+-+    ],
+-+  });
+-+
+-+  const transformed = transformProps(chartProps);
+-+  expect(transformed.width).toBe(800);
+-+  expect(transformed.height).toBe(600);
+-+  expect(transformed.pageSize).toBe(50);
+-+  expect(transformed.includeSearch).toBe(true);
+-+  expect(transformed.enableColumnSort).toBe(true);
+-+  expect(transformed.enableColumnResize).toBe(true);
+-+  expect(transformed.enableColumnReorder).toBe(true);
+-+  expect(transformed.enableColumnFilters).toBe(true);
+-+  expect(transformed.data).toHaveLength(1);
+-+  expect(transformed.columns).toEqual([
+-+    { key: 'region', label: 'region', isMetric: false, dataType: 'string' },
+-+    { key: 'sum_sales', label: 'sum_sales', isMetric: true, dataType: 'number' },
+-+  ]);
+-+});
+-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/tsconfig.json b/superset-frontend/plugins/plugin-chart-enterprise-table/tsconfig.json
+-new file mode 100644
+-index 0000000000..8992e79cb1
+---- /dev/null
+-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/tsconfig.json
+-@@ -0,0 +1,21 @@
+-+{
+-+  "extends": "../../tsconfig.json",
+-+  "compilerOptions": {
+-+    "baseUrl": "../..",
+-+    "outDir": "lib",
+-+    "rootDir": "src",
+-+    "declarationDir": "lib"
+-+  },
+-+  "include": ["src/**/*.ts", "src/**/*.tsx", "types/**/*"],
+-+  "exclude": [
+-+    "src/**/*.js",
+-+    "src/**/*.jsx",
+-+    "src/**/*.test.*",
+-+    "src/**/*.stories.*"
+-+  ],
+-+  "references": [
+-+    { "path": "../../packages/superset-core" },
+-+    { "path": "../../packages/superset-ui-core" },
+-+    { "path": "../../packages/superset-ui-chart-controls" }
+-+  ]
+-+}
+-diff --git a/superset-frontend/plugins/plugin-chart-enterprise-table/types/external.d.ts b/superset-frontend/plugins/plugin-chart-enterprise-table/types/external.d.ts
+-new file mode 100644
+-index 0000000000..6bfdcdf999
+---- /dev/null
+-+++ b/superset-frontend/plugins/plugin-chart-enterprise-table/types/external.d.ts
+-@@ -0,0 +1,22 @@
+-+/*
+-+ * Licensed to the Apache Software Foundation (ASF) under one
+-+ * or more contributor license agreements.  See the NOTICE file
+-+ * distributed with this work for additional information
+-+ * regarding copyright ownership.  The ASF licenses this file
+-+ * to you under the Apache License, Version 2.0 (the
+-+ * "License"); you may not use this file except in compliance
+-+ * with the License.  You may obtain a copy of the License at
+-+ *
+-+ *   http://www.apache.org/licenses/LICENSE-2.0
+-+ *
+-+ * Unless required by applicable law or agreed to in writing,
+-+ * software distributed under the License is distributed on an
+-+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+-+ * KIND, either express or implied.  See the License for the
+-+ * specific language governing permissions and limitations
+-+ * under the License.
+-+ */
+-+
+-+declare module '*.png';
+-+declare module '*.jpg';
+-+declare module '*.svg';
+-diff --git a/superset-frontend/src/visualizations/presets/MainPreset.ts b/superset-frontend/src/visualizations/presets/MainPreset.ts
+-index 5f2bc28571..3e8e6f90c4 100644
+---- a/superset-frontend/src/visualizations/presets/MainPreset.ts
+-+++ b/superset-frontend/src/visualizations/presets/MainPreset.ts
+-@@ -84,6 +84,7 @@ import { PivotTableChartPlugin as PivotTableChartPluginV2 } from '@superset-ui/p
+- import { HandlebarsChartPlugin } from '@superset-ui/plugin-chart-handlebars';
+- import { ChartCustomizationPlugins, FilterPlugins } from 'src/constants';
+- import AgGridTableChartPlugin from '@superset-ui/plugin-chart-ag-grid-table';
+-+import EnterpriseTableChartPlugin from '@superset-ui/plugin-chart-enterprise-table';
+- import TimeTableChartPlugin from '../TimeTable';
+- 
+- export default class MainPreset extends Preset {
+-@@ -207,6 +208,9 @@ export default class MainPreset extends Preset {
+-             },
+-           ],
+-         }).configure({ key: VizType.Cartodiagram }),
+-+        new EnterpriseTableChartPlugin().configure({
+-+          key: VizType.EnterpriseTable,
+-+        }),
+-         ...experimentalPlugins,
+-         ...agGridTablePlugin,
+-       ],
+diff --git a/docs/preset-like-roadmap.md b/docs/preset-like-roadmap.md
+index 29cc68c5c3..e86cfe6874 100644
+--- a/docs/preset-like-roadmap.md
++++ b/docs/preset-like-roadmap.md
+@@ -152,9 +152,23 @@ gitGraph
+   - Complete REST API (`/api/v1/dashboard/<pk>/filter_preset`) and intuitive UI controls in the FilterBar header (`FilterPresetsDropdown`, `SavePresetModal`, `DriftWarningModal`).
+ - **Deliverables**: ADR-005, backend `filter_presets` module and REST API, 9 passing pytest unit tests, frontend React components in `@superset-ui/core` ecosystem, 13 passing Jest unit tests, verified live Docker integration, 0 `: any` occurrences.
+ 
++### Phase 11: MCP Server Deployment with JWT Authentication & RBAC Verification
++- **Status**: COMPLETED (Awaiting Final Approval)
++- **Objective**: Stand up the FastMCP service as a real running Docker container (`superset-mcp`), configure HS256 JWT bearer authentication, bind service exclusively to localhost `127.0.0.1:5008`, and prove end-to-end RBAC and cross-role RLS parity over the live MCP protocol.
++- **Architecture**:
++  - Independent Docker service (`superset-mcp`) sharing standard environment and volumes without modifying core code.
++  - Fail-closed HS256 symmetric JWT authentication with audience binding (`MCP_JWT_AUDIENCE="superset-mcp"`) and detailed debug verification without secret leaks.
++  - Dynamic user identity resolution binding incoming MCP requests to real Flask-AppBuilder `User` models (`g.user`).
++  - Strict tool permission gates evaluating `SecurityManager.can_access()` per tool execution.
++  - Dynamic Row-Level Security (RLS) enforcement on all data preview tools (`generate_chart`), guaranteeing identical data isolation between web UI, REST API, and MCP protocol.
++  - Comprehensive audit logging attributing every tool call directly to the caller's `user_id` in PostgreSQL metadata `logs` table (`ActionLog`).
++  - Isolated failure domain: stopping `superset-mcp` has zero effect on the main Superset application or workers.
++- **Deliverables**: Updated `docker-compose.yml`, `docker/.env`, and `docker/pythonpath_dev/superset_config.py`; comprehensive end-to-end verification test suite (`scratch/phase_11_mcp_e2e_verification.py`), verification report (`docs/phase-11-report.md`), 0 secret leaks.
++
+ ---
+ 
+ ## 5. Development Cycle Conclusion
+ 
+-With the implementation and verification of **Phase 10**, Tableau-parity saved views and filter presets are fully realized as an isolated extension adhering strictly to Superset architectural boundaries, zero core database modifications, and robust dataset RLS protection.
++With the completion and verification of **Phase 11**, Apache Superset's enterprise capabilities have been fully augmented with Tableau-parity calculation engines, heatmap visualizations, saved filter preset views, and a production-ready, authenticated, RBAC/RLS-enforced Model Context Protocol (MCP) server for secure AI agent integration.
++
+ 

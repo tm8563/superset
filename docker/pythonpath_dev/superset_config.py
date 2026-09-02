@@ -161,8 +161,18 @@ if os.getenv("CYPRESS_CONFIG") == "true":
 
     sys.path.pop(0)
 
+# MCP Service Configuration (Phase 11)
+MCP_AUTH_ENABLED = True
+MCP_JWT_ALGORITHM = "HS256"
+MCP_JWT_SECRET = os.getenv("MCP_JWT_SECRET")
+MCP_JWT_AUDIENCE = os.getenv("MCP_JWT_AUDIENCE", "superset-mcp")
+MCP_RBAC_ENABLED = True
+MCP_JWT_DEBUG_ERRORS = True
+
+
 #
 # Optionally import superset_config_docker.py (which will have been included on
+
 # the PYTHONPATH) in order to allow for local settings to be overridden
 #
 try:
