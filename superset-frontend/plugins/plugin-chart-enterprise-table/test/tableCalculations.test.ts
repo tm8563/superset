@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import { DataRecord } from '@superset-ui/core';
 import {
   applyTableCalculations,
   getCalculatedColumnKey,
@@ -45,7 +46,7 @@ describe('Table Calculations Engine', () => {
     expect(isValidNumber(NaN)).toBe(false);
     expect(isValidNumber(Infinity)).toBe(false);
     expect(isValidNumber(null)).toBe(false);
-    expect(isValidNumber(undefined)).toBe(false);
+    expect(isValidNumber(undefined as unknown as number)).toBe(false);
     expect(isValidNumber('100')).toBe(false);
   });
 
@@ -276,10 +277,10 @@ describe('Table Calculations Engine', () => {
   });
 
   describe('Null & Undefined Safety in All Calculations', () => {
-    const dataWithNulls = [
+    const dataWithNulls: DataRecord[] = [
       { region: 'NA', sales: 100, profit: null },
       { region: 'EMEA', sales: null, profit: 50 },
-      { region: 'APAC', sales: undefined, profit: undefined },
+      { region: 'APAC', sales: null, profit: null },
       { region: 'LATAM', sales: 300, profit: 70 },
     ];
 

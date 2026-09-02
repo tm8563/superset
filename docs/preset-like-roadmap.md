@@ -136,13 +136,25 @@ gitGraph
 - **Objective**: Harden the existing FastMCP service with sqlglot AST-based SQL allowlisting, live prompt-injection red-teaming, user-scoped JWT authentication, strict JSON Schema tool validation across 70 tools, and rate limiting.
 - **Deliverables**: Hardened `sanitize_sql_expression` AST allowlist, prompt-injection red-teaming test suite, 70-tool inventory validation, tool permission matrix.
 
-### Phase 9: Tableau-Parity Table Calculations & Highlight Table (Final Milestone)
-- **Status**: APPROVED (Approved by User on 2026-09-02; Final Completed Milestone in Development Cycle)
+### Phase 9: Tableau-Parity Table Calculations & Highlight Table
+- **Status**: APPROVED (Approved by User on 2026-09-02)
 - **Objective**: Deliver client-side Tableau-parity quick table calculations (Percent of Total, Standard/Dense Rank, Running Total, Difference From, Percent Difference From, Moving Average, Percentile Rank) with strict dataset RLS scoping; and Highlight Table continuous color gradients (Sequential and Diverging color scales, per-column and per-table scopes), WCAG 2.1 gamma-corrected relative luminance text contrast maximization, and SpreadsheetML `ss:Interior` Excel export formatting.
 - **Deliverables**: `@superset-ui/plugin-chart-enterprise-table` Table Calculations & Color Scales engine, 51 passing Jest unit tests, Playwright browser test, live RLS isolation verification on Dataset 28, full WCAG 2.1 gamma-corrected luminance engine.
+
+### Phase 10: Dashboard Filter Sets / Saved Filter Presets (Tableau-Parity: Saved Views / Bookmarks equivalent)
+- **Status**: APPROVED (Approved by User on 2026-09-02)
+- **Objective**: Deliver Tableau-parity saved views / bookmarks allowing dashboard viewers and editors to save, manage, and restore named combinations of native filter values without any core database schema migrations.
+- **Architecture**:
+  - Leverages existing Superset `key_value` table infrastructure (`resource="dashboard_filter_preset"`), requiring **0 new Alembic migrations**.
+  - Strict Personal vs Shared RBAC model: Personal views visible only to creator; Shared views creatable/editable only by dashboard editors.
+  - Zero RLS bypass: presets store only filter input values (`dataMask`); live chart queries are executed against the loading user's active session and bound to their individual dataset RLS rules.
+  - Automatic Filter Drift Engine: SHA256 checksums over native filter configurations detect additions, deletions, or column modifications, providing a graceful fallback with interactive warning and compatible filter application.
+  - Complete REST API (`/api/v1/dashboard/<pk>/filter_preset`) and intuitive UI controls in the FilterBar header (`FilterPresetsDropdown`, `SavePresetModal`, `DriftWarningModal`).
+- **Deliverables**: ADR-005, backend `filter_presets` module and REST API, 9 passing pytest unit tests, frontend React components in `@superset-ui/core` ecosystem, 13 passing Jest unit tests, verified live Docker integration, 0 `: any` occurrences.
 
 ---
 
 ## 5. Development Cycle Conclusion
 
-With the completion and final approval of **Phase 9**, all planned capabilities in this development cycle have been implemented, hardened against security vulnerabilities (RLS isolation, XSS prevention, AST SQL allowlisting), verified in live browser environments with automated tests, and merged into `project/preset-like-base`. Per project decisions, feature development is concluded and paused at this fully tested milestone.
+With the implementation and verification of **Phase 10**, Tableau-parity saved views and filter presets are fully realized as an isolated extension adhering strictly to Superset architectural boundaries, zero core database modifications, and robust dataset RLS protection.
+

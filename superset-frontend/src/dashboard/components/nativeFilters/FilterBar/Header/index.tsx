@@ -24,6 +24,7 @@ import { Icons } from '@superset-ui/core/components/Icons';
 import { Button } from '@superset-ui/core/components';
 import { getFilterBarTestId } from '../utils';
 import FilterBarSettings from '../FilterBarSettings';
+import { FilterPresetsDropdown } from '../FilterPresets';
 
 const TitleArea = styled.div`
   ${({ theme }) => css`
@@ -70,6 +71,7 @@ const Header: FC<HeaderProps> = ({ toggleFiltersBar }) => (
   <Wrapper>
     <TitleArea>
       <span>{t('Filters and controls')}</span>
+      <FilterPresetsDropdown />
       <FilterBarSettings />
       <HeaderButton
         {...getFilterBarTestId('collapse-button')}

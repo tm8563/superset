@@ -53,26 +53,12 @@ async function globalSetup(config: FullConfig) {
   try {
     context = await browser.newContext({ baseURL });
 
-    // 1. Try direct API login first (fastest and most reliable)
-    const loginRes = await context.request.post(`${baseURL.replace(/\/$/, '')}/api/v1/security/login`, {
-      data: {
-        username: adminUsername,
-        password: adminPassword,
-        provider: 'db',
-      },
-    });
-
-    if (loginRes.ok()) {
-      console.log('[Global Setup] REST API login succeeded');
-    } else {
-      // 2. Fallback to UI login form
-      const page = await context.newPage();
-      const authPage = new AuthPage(page);
-      await authPage.goto();
-      await authPage.waitForLoginForm();
-      await authPage.loginWithCredentials(adminUsername, adminPassword);
-      await authPage.waitForLoginSuccess({ timeout: TIMEOUT.GLOBAL_SETUP });
-    }
+    const page = await context.newPage();
+    const authPage = new AuthPage(page);
+    await authPage.goto();
+    await authPage.waitForLoginForm();
+    await authPage.loginWithCredentials(adminUsername, adminPassword);
+    await authPage.waitForLoginSuccess({ timeout: TIMEOUT.GLOBAL_SETUP });
 
     // Save authentication state for all tests to reuse
     const authStatePath = 'playwright/.auth/user.json';
