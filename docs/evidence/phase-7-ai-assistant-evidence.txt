@@ -1,0 +1,92 @@
+================================================================================
+PHASE 7 E2E VERIFICATION EVIDENCE: AI CHART ASSISTANT & SECURITY ENFORCEMENT
+Date: 2026-09-02
+Environment: Dockerized Superset 5.0.0dev (PostgreSQL + Redis + Celery)
+Target Dataset: ID 28 (enterprise_table_test_data)
+================================================================================
+
+[UNIT & SECURITY TEST SUITE OUTPUT]
+Command: docker compose exec -T superset pytest tests/unit_tests/mcp_service/chart/tool/test_ai_assistant_chart_authoring.py -v
+
+============================= test session starts ==============================
+platform linux -- Python 3.11.14, pytest-7.4.4, pluggy-1.5.0
+rootdir: /app
+plugins: cov-6.0.0, pyfakefs-5.3.5, asyncio-0.23.8, anyio-4.11.0, mock-3.10.0
+asyncio: mode=Mode.STRICT
+collected 14 items
+
+tests/unit_tests/mcp_service/chart/tool/test_ai_assistant_chart_authoring.py::TestSchemaValidatedJSONSpecifications::test_xy_chart_schema_specification PASSED [  7%]
+tests/unit_tests/mcp_service/chart/tool/test_ai_assistant_chart_authoring.py::TestSchemaValidatedJSONSpecifications::test_table_chart_schema_specification PASSED [ 14%]
+tests/unit_tests/mcp_service/chart/tool/test_ai_assistant_chart_authoring.py::TestSchemaValidatedJSONSpecifications::test_pivot_table_schema_specification PASSED [ 21%]
+tests/unit_tests/mcp_service/chart/tool/test_ai_assistant_chart_authoring.py::TestSchemaValidatedJSONSpecifications::test_custom_sql_metric_schema_specification PASSED [ 28%]
+tests/unit_tests/mcp_service/chart/tool/test_ai_assistant_chart_authoring.py::TestSchemaValidatedJSONSpecifications::test_sql_expression_rejected_on_dimension_positions PASSED [ 35%]
+tests/unit_tests/mcp_service/chart/tool/test_ai_assistant_chart_authoring.py::TestQueryPreviewAndHumanConfirmation::test_preview_mode_does_not_persist_slice PASSED [ 42%]
+tests/unit_tests/mcp_service/chart/tool/test_ai_assistant_chart_authoring.py::TestQueryPreviewAndHumanConfirmation::test_human_confirmation_mode_persists_slice PASSED [ 50%]
+tests/unit_tests/mcp_service/chart/tool/test_ai_assistant_chart_authoring.py::TestQueryPreviewAndHumanConfirmation::test_compile_failure_prevents_saving PASSED [ 57%]
+tests/unit_tests/mcp_service/chart/tool/test_ai_assistant_chart_authoring.py::TestPromptInjectionAndAdversarialDefenses::test_direct_prompt_injection_in_column_name PASSED [ 64%]
+tests/unit_tests/mcp_service/chart/tool/test_ai_assistant_chart_authoring.py::TestPromptInjectionAndAdversarialDefenses::test_prompt_injection_in_filter_column PASSED [ 71%]
+tests/unit_tests/mcp_service/chart/tool/test_ai_assistant_chart_authoring.py::TestPromptInjectionAndAdversarialDefenses::test_prompt_injection_in_sql_expression PASSED [ 78%]
+tests/unit_tests/mcp_service/chart/tool/test_ai_assistant_chart_authoring.py::TestPromptInjectionAndAdversarialDefenses::test_prompt_injection_in_chart_config_discriminator PASSED [ 85%]
+tests/unit_tests/mcp_service/chart/tool/test_ai_assistant_chart_authoring.py::TestPromptInjectionAndAdversarialDefenses::test_indirect_prompt_injection_via_column_descriptions PASSED [ 92%]
+tests/unit_tests/mcp_service/chart/tool/test_ai_assistant_chart_authoring.py::TestPromptInjectionAndAdversarialDefenses::test_stored_xss_sanitization_in_chart_name_and_metric_labels PASSED [100%]
+
+======================= 14 passed, 30 warnings in 0.44s ========================
+
+
+================================================================================
+[LIVE SYSTEM E2E TEST OUTPUT]
+Command: docker compose exec -T superset python - < scratch/phase_7_ai_assistant_e2e_test.py
+================================================================================
+PHASE 7 E2E VERIFICATION: AI CHART ASSISTANT & SECURITY ENFORCEMENT
+Timestamp: 2026-09-02T02:41:24.305338Z
+================================================================================
+Admin User ID: 1 (admin)
+Regional User ID: 2 (regional_user)
+Target Dataset: ID 28 (enterprise_table_test_data) | Database: examples
+
+--- TEST 1: Schema-Validated JSON Specification Generation ---
+INFO:superset.mcp_service.chart.chart_utils:X-axis column 'customer_region' is not temporal (dataset_id=28), configuring as categorical dimension
+Preview Response Success: True
+Explore URL: http://localhost:8888/explore/?form_data_key=EOyrOR9nW7lfrqKPezjcxg
+Form Data Key: EOyrOR9nW7lfrqKPezjcxg
+Chart ID (Must be None in Preview Mode): None
+✓ TEST 1 PASSED: Structured JSON schema successfully transformed and compiled into explore preview.
+
+--- TEST 2: Mandatory Human Confirmation & Persist Workflow ---
+INFO:superset.mcp_service.chart.chart_utils:X-axis column 'customer_region' is not temporal (dataset_id=28), configuring as categorical dimension
+INFO:superset.mcp_service.chart.tool.get_chart_preview:Chart object type: Slice, id value: 226, id type: <class 'int'>
+INFO:superset.mcp_service.chart.tool.get_chart_preview:Generating preview for chart 226
+INFO:superset.mcp_service.chart.tool.get_chart_preview:Chart datasource_id: 28
+Save Response Success: True
+Saved Chart ID: 226
+Saved Chart Slice Name: Phase 7 AI Assistant Revenue Chart
+Verified Slice in Metadata DB: ID 226, Slice Name: 'Phase 7 AI Assistant Revenue Chart', Viz Type: echarts_timeseries_bar
+✓ TEST 2 PASSED: Chart was safely persisted ONLY upon human confirmation (save_chart=True).
+
+--- TEST 3: Multi-Role Row-Level Security (RLS) Verification ---
+Admin Visible Regions: ['APAC', 'EMEA', 'LATAM', 'North America'] (Count: 4)
+Admin Total Revenue: $167,236,831.75
+Regional User Visible Regions: ['North America'] (Count: 1)
+Regional User Total Revenue: $41,199,313.50
+✓ TEST 3 PASSED: RLS is strictly enforced on AI Assistant chart data paths with zero data leakage.
+
+--- TEST 4: Prompt Injection & Adversarial Attack Defense Suite ---
+ - Direct SQL Injection in Column: Validated=False (Expected Safe Block=True)
+ - Stacked Semicolon Command: Validated=False (Expected Safe Block=True)
+ - Comment Metacharacter Injection: Validated=False (Expected Safe Block=True)
+ - Raw SQL Discriminator Bypass: Validated=False (Expected Safe Block=True)
+ - Chart Name XSS Sanitized: 'Executive Revenue Dashboard'
+✓ TEST 4 PASSED: All prompt injection and adversarial attack vectors were actively neutralized.
+
+--- TEST 5: Audit Logging in Database Logs Table ---
+Found 15 recent audit log entries.
+ - Log: action='QueryObject.post_processing', user_id=2, slice_id=None, dttm=2026-09-02 02:41:24.700823
+ - Log: action='load_into_dataframe', user_id=2, slice_id=None, dttm=2026-09-02 02:41:24.696492
+ - Log: action='execute_sql', user_id=2, slice_id=None, dttm=2026-09-02 02:41:24.689604
+ - Log: action='mcp.generate_chart.preview', user_id=1, slice_id=None, dttm=2026-09-02 02:41:24.660385
+ - Log: action='mcp.get_chart_preview.metadata', user_id=1, slice_id=None, dttm=2026-09-02 02:41:24.658051
+✓ TEST 5 PASSED: Audit trail records exist for chart preview, exploration, and database operations.
+
+================================================================================
+ALL PHASE 7 E2E VERIFICATION CHECKS PASSED SUCCESSFULLY (100%)
+================================================================================

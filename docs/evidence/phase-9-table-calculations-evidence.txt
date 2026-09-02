@@ -1,0 +1,58 @@
+================================================================================
+PHASE 9 EVIDENCE LOG: TABLEAU-PARITY TABLE CALCULATIONS & HIGHLIGHT TABLE HEAT MAP
+================================================================================
+Timestamp: 2026-09-02
+Environment: Linux x86_64, Superset 4.0.0-dev, Node.js v18.20.7, Python 3.10
+
+1. JEST TEST SUITE (All 5 Suites, 51 Tests Passed)
+--------------------------------------------------
+$ npm --prefix superset-frontend test -- plugins/plugin-chart-enterprise-table
+PASS plugins/plugin-chart-enterprise-table/test/tableCalculations.test.ts
+PASS plugins/plugin-chart-enterprise-table/test/buildQuery.test.ts
+PASS plugins/plugin-chart-enterprise-table/test/transformProps.test.ts
+PASS plugins/plugin-chart-enterprise-table/test/colorScales.test.ts
+PASS plugins/plugin-chart-enterprise-table/test/EnterpriseTableChart.test.tsx
+
+Test Suites: 5 passed, 5 total
+Tests:       51 passed, 51 total
+Snapshots:   0 total
+Time:        1.615 s
+
+2. TYPE SAFETY VERIFICATION (Zero ': any' types)
+------------------------------------------------
+$ npm --prefix superset-frontend/plugins/plugin-chart-enterprise-table run type
+> @superset-ui/plugin-chart-enterprise-table@0.1.0 type
+> tsc --noEmit
+Exit code: 0
+
+$ grep -rn ": any" superset-frontend/plugins/plugin-chart-enterprise-table/src/
+(No results found - Zero ': any' types)
+
+3. LIVE RLS SECURITY AND TABLE CALCULATION TEST
+----------------------------------------------
+$ python3 scratch/phase_9_live_verification.py
+================================================================================
+PHASE 9 LIVE VERIFICATION: TABLE CALCULATIONS & HIGHLIGHT TABLE HEAT MAPS
+================================================================================
+1. Admin Authentication: SUCCESS (Bearer JWT & CSRF Token Obtained)
+2. Created Enterprise Table Chart (Chart ID: 227, viz_type: 'enterprise_table'): HTTP 201 SUCCESS
+3. Admin Query Retrieved 4 Rows across all regions:
+   - EMEA           : Sales = $42,436,401.00 (25.38% of Total)
+   - LATAM          : Sales = $42,419,679.00 (25.37% of Total)
+   - North America  : Sales = $41,199,313.50 (24.64% of Total)
+   - APAC           : Sales = $41,181,438.25 (24.62% of Total)
+
+4. Regional User Query with RLS Enforcement Retrieved 1 Rows:
+   - North America  : Sales = $41,199,313.50 (100.00% of Total)
+
+5. RLS Security Check: PASSED
+   ✓ Regional user calculation strictly bounded to authorized rows (100.00% of visible total)
+   ✓ Zero cross-tenant data leakage from unpermitted regions
+
+4. PLAYWRIGHT REAL BROWSER TEST
+--------------------------------
+$ npm --prefix superset-frontend run playwright:test -- tests/chart/table-calculations-and-heatmap.spec.ts
+Running 1 test using 1 worker
+Phase 9 Browser Test Passed: Screenshot saved to phase9_table_calculations_and_heatmap.png
+  ✓  1 [chromium] › tests/chart/table-calculations-and-heatmap.spec.ts:21:5 › Phase 9 E2E: Table Calculations and Highlight Table Heat Map Gradient Rendering in Browser (814ms)
+  1 passed (1.4s)

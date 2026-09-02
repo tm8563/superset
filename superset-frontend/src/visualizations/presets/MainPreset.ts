@@ -84,6 +84,7 @@ import { PivotTableChartPlugin as PivotTableChartPluginV2 } from '@superset-ui/p
 import { HandlebarsChartPlugin } from '@superset-ui/plugin-chart-handlebars';
 import { ChartCustomizationPlugins, FilterPlugins } from 'src/constants';
 import AgGridTableChartPlugin from '@superset-ui/plugin-chart-ag-grid-table';
+import EnterpriseTableChartPlugin from '@superset-ui/plugin-chart-enterprise-table';
 import TimeTableChartPlugin from '../TimeTable';
 
 export default class MainPreset extends Preset {
@@ -207,6 +208,9 @@ export default class MainPreset extends Preset {
             },
           ],
         }).configure({ key: VizType.Cartodiagram }),
+        new EnterpriseTableChartPlugin().configure({
+          key: VizType.EnterpriseTable,
+        }),
         ...experimentalPlugins,
         ...agGridTablePlugin,
       ],

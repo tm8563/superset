@@ -1,0 +1,46 @@
+{
+  "name": "@superset-ui/plugin-chart-enterprise-table",
+  "version": "0.1.0",
+  "description": "Enterprise Interactive Table visualization plugin for Apache Superset",
+  "keywords": [
+    "superset",
+    "table",
+    "enterprise",
+    "interactive"
+  ],
+  "homepage": "https://github.com/apache/superset",
+  "bugs": {
+    "url": "https://github.com/apache/superset/issues"
+  },
+  "license": "Apache-2.0",
+  "author": "Apache Superset",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apache/superset.git",
+    "directory": "superset-frontend/plugins/plugin-chart-enterprise-table"
+  },
+  "files": [
+    "esm",
+    "lib"
+  ],
+  "scripts": {
+    "clean": "rm -rf lib esm tsconfig.tsbuildinfo",
+    "build:assets": "mkdir -p lib/images esm/images && cp -r src/images/* lib/images/ && cp -r src/images/* esm/images/",
+    "build": "npm run clean && tsc --build && npm run build:assets",
+    "type": "tsc --noEmit"
+  },
+  "sideEffects": false,
+  "main": "lib/index.js",
+  "module": "esm/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@ant-design/icons": "^5.6.1",
+    "@apache-superset/core": "*",
+    "@superset-ui/chart-controls": "*",
+    "@superset-ui/core": "*",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  }
+}

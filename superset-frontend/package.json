@@ -134,6 +134,7 @@
     "@superset-ui/plugin-chart-chord": "file:./plugins/plugin-chart-chord",
     "@superset-ui/plugin-chart-country-map": "file:./plugins/plugin-chart-country-map",
     "@superset-ui/plugin-chart-echarts": "file:./plugins/plugin-chart-echarts",
+    "@superset-ui/plugin-chart-enterprise-table": "file:./plugins/plugin-chart-enterprise-table",
     "@superset-ui/plugin-chart-handlebars": "file:./plugins/plugin-chart-handlebars",
     "@superset-ui/plugin-chart-horizon": "file:./plugins/plugin-chart-horizon",
     "@superset-ui/plugin-chart-paired-t-test": "file:./plugins/plugin-chart-paired-t-test",

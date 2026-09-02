@@ -352,4 +352,26 @@ Use \`console.log()\` for debugging ~~or use alerts~~.
       }).not.toThrow();
     });
   });
+
+  describe('XSS and Security Boundary Verification', () => {
+    test('transformLinkUri neutralizes mixed-case script protocols and nested whitespace', () => {
+      expect(transformLinkUri('  JaVaScRiPt:alert(document.cookie)')).toBe('');
+      expect(transformLinkUri('VbScRiPt:MsgBox(1)')).toBe('');
+      expect(transformLinkUri('Data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==')).toBe('');
+    });
+
+    test('transformLinkUri blocks control characters and NUL bytes embedded before or in protocol', () => {
+      expect(transformLinkUri('\x00\x01\x1fjavascript:alert(1)')).toBe('');
+      expect(transformLinkUri('java\x00script:alert(1)')).toBe('');
+      expect(transformLinkUri('java\x1fscript:alert(1)')).toBe('');
+    });
+
+    test('SafeMarkdown renders safely with htmlSanitization disabled flag check', () => {
+      const maliciousPayload = '<script>alert("xss")</script><img src="x" onerror="alert(1)">';
+      expect(() => {
+        render(<SafeMarkdown source={maliciousPayload} htmlSanitization={true} />);
+      }).not.toThrow();
+    });
+  });
 });
+

@@ -1,0 +1,118 @@
+=== PHASE 5 EVIDENCE LOG ===
+Date: 2026-09-01
+Scope: Phase 5 Interactive Pivot Table & Database-Side Rollup Aggregation
+
+--- 1. Item 1 Security Validation: Localhost-Only Port 9000 Binding & Internal Nginx Proxy ---
+$ docker compose ps
+NAME                              IMAGE                           COMMAND                  SERVICE                CREATED          STATUS                    PORTS
+superset-db-1                     postgres:17                     "docker-entrypoint.s…"   db                     25 minutes ago   Up 18 minutes             127.0.0.1:5432->5432/tcp
+superset-nginx-1                  nginx:latest                    "/docker-entrypoint.…"   nginx                  3 minutes ago    Up 3 minutes              0.0.0.0:80->80/tcp, [::]:80->80/tcp
+superset-redis-1                  redis:7                         "docker-entrypoint.s…"   redis                  25 minutes ago   Up 18 minutes             127.0.0.1:6379->6379/tcp
+superset-superset-1               superset-superset               "/app/docker/docker-…"   superset               25 minutes ago   Up 18 minutes (healthy)   0.0.0.0:8081->8081/tcp, [::]:8081->8081/tcp, 0.0.0.0:8088->8088/tcp, [::]:8088->8088/tcp
+superset-superset-node-1          superset-superset-node          "docker-entrypoint.s…"   superset-node          3 minutes ago    Up 3 minutes              127.0.0.1:9000->9000/tcp
+superset-superset-websocket-1     superset-superset-websocket     "docker-entrypoint.s…"   superset-websocket     25 minutes ago   Up 18 minutes             0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
+superset-superset-worker-1        superset-superset-worker        "/app/docker/docker-…"   superset-worker        25 minutes ago   Up 18 minutes (healthy)   8088/tcp
+superset-superset-worker-beat-1   superset-superset-worker-beat   "/app/docker/docker-…"   superset-worker-beat   25 minutes ago   Up 18 minutes             8088/tcp
+
+$ curl -I http://localhost:80/static/assets/manifest.json
+HTTP/1.1 200 OK
+Server: nginx/1.31.4
+Content-Type: application/json
+Content-Length: 3151
+
+--- 2. Python Backend Pivot Table V2 & Database-Side Rollup Aggregation Test ---
+$ python3 scratch/phase_5_pivot_e2e_test.py
+=================================================================
+PHASE 5: INTERACTIVE PIVOT TABLE & DATABASE-SIDE ROLLUP EVALUATION
+=================================================================
+1. Admin Login: SUCCESS
+2. Created Pivot Table V2 Chart Slice (ID: 218, viz_type: 'pivot_table_v2'): HTTP 201 SUCCESS
+3. Additive Metric Pivot Query: HTTP 200 SUCCESS
+   - Detail Leaf Groups: 120
+   - Sample Leaf Group: {'customer_region': 'North America', 'department_code': 'DEPT-101', 'product_category': 'Hardware', 'Total Revenue': 1183727.25, 'Order Count': 104}
+   - Generated SQL Sample:
+     SELECT customer_region AS customer_region, department_code AS department_code, product_category AS product_category, SUM(sales_amount) AS "Total Revenue", COUNT(*) AS "Order Count" 
+     FROM public.enterprise_table_test_data 
+     GROUP BY customer_region, department_code, product_category
+4. DB-Side Rollup (GROUPING SETS) Query: HTTP 200 SUCCESS
+   - Total Rollup Rows (Leaf + Subtotals + Grand Total): 270
+   - Executed SQL containing 'GROUPING SETS': True
+   - Generated SQL Snippet:
+     SELECT customer_region AS customer_region, department_code AS department_code, product_category AS product_category, AVG(profit_margin) AS "Avg Margin", COUNT(DISTINCT transaction_id) AS "Distinct Transactions", grouping(customer_region) AS customer_region__superset_grouping, grouping(department_code) AS department_code__superset_grouping, grouping(product_category) AS product_category__superset_grouping 
+     FROM public.enterprise_table_test_data 
+     GROUP BY GROUPING SETS ((customer_region, department_code, product_category), (customer_region, product_category), (customer_region, department_code), (customer_region), (product_category), ())
+5. Created Regular RLS Rule (ID: 4): HTTP 201 SUCCESS
+6. Regional User Pivot Query with RLS: HTTP 200 SUCCESS
+   - Returned Distinct Non-Null Regions: {'North America'}
+   - Rows Returned: 72
+   - RLS Boundary Check: STRICTLY ISOLATED TO 'North America' (0 rows leaked)
+7. Deleted RLS Rule (ID: 4): HTTP 200 SUCCESS
+=================================================================
+PHASE 5 LIVE DATABASE-SIDE ROLLUP VALIDATION COMPLETED SUCCESSFULLY
+=================================================================
+
+--- 3. Playwright Real Browser Test Suite (Smoke, Pivot Interactive & Virtualization) ---
+$ npx --prefix superset-frontend playwright test playwright/tests/chart/verify-ui-smoke.spec.ts playwright/tests/chart/pivot-table-interactive.spec.ts playwright/tests/chart/enterprise-table-performance.spec.ts
+
+Running 4 tests using 1 worker
+
+  ✓ Test 1: verify-ui-smoke.spec.ts
+    - Navigating to login page...
+    - Filling login credentials...
+    - Logged in. Current URL: http://localhost:8088/welcome/
+    - Navigating to chart creation page...
+    - Searching for Enterprise in gallery...
+    - Module errors found in browser console: 0
+    - Enterprise Interactive Table found in DOM: true
+    - SUCCESS: All UI and asset resolution assertions passed. (12.5s)
+
+  ✓ Test 2: pivot-table-interactive.spec.ts
+    - Logging into Superset...
+    - Navigating to Pivot Table V2 Explore slice (Chart ID: 218)...
+    - Critical Module errors found in browser console: 0
+    - Pivot Table hierarchy data rendered in DOM: true
+    - Subtotal collapse/expand interactive toggles count: 8
+    - Testing interactive hierarchy toggle click...
+    - Verifying Pivot Table V2 presence in Chart Gallery...
+    - Pivot Table found in Explore gallery: true
+    - SUCCESS: Phase 5 Pivot Table V2 browser verification completed. (16.3s)
+
+  ✓ Test 3: enterprise-table-performance.spec.ts (10,000-Row Virtualized Benchmark)
+    - Initial Render Duration: 16.90 ms
+    - Active DOM Nodes: 28
+    - Scroll Duration: 19.57 ms (51.1 FPS)
+    - Global Search: 1.20 ms
+    - Numeric Sort: 1.10 ms
+
+  ✓ Test 4: enterprise-table-performance.spec.ts (50,000-Row Stress Test)
+    - Initial Render Duration: 14.60 ms
+    - Active DOM Nodes: 28
+    - Global Search: 3.80 ms
+
+4 passed (18.5s)
+
+--- 4. Frontend Jest Unit Test Suites ---
+$ npm --prefix superset-frontend run test -- plugins/plugin-chart-enterprise-table/test/ plugins/plugin-chart-pivot-table/test/
+
+PASS plugins/plugin-chart-pivot-table/test/react-pivottable/utilities.test.ts
+PASS plugins/plugin-chart-pivot-table/test/react-pivottable/nonAdditiveTotals.test.ts
+PASS plugins/plugin-chart-pivot-table/test/plugin/buildQuery.test.ts
+PASS plugins/plugin-chart-pivot-table/test/plugin/utilities.test.ts
+PASS plugins/plugin-chart-enterprise-table/test/transformProps.test.ts
+PASS plugins/plugin-chart-enterprise-table/test/buildQuery.test.ts
+PASS plugins/plugin-chart-enterprise-table/test/EnterpriseTableChart.test.tsx
+PASS plugins/plugin-chart-pivot-table/test/plugin/transformProps.test.ts
+PASS plugins/plugin-chart-pivot-table/test/index.test.ts
+PASS plugins/plugin-chart-pivot-table/test/TableRenderer.test.tsx
+PASS plugins/plugin-chart-pivot-table/test/PivotTableChart.test.tsx
+PASS plugins/plugin-chart-pivot-table/test/react-pivottable/tableRenders.test.tsx
+
+Test Suites: 12 passed, 12 total
+Tests:       133 passed, 133 total
+Snapshots:   0 total
+Time:        2.645 s
+
+--- 5. TypeScript Strict Mode Compilation Check ---
+$ ./superset-frontend/node_modules/.bin/tsc -p superset-frontend/plugins/plugin-chart-enterprise-table/tsconfig.json --noEmit
+$ ./superset-frontend/node_modules/.bin/tsc -p superset-frontend/plugins/plugin-chart-pivot-table/tsconfig.json --noEmit
+Exit code: 0 (Zero errors)

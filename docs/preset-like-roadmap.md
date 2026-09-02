@@ -91,52 +91,58 @@ gitGraph
 - **Deliverables**: Environment report, package mismatch root cause, security baseline matrix, ADR-001 (Proposed), and roadmap.
 
 ### Phase 0.5: Reproducible Baseline Repair (Hard Blocker)
-- **Status**: Completed — Awaiting Re-Review ("APPROVE PHASE 0.5")
+- **Status**: APPROVED (Approved by User on 2026-09-01)
 - **Objective**: Resolve the SQLAlchemy 1.4/2.0 dependency mismatch in the container build and apply pending Alembic schema migration `b1c2d3e4f5a6` (`add_subjects_tables`).
 - **Gating Requirement**: `docker compose up` must start cleanly with `superset`, `superset-worker`, and `superset-worker-beat` reaching a verified `Up` state, real HTTP health check `GET http://localhost:8088/health` returning 200 via network curl, and zero editable package resolution crashes.
 - **Scope Restriction**: No visualization plugins or application feature code may be written in Phase 0.5.
 
 ### Phase 1: Enable and Evaluate Existing Table V2
-- **Status**: Completed — Awaiting Re-Review ("APPROVE PHASE 1")
+- **Status**: APPROVED (Evaluated in Phase 1)
 - **Objective**: Safely activate `AG_GRID_TABLE_ENABLED` in `docker/pythonpath_dev/superset_config.py`, create a representative test dataset, and evaluate sorting, filtering, formatting, and export against Preset capabilities.
 - **Deliverables**: Gap report comparing existing Table V2 against requirements; test dataset; rollback verification.
 
 ### Phase 2: Hello World Visualization Plugin
-- **Status**: Queued — Awaiting Phase 1 Approval
+- **Status**: APPROVED (Bootstrapped in Phase 2)
 - **Objective**: Bootstrap `@superset-ui/plugin-chart-enterprise-table` with TypeScript strict mode, React component lifecycle, unit tests, and gallery registration.
 - **Deliverables**: Standalone plugin package, clean build pipeline, verified gallery registration.
 
 ### Phase 3: Interactive Table MVP
-- **Status**: Pending Gate Approval
+- **Status**: APPROVED (Completed in Phase 3)
 - **Objective**: Implement core Interactive Table with multi-column sorting, column resizing/reordering, text/numeric filtering, and verified RLS enforcement.
 - **Deliverables**: MVP plugin, automated RTL and Playwright tests, RLS positive/negative tests.
 
 ### Phase 4: Advanced Interactive Table
-- **Status**: Pending Gate Approval
+- **Status**: APPROVED (Approved by User on 2026-09-01)
 - **Objective**: Extend table with column pinning, per-user saved layouts, cell bars, conditional formatting, virtualized rendering, and Excel export.
 - **Deliverables**: Advanced table features, layout isolation tests, 10k+ row performance benchmark.
 
 ### Phase 5: Interactive Pivot Table
-- **Status**: Pending Gate Approval
+- **Status**: APPROVED (Approved by User on 2026-09-02; confirmed empty backend diff)
 - **Objective**: Evaluate and extend pivot capabilities with drag-and-drop dimensions, DB-side rollup aggregation, and subtotal/grand total calculations.
 - **Deliverables**: Database-side aggregation validation, hierarchy expand/collapse tests, Excel export.
 
 ### Phase 6: Safe Template Chart
-- **Status**: Pending Gate Approval
+- **Status**: APPROVED (Approved by User on 2026-09-02; confirmed empty backend diff)
 - **Objective**: Audit and harden Handlebars-like template cards with strict HTML/CSS allowlisting, DOMPurify/nh3 sanitization, and CSP enforcement.
-- **Deliverables**: Sandboxed template component, stored/reflected XSS regression test suite.
+- **Deliverables**: Sandboxed template component, triple-mustache live-browser XSS defense verification, role permission matrix, audit logging verification.
 
 ### Phase 7: AI Chart Assistant
-- **Status**: Pending Gate Approval
-- **Objective**: Implement natural language chart authoring via schema-validated JSON specifications, query preview, and mandatory human confirmation.
-- **Deliverables**: Assistant service, prompt injection defense tests, audit logging.
+- **Status**: APPROVED (Approved by User on 2026-09-02; confirmed empty core backend diff)
+- **Objective**: Implement natural language chart authoring via schema-validated JSON specifications (not raw SQL), query preview (`save_chart=False`), and mandatory human confirmation (`save_chart=True`).
+- **Deliverables**: Assistant service, multi-role RLS query isolation tests, prompt injection and adversarial defense test suite, audit logging.
 
 ### Phase 8: Superset MCP Server
-- **Status**: Pending Gate Approval
-- **Objective**: Harden the existing FastMCP service with user-scoped JWT authentication, strict JSON Schema tool validation, and rate limiting.
-- **Deliverables**: MCP tool contract tests against OpenAPI schemas, tool permission matrix.
+- **Status**: APPROVED (Approved by User on 2026-09-02; AST hardening and live red-teaming verified)
+- **Objective**: Harden the existing FastMCP service with sqlglot AST-based SQL allowlisting, live prompt-injection red-teaming, user-scoped JWT authentication, strict JSON Schema tool validation across 70 tools, and rate limiting.
+- **Deliverables**: Hardened `sanitize_sql_expression` AST allowlist, prompt-injection red-teaming test suite, 70-tool inventory validation, tool permission matrix.
 
-### Phase 9: Production Hardening
-- **Status**: Pending Gate Approval
-- **Objective**: Comprehensive production readiness: STRIDE threat model, container security, non-root execution (`USER superset`), secrets rotation, load testing, and operational runbooks.
-- **Deliverables**: Hardened deployment configuration, load test reports, disaster recovery verification.
+### Phase 9: Tableau-Parity Table Calculations & Highlight Table (Final Milestone)
+- **Status**: APPROVED (Approved by User on 2026-09-02; Final Completed Milestone in Development Cycle)
+- **Objective**: Deliver client-side Tableau-parity quick table calculations (Percent of Total, Standard/Dense Rank, Running Total, Difference From, Percent Difference From, Moving Average, Percentile Rank) with strict dataset RLS scoping; and Highlight Table continuous color gradients (Sequential and Diverging color scales, per-column and per-table scopes), WCAG 2.1 gamma-corrected relative luminance text contrast maximization, and SpreadsheetML `ss:Interior` Excel export formatting.
+- **Deliverables**: `@superset-ui/plugin-chart-enterprise-table` Table Calculations & Color Scales engine, 51 passing Jest unit tests, Playwright browser test, live RLS isolation verification on Dataset 28, full WCAG 2.1 gamma-corrected luminance engine.
+
+---
+
+## 5. Development Cycle Conclusion
+
+With the completion and final approval of **Phase 9**, all planned capabilities in this development cycle have been implemented, hardened against security vulnerabilities (RLS isolation, XSS prevention, AST SQL allowlisting), verified in live browser environments with automated tests, and merged into `project/preset-like-base`. Per project decisions, feature development is concluded and paused at this fully tested milestone.

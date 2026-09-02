@@ -1,0 +1,105 @@
+# Phase 3 Evidence: Interactive Table MVP
+Package: @superset-ui/plugin-chart-enterprise-table
+VizType: enterprise_table
+Timestamp: 2026-09-01T17:05:00+07:00
+
+================================================================================
+1. MANDATORY PREREQUISITE: MULTI-ROLE RLS CROSS-ROLE VERIFICATION TEST
+================================================================================
+Test Setup:
+- Dataset ID: 28 (12,500 rows, 4 regions: APAC, EMEA, LATAM, North America)
+- Admin User: admin (Role: Admin, Subject ID: 1)
+- Non-Admin Role: Regional_Analyst_Role (Role ID: 6, Subject ID: 7)
+- Non-Admin User: regional_user (Role: Regional_Analyst_Role, Subject ID: 8)
+- Filter Type: Regular
+- RLS Clause: "customer_region = 'North America'" attached to Subject ID 7 (Regional_Analyst_Role)
+
+Execution Log:
+1. Admin Baseline Query (Unrestricted):
+   POST /api/v1/chart/data -> HTTP 200 OK
+   Returned Regions: ['APAC', 'EMEA', 'LATAM', 'North America']
+   Total Row Count: 12,500 rows
+
+2. Created Regular RLS Filter (Filter ID: 2):
+   POST /api/v1/rowlevelsecurity/ -> HTTP 201 Created
+   Payload: {"name": "Regional Analyst North America RLS", "filter_type": "Regular", "clause": "customer_region = 'North America'", "tables": [28], "subjects": [7]}
+
+3. Restricted Query by Non-Admin User (regional_user):
+   POST /api/v1/chart/data -> HTTP 200 OK
+   Returned Regions: ['North America'] only
+   Total Row Count: 3,125 rows (0 rows leaked from APAC, EMEA, LATAM)
+
+4. Simultaneous Cross-Role Query by Admin (admin):
+   POST /api/v1/chart/data -> HTTP 200 OK
+   Returned Regions: ['APAC', 'EMEA', 'LATAM', 'North America']
+   Total Row Count: 12,500 rows (Admin sees full dataset while regional_user is isolated)
+
+5. Cleanup RLS Filter:
+   DELETE /api/v1/rowlevelsecurity/2 -> HTTP 200 OK
+
+6. Post-Cleanup Verification (regional_user):
+   POST /api/v1/chart/data -> HTTP 200 OK
+   Returned Regions: ['APAC', 'EMEA', 'LATAM', 'North America']
+   Total Row Count: 12,500 rows restored
+
+================================================================================
+2. JEST UNIT TEST EXECUTION RESULTS
+================================================================================
+$ npm --prefix superset-frontend run test -- plugins/plugin-chart-enterprise-table/test/
+
+> superset@0.0.0-dev test
+> cross-env NODE_ENV=test NODE_OPTIONS="--max-old-space-size=8192" jest --max-workers=80% --silent plugins/plugin-chart-enterprise-table/test/
+
+PASS plugins/plugin-chart-enterprise-table/test/transformProps.test.ts
+  ✓ transforms chart props into component props correctly with snake_case formData
+
+PASS plugins/plugin-chart-enterprise-table/test/EnterpriseTableChart.test.tsx
+  ✓ renders empty state when data array is empty
+  ✓ renders loading state when isLoading is true
+  ✓ renders error state when errorMessage is provided
+  ✓ renders table headers and data rows correctly with pagination
+  ✓ supports single column sorting and multi-column sorting
+  ✓ supports column reordering with left/right buttons
+  ✓ supports column resizing drag handle interaction
+  ✓ filters rows with per-column text filter
+  ✓ filters rows with per-column numeric filter
+  ✓ filters rows when global search term is entered
+  ✓ supports pagination next, prev, and page size selection
+  ✓ resets all filters, search, and sorts when reset button is clicked
+
+PASS plugins/plugin-chart-enterprise-table/test/buildQuery.test.ts
+  ✓ builds correct query context with dimensions and metrics
+  ✓ applies default row limit when unspecified
+
+Test Suites: 3 passed, 3 total
+Tests:       15 passed, 15 total
+Snapshots:   0 total
+Time:        1.691 s
+
+================================================================================
+3. TYPESCRIPT STRICT COMPILATION & LINT VALIDATION
+================================================================================
+$ ./superset-frontend/node_modules/.bin/tsc -p superset-frontend/plugins/plugin-chart-enterprise-table/tsconfig.json --noEmit
+Exit Code: 0 (Zero TypeScript compilation errors)
+
+$ grep -r ": any" superset-frontend/plugins/plugin-chart-enterprise-table/src/
+Exit Code: 1 (Zero ": any" usage confirmed)
+
+================================================================================
+4. LIVE REST API CHART CREATION & QUERY EXECUTION
+================================================================================
+A. POST /api/v1/chart/
+   Payload:
+   {
+     "slice_name": "Phase 3 Interactive Table MVP",
+     "datasource_id": 28,
+     "datasource_type": "table",
+     "viz_type": "enterprise_table",
+     "params": "{\"viz_type\":\"enterprise_table\",\"datasource\":\"28__table\",\"groupby\":[\"customer_region\"],\"metrics\":[{\"label\":\"Total Revenue\",\"expressionType\":\"SQL\",\"sqlExpression\":\"SUM(sales_amount)\"},{\"label\":\"Avg Margin\",\"expressionType\":\"SQL\",\"sqlExpression\":\"AVG(profit_margin)\"},{\"label\":\"Order Count\",\"expressionType\":\"SQL\",\"sqlExpression\":\"COUNT(*)\"}],\"row_limit\":100,\"page_size\":20,\"include_search\":true,\"enable_column_sort\":true,\"enable_column_resize\":true,\"enable_column_reorder\":true,\"enable_column_filters\":true}"
+   }
+   Result: HTTP 201 Created (Chart ID: 215)
+
+B. POST /api/v1/chart/data
+   Result: HTTP 200 OK
+   Returned Rows Count: 4
+   Sample Row: {"customer_region": "EMEA", "Total Revenue": 42436401.0, "Avg Margin": 0.169632, "Order Count": 3125}

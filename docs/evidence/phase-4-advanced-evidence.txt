@@ -1,0 +1,124 @@
+# Phase 4 Evidence: Advanced Interactive Table & Virtualization Benchmark
+Package: @superset-ui/plugin-chart-enterprise-table
+VizType: enterprise_table
+Timestamp: 2026-09-01T17:14:00+07:00
+
+================================================================================
+1. LIVE ENTERPRISE_TABLE CHART & CROSS-ROLE RLS VALIDATION
+================================================================================
+A. Admin Authentication & Chart Creation:
+   - Target API: POST /api/v1/chart/
+   - Payload:
+     {
+       "slice_name": "Phase 4 Enterprise Table Advanced Chart",
+       "viz_type": "enterprise_table",
+       "datasource_id": 28,
+       "datasource_type": "table",
+       "params": "{\"viz_type\":\"enterprise_table\",\"datasource\":\"28__table\",\"groupby\":[\"customer_region\"],\"metrics\":[{\"label\":\"Total Revenue\",\"expressionType\":\"SQL\",\"sqlExpression\":\"SUM(sales_amount)\"},{\"label\":\"Avg Margin\",\"expressionType\":\"SQL\",\"sqlExpression\":\"AVG(profit_margin)\"},{\"label\":\"Order Count\",\"expressionType\":\"SQL\",\"sqlExpression\":\"COUNT(*)\"}],\"row_limit\":100,\"page_size\":20,\"include_search\":true,\"enable_column_sort\":true,\"enable_column_resize\":true,\"enable_column_reorder\":true,\"enable_column_pinning\":true,\"enable_column_filters\":true,\"enable_saved_layouts\":true,\"enable_cell_bars\":true,\"enable_value_coloring\":true,\"enable_hyperlinks\":true,\"enable_export_excel\":true}"
+     }
+   - Result: HTTP 201 Created (Chart ID: 216)
+
+B. Regular RLS Rule Creation:
+   - Target API: POST /api/v1/rowlevelsecurity/
+   - Payload:
+     {
+       "name": "Phase 4 Regional Analyst North America RLS",
+       "filter_type": "Regular",
+       "clause": "customer_region = 'North America'",
+       "tables": [28],
+       "subjects": [7]
+     }
+   - Result: HTTP 201 Created (RLS ID: 3)
+
+C. Restricted Query Execution (regional_user / Regional_Analyst_Role):
+   - Target API: POST /api/v1/chart/data
+   - Result: HTTP 200 OK
+   - Returned Regions: ['North America']
+   - Order Count: 3,125 orders (0 leaked from APAC, EMEA, LATAM)
+   - Sample Record: {"customer_region": "North America", "Total Revenue": 41199313.5, "Avg Margin": 0.16968, "Order Count": 3125}
+
+D. Simultaneous Cross-Role Query Execution (admin / Admin Role):
+   - Target API: POST /api/v1/chart/data
+   - Result: HTTP 200 OK
+   - Returned Regions: ['APAC', 'EMEA', 'LATAM', 'North America']
+   - Total Orders: 12,500 orders (Admin sees complete enterprise data unrestricted)
+
+E. RLS Rule Deletion & Cleanup:
+   - Target API: DELETE /api/v1/rowlevelsecurity/3
+   - Result: HTTP 200 OK
+
+================================================================================
+2. PLAYWRIGHT 10,000+ ROW VIRTUALIZED-RENDERING PERFORMANCE BENCHMARK
+================================================================================
+Command: npx playwright test playwright/tests/chart/enterprise-table-performance.spec.ts
+Environment: Headless Chromium (Playwright v1.62.1)
+
+[Global Setup] Authenticating as admin user...
+[Global Setup] REST API login succeeded
+[Global Setup] Authentication successful - state saved to playwright/.auth/user.json
+
+Running 2 tests using 1 worker
+
+✓ Test 1: 10,000-Row Virtualized Rendering Benchmark
+  - Initial 10,000-Row Render Duration: 16.90 ms (Threshold: < 250 ms)
+  - Active DOM Table Rows Count: 28 nodes (O(1) DOM footprint for 10,000 rows)
+  - 30-Step Fast Vertical Scroll Frame Duration: 19.57 ms (~51.1 FPS)
+  - 10,000-Row Global Search Filtering Duration: 1.20 ms (Threshold: < 60 ms)
+  - 10,000-Row Numeric Multi-Sort Duration: 1.10 ms (Threshold: < 100 ms)
+  - Column Pinning (Left sticky): Verified active
+
+✓ Test 2: 50,000-Row High-Density Stress Test
+  - Initial 50,000-Row Render Duration: 14.60 ms (Threshold: < 350 ms)
+  - Active DOM Table Rows Count: 28 nodes
+  - 50,000-Row Global Search Filtering Duration: 3.80 ms (Threshold: < 100 ms)
+
+Results: 2 passed (1.9s)
+
+================================================================================
+3. JEST UNIT TEST EXECUTION RESULTS
+================================================================================
+Command: npm --prefix superset-frontend run test -- plugins/plugin-chart-enterprise-table/test/
+
+PASS plugins/plugin-chart-enterprise-table/test/EnterpriseTableChart.test.tsx
+  ✓ renders empty state when data array is empty
+  ✓ renders loading state when isLoading is true
+  ✓ renders error state when errorMessage is provided
+  ✓ renders table headers and data rows correctly with pagination
+  ✓ supports single column sorting and multi-column sorting
+  ✓ supports column reordering with left/right buttons and HTML5 drag and drop
+  ✓ supports column resizing drag handle interaction and listener cleanup on unmount
+  ✓ filters rows with per-column text filter
+  ✓ filters rows with per-column numeric filter including between operator
+  ✓ supports column pinning (left and right)
+  ✓ supports saving and resetting table layout in localStorage
+  ✓ renders positive/negative value coloring and cell bars
+  ✓ safely validates URLs and prevents javascript XSS injection
+  ✓ handles Excel and CSV export functions
+  ✓ supports virtualization windowing mode for high data volume
+  ✓ filters rows when global search term is entered
+  ✓ supports pagination next, prev, and page size selection
+  ✓ resets all filters, search, and sorts when reset button is clicked
+
+PASS plugins/plugin-chart-enterprise-table/test/transformProps.test.ts
+  ✓ transforms chart props into component props correctly with snake_case formData and calculates min/max for cell bars
+
+PASS plugins/plugin-chart-enterprise-table/test/buildQuery.test.ts
+  ✓ builds correct query context with dimensions and metrics
+  ✓ applies default row limit when unspecified
+
+Test Suites: 3 passed, 3 total
+Tests:       21 passed, 21 total
+Snapshots:   0 total
+Time:        1.682 s
+
+================================================================================
+4. TYPESCRIPT STRICT COMPILATION & SECURITY AUDIT
+================================================================================
+Command: ./superset-frontend/node_modules/.bin/tsc -p superset-frontend/plugins/plugin-chart-enterprise-table/tsconfig.json --noEmit
+Exit Code: 0 (Zero TypeScript compilation errors)
+
+Command: grep -rn ": any" superset-frontend/plugins/plugin-chart-enterprise-table/src/
+Exit Code: 1 (Zero ": any" occurrences found)
+
+Command: grep -rn "dangerouslySetInnerHTML" superset-frontend/plugins/plugin-chart-enterprise-table/src/
+Exit Code: 1 (Zero dangerouslySetInnerHTML occurrences found)

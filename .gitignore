@@ -143,3 +143,5 @@ PROJECT.md
 oxc-custom-build/
 *.code-workspace
 *.duckdb
+test-results/
+playwright-report/

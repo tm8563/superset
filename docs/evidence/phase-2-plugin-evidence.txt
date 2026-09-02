@@ -1,0 +1,76 @@
+# Phase 2 Evidence: Hello World Visualization Plugin
+Package: @superset-ui/plugin-chart-enterprise-table
+VizType: enterprise_table
+Timestamp: 2026-09-01T16:50:00+07:00
+
+================================================================================
+1. JEST UNIT TEST EXECUTION RESULTS
+================================================================================
+$ npm --prefix superset-frontend run test -- plugins/plugin-chart-enterprise-table/test/
+
+> superset@0.0.0-dev test
+> cross-env NODE_ENV=test NODE_OPTIONS="--max-old-space-size=8192" jest --max-workers=80% --silent plugins/plugin-chart-enterprise-table/test/
+
+PASS plugins/plugin-chart-enterprise-table/test/buildQuery.test.ts
+  ✓ builds correct query context with dimensions and metrics
+  ✓ applies default row limit when unspecified
+
+PASS plugins/plugin-chart-enterprise-table/test/transformProps.test.ts
+  ✓ transforms chart props into component props correctly
+
+PASS plugins/plugin-chart-enterprise-table/test/EnterpriseTableChart.test.tsx
+  ✓ renders empty state when data array is empty
+  ✓ renders loading state when isLoading is true
+  ✓ renders error state when errorMessage is provided
+  ✓ renders table headers and data rows correctly
+  ✓ filters rows when search term is entered
+
+Test Suites: 3 passed, 3 total
+Tests:       8 passed, 8 total
+Snapshots:   0 total
+Time:        2.245 s
+
+================================================================================
+2. PLUGIN STRUCTURE & TYPESCRIPT VALIDATION
+================================================================================
+Directory: superset-frontend/plugins/plugin-chart-enterprise-table/
+├── package.json (Name: @superset-ui/plugin-chart-enterprise-table)
+├── tsconfig.json (Strict mode enabled, zero implicit any)
+├── src/
+│   ├── index.ts (EnterpriseTableChartPlugin export)
+│   ├── types.ts (Strict TypeScript definitions)
+│   ├── buildQuery.ts (QueryObject builder)
+│   ├── transformProps.ts (ChartProps transformer)
+│   ├── controlPanel.tsx (Dimensions, Metrics, Options controls)
+│   ├── EnterpriseTableChart.tsx (React functional component)
+│   └── images/
+│       ├── thumbnail.png
+│       └── thumbnail-dark.png
+└── test/
+    ├── buildQuery.test.ts
+    ├── transformProps.test.ts
+    └── EnterpriseTableChart.test.tsx
+
+================================================================================
+3. LIVE REST API REGISTRATION & DATA QUERY EXECUTION
+================================================================================
+A. POST /api/v1/chart/
+   Payload:
+   {
+     "slice_name": "Hello World Enterprise Table",
+     "datasource_id": 28,
+     "datasource_type": "table",
+     "viz_type": "enterprise_table",
+     "params": "{\"viz_type\":\"enterprise_table\",\"datasource\":\"28__table\",\"groupby\":[\"customer_region\"],\"metrics\":[{\"label\":\"Total Revenue\",\"expressionType\":\"SQL\",\"sqlExpression\":\"SUM(sales_amount)\"},{\"label\":\"Avg Margin\",\"expressionType\":\"SQL\",\"sqlExpression\":\"AVG(profit_margin)\"},{\"label\":\"Order Count\",\"expressionType\":\"SQL\",\"sqlExpression\":\"COUNT(*)\"}],\"row_limit\":50,\"page_size\":20,\"include_search\":true}"
+   }
+   Result: HTTP 201 Created (Chart ID: 214)
+
+B. POST /api/v1/chart/data
+   Result: HTTP 200 OK (Latency: 221.32 ms)
+   Output Data:
+   [
+     {"customer_region": "EMEA", "Total Revenue": 42436401.0, "Avg Margin": 0.169632, "Order Count": 3125},
+     {"customer_region": "LATAM", "Total Revenue": 42419679.0, "Avg Margin": 0.169664, "Order Count": 3125},
+     {"customer_region": "North America", "Total Revenue": 41199313.5, "Avg Margin": 0.16968, "Order Count": 3125},
+     {"customer_region": "APAC", "Total Revenue": 41181438.25, "Avg Margin": 0.169648, "Order Count": 3125}
+   ]

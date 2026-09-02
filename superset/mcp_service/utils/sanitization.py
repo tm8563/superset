@@ -443,7 +443,85 @@ def sanitize_sql_expression(  # noqa: C901
 
     _check_dangerous_stored_procedures(value, field_name)
 
+    _validate_sql_expression_ast(value, field_name)
+
     return value
+
+
+def _validate_sql_expression_ast(value: str, field_name: str) -> None:
+    """Validate that value is a single, valid SQL scalar/aggregate expression via sqlglot AST.
+
+    Ensures that the expression:
+    1. Parses into exactly one statement/expression (blocks statement stacking and trailing syntax).
+    2. Contains no state-mutating, DDL, DML, transaction, or session management AST nodes.
+    3. Contains no dangerous administrative or execution functions (e.g., xp_cmdshell, sp_executesql, pg_sleep, system).
+    """
+    import sqlglot
+    import sqlglot.expressions as exp
+
+    # Try standard parse, fallback to mysql dialect if backticks are used
+    parsed_statements = None
+    for dialect in [None, "postgres", "mysql", "sqlite"]:
+        try:
+            res = sqlglot.parse(value, read=dialect)
+            if res:
+                parsed_statements = res
+                break
+        except Exception:
+            continue
+
+    if not parsed_statements:
+        try:
+            parsed_statements = sqlglot.parse(value)
+        except Exception as exc:
+            raise ValueError(f"{field_name} failed SQL syntax parsing: {exc}") from exc
+
+    if len(parsed_statements) != 1:
+        raise ValueError(f"{field_name} contains multiple SQL statements")
+
+    expression = parsed_statements[0]
+    if expression is None:
+        raise ValueError(f"{field_name} cannot be empty")
+
+    disallowed_node_types = (
+        exp.Command,
+        exp.Drop,
+        exp.Insert,
+        exp.Delete,
+        exp.Update,
+        exp.Create,
+        exp.Alter,
+        exp.Grant,
+        exp.Revoke,
+        exp.TruncateTable,
+        exp.Transaction,
+        exp.Commit,
+        exp.Rollback,
+        exp.Set,
+        exp.Pragma,
+    )
+
+    for node in expression.walk():
+        if isinstance(node, disallowed_node_types):
+            raise ValueError(
+                f"{field_name} contains disallowed SQL operation: {type(node).__name__}"
+            )
+        if isinstance(node, (exp.Anonymous, exp.Func)):
+            func_name = (node.name if hasattr(node, "name") else "").lower()
+            if func_name in (
+                "xp_cmdshell",
+                "sp_executesql",
+                "pg_sleep",
+                "sleep",
+                "benchmark",
+                "load_file",
+                "into_outfile",
+                "system",
+                "exec",
+            ):
+                raise ValueError(
+                    f"{field_name} contains disallowed SQL function: {func_name}"
+                )
 
 
 def escape_like(value: str) -> str:

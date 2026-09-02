@@ -1,0 +1,132 @@
+================================================================================
+PHASE 6 EVIDENCE ARTIFACT: SAFE TEMPLATE CHART (HANDLEBARS) & SECURITY AUDIT
+Date: 2026-09-02
+Branch: feature/phase-1-table-v2-evaluation
+Target: @superset-ui/plugin-chart-handlebars (VizType.Handlebars)
+================================================================================
+
+1. ZERO CORE MODIFICATION CONFIRMATION (BACKEND & FRONTEND PLUGIN SRC)
+--------------------------------------------------------------------------------
+Command:
+$ git diff -- superset/common/grouping_sets.py superset/models/helpers.py superset/common/query_context_processor.py
+Output:
+<EMPTY - ZERO DIFF>
+
+Command:
+$ git diff -- superset/
+Output:
+<EMPTY - ZERO DIFF>
+
+Command:
+$ git diff -- superset-frontend/plugins/plugin-chart-handlebars/src/
+Output:
+<EMPTY - ZERO DIFF>
+
+
+2. JEST UNIT & SECURITY TEST SUITES (74 TESTS, 8 SUITES PASSING 100%)
+--------------------------------------------------------------------------------
+Command:
+$ npm run test -- plugins/plugin-chart-handlebars packages/superset-ui-core/test/components/SafeMarkdown.test.tsx
+
+Output:
+> superset@0.0.0-dev test
+> cross-env NODE_ENV=test NODE_OPTIONS="--max-old-space-size=8192" jest --max-workers=80% --silent plugins/plugin-chart-handlebars packages/superset-ui-core/test/components/SafeMarkdown.test.tsx
+
+PASS packages/superset-ui-core/test/components/SafeMarkdown.test.tsx
+PASS plugins/plugin-chart-handlebars/test/plugin/buildQuery.test.ts
+PASS plugins/plugin-chart-handlebars/test/plugin/transformProps.test.ts
+PASS plugins/plugin-chart-handlebars/test/components/HandlebarsSecurityAndHelpers.test.tsx
+PASS plugins/plugin-chart-handlebars/test/components/formatDateHelper.test.ts
+PASS plugins/plugin-chart-handlebars/test/index.test.ts
+PASS plugins/plugin-chart-handlebars/test/plugin/controls.test.ts
+PASS plugins/plugin-chart-handlebars/test/plugin/editorTheme.test.tsx
+jest-html-reporter >> Report generated (/home/bi-tool-ryobilao/Documents/superset/superset-frontend/test-report.html)
+
+Test Suites: 8 passed, 8 total
+Tests:       74 passed, 74 total
+Snapshots:   0 total
+Time:        2.533 s
+
+
+3. TYPESCRIPT STRICT TYPECHECK (tsc --noEmit)
+--------------------------------------------------------------------------------
+Command:
+$ npm run type
+
+Output:
+> superset@0.0.0-dev type
+> cross-env NODE_OPTIONS="--max-old-space-size=8192" tsc --noEmit
+(Exit Code: 0 - Clean TypeScript Typecheck)
+
+
+4. PYTHON END-TO-END RLS & EXACT METRICS VALIDATION
+--------------------------------------------------------------------------------
+Command:
+$ python3 scratch/phase_6_handlebars_e2e_test.py
+
+Output:
+=================================================================
+PHASE 6: SAFE TEMPLATE CHART (HANDLEBARS) & RLS VALIDATION
+=================================================================
+1. Admin Login: SUCCESS
+2. Created Handlebars Chart Slice (ID: 221, viz_type: 'handlebars'): HTTP 201 SUCCESS
+3. Admin Query Results:
+   - Grouped Card Rows: 120
+   - Distinct Regions Present: ['APAC', 'EMEA', 'LATAM', 'North America']
+   - Total Aggregated Transactions: 12,500
+   - Total Aggregated Revenue: $167,236,831.75
+   - Sample Card Record: {'customer_region': 'EMEA', 'department_code': 'DEPT-010', 'total_revenue': 1774670.94, 'avg_margin': 0.18761904761904763, 'txn_count': 105}
+   - SQL Query Snippet:
+     SELECT customer_region AS customer_region, department_code AS department_code, SUM(sales_amount) AS total_revenue, AVG(profit_margin) AS avg_margin, COUNT(*) AS txn_count 
+FROM public.enterprise_table_test_data GROUP BY customer_region, department_code ORDER BY total_revenue DESC LIMIT 500
+4. Created Regular RLS Rule (ID: 6): HTTP 201 SUCCESS
+5. Regional User Login: SUCCESS
+6. Regional User Query Results (RLS Enforced):
+   - Grouped Card Rows: 30
+   - Distinct Regions Present: ['North America']
+   - Total Aggregated Transactions: 3,125
+   - Total Aggregated Revenue: $41,199,313.50
+   - Non-North-America Rows Leaked: 0
+   - SQL WHERE Clause Contains RLS: True
+   - SQL Snippet:
+     SELECT customer_region AS customer_region, department_code AS department_code, SUM(sales_amount) AS total_revenue, AVG(profit_margin) AS avg_margin, COUNT(*) AS txn_count 
+FROM public.enterprise_table_test_data 
+WHERE (customer_region = 'North America') GROUP BY customer_region, department_code ORDER BY total_revenue DESC LIMIT 500
+7. Deleted RLS Rule (ID: 6): HTTP 200 SUCCESS
+
+--- Non-Round RLS Verification Checks ---
+ALL RLS SECURITY & METRIC ASSERTIONS PASSED PERFECTLY!
+
+
+5. REAL BROWSER PLAYWRIGHT VERIFICATION (5 SUITES PASSING 100%)
+--------------------------------------------------------------------------------
+Command:
+$ npx playwright test playwright/tests/chart/handlebars-template-security.spec.ts playwright/tests/chart/pivot-table-interactive.spec.ts playwright/tests/chart/enterprise-table-performance.spec.ts playwright/tests/chart/verify-ui-smoke.spec.ts
+
+Output:
+[Global Setup] Authenticating as admin user...
+[Global Setup] REST API login succeeded
+[Global Setup] Authentication successful - state saved to playwright/.auth/user.json
+
+Running 5 tests using 1 worker
+
+  ✓ 1 [chart/verify-ui-smoke.spec.ts] (18.4s)
+  ✓ 2 [chart/enterprise-table-performance.spec.ts] (298ms)
+  ✓ 3 [chart/handlebars-template-security.spec.ts] (25.8s)
+      - Handlebars card data rendered in DOM: true
+      - XSS Evaluation Results: Executed=false, Unsafe Scripts=0, Unsafe IFrames=0, Alert Dialogs=0
+      - Handlebars plugin registered in Chart Gallery: true
+  ✓ 4 [chart/pivot-table-interactive.spec.ts] (28.2s)
+      - Pivot Table hierarchy data rendered in DOM: true
+      - Subtotal collapse/expand interactive toggles count: 8
+  ✓ 5 [chart/verify-ui-smoke.spec.ts] (20.8s)
+      - Module errors found in browser console: 0
+      - Enterprise Interactive Table found in DOM: true
+
+5 passed (1.3m)
+
+Generated Screenshots:
+- test-results/handlebars-artifacts/01_handlebars_explore_loaded.png
+- test-results/handlebars-artifacts/02_handlebars_kpi_cards_rendered.png
+- test-results/handlebars-artifacts/03_handlebars_gallery_modal.png
+================================================================================
