@@ -46,7 +46,6 @@ import {
   BinaryQueryObjectFilterClause,
   extractTextFromHTML,
   TimeGranularity,
-  forceHexAlpha,
 } from '@superset-ui/core';
 import {
   styled,
@@ -456,20 +455,32 @@ export default function TableChart<D extends DataRecord = DataRecord>(
   const [displayedTotals, setDisplayedTotals] = useState<D | undefined>(totals);
   const theme = useTheme();
 
+  // HSC customization: remembers the last plain/Ctrl-clicked cell (column key
+  // + its position in `data`) so a later Shift+click on the same column can
+  // select every row in between, spreadsheet-style. Only updated on a plain
+  // or Ctrl/Cmd click, never on a Shift-click, so the anchor stays put across
+  // repeated Shift-clicks the way Excel/Finder range-select works. A ref
+  // (not state) because it must never trigger a re-render on its own -- it's
+  // read only inside a later click's event handler. See docs/00-runbook.md
+  // §5f in the RS_Dashboard_Making project for the full rationale.
+  const rangeSelectAnchorRef = useRef<{
+    key: string;
+    dataIndex: number;
+  } | null>(null);
+
   useEffect(() => {
     setDisplayedTotals(totals);
   }, [totals]);
 
   // only take relevant page size options
   const pageSizeOptions = useMemo(() => {
-    const getServerPagination = (n: number) =>
-      n <= Math.max(rowCount, serverPageLength);
+    const getServerPagination = (n: number) => n <= rowCount;
     return (
       serverPagination ? SERVER_PAGE_SIZE_OPTIONS : PAGE_SIZE_OPTIONS
     ).filter(([n]) =>
       serverPagination ? getServerPagination(n) : n <= 2 * data.length,
     ) as SizeOption[];
-  }, [data.length, rowCount, serverPageLength, serverPagination]);
+  }, [data.length, rowCount, serverPagination]);
 
   const getValueRange = useCallback(
     function getValueRange(key: string, alignPositiveNegative: boolean) {
@@ -505,13 +516,38 @@ export default function TableChart<D extends DataRecord = DataRecord>(
   );
 
   const getCrossFilterDataMask = useCallback(
-    (key: string, value: DataRecordValue) => {
+    (
+      key: string,
+      value: DataRecordValue | DataRecordValue[],
+      selectMode: false | 'multi' | 'range' = false,
+    ) => {
       let updatedFilters = { ...filters };
-      if (filters && isActiveFilterValue(key, value)) {
+      if (selectMode === 'range') {
+        // HSC customization: Shift+click selects every row between the last
+        // clicked row and this one (spreadsheet-style range select) -- see
+        // docs/00-runbook.md §5f. `value` here is already the full,
+        // deduplicated array of values for the range, built by the caller.
+        updatedFilters = { [key]: ensureIsArray(value) };
+      } else if (selectMode === 'multi') {
+        // HSC customization: Ctrl/Cmd+click accumulates multiple values on
+        // the same column instead of always replacing the whole filter
+        // (Tableau-style multi-mark selection) -- see docs/00-runbook.md §5e
+        // in the RS_Dashboard_Making project for why this exists.
+        const singleValue = value as DataRecordValue;
+        const existing = ensureIsArray(filters?.[key]);
+        const alreadySelected = existing.some(v => isEqual(v, singleValue));
+        const nextValues = alreadySelected
+          ? existing.filter(v => !isEqual(v, singleValue))
+          : [...existing, singleValue];
+        updatedFilters = { [key]: nextValues };
+      } else if (
+        filters &&
+        isActiveFilterValue(key, value as DataRecordValue)
+      ) {
         updatedFilters = {};
       } else {
         updatedFilters = {
-          [key]: [value],
+          [key]: [value as DataRecordValue],
         };
       }
       if (
@@ -576,7 +612,9 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                 : null,
           },
         },
-        isCurrentValueSelected: isActiveFilterValue(key, value),
+        isCurrentValueSelected: Array.isArray(value)
+          ? false
+          : isActiveFilterValue(key, value),
       };
     },
     [
@@ -590,11 +628,15 @@ export default function TableChart<D extends DataRecord = DataRecord>(
   );
 
   const toggleFilter = useCallback(
-    function toggleFilter(key: string, val: DataRecordValue) {
+    function toggleFilter(
+      key: string,
+      val: DataRecordValue | DataRecordValue[],
+      selectMode: false | 'multi' | 'range' = false,
+    ) {
       if (!emitCrossFilters) {
         return;
       }
-      setDataMask(getCrossFilterDataMask(key, val).dataMask);
+      setDataMask(getCrossFilterDataMask(key, val, selectMode).dataMask);
     },
     [emitCrossFilters, getCrossFilterDataMask, setDataMask],
   );
@@ -1070,10 +1112,10 @@ export default function TableChart<D extends DataRecord = DataRecord>(
           const originKey = column.key.substring(column.label.length).trim();
           if (!hasColumnColorFormatters && hasBasicColorFormatters) {
             backgroundColor =
-              basicColorFormatters[row.index]?.[originKey]?.backgroundColor;
+              basicColorFormatters[row.index][originKey]?.backgroundColor;
             arrow =
               column.label === comparisonLabels[0]
-                ? basicColorFormatters[row.index]?.[originKey]?.mainArrow
+                ? basicColorFormatters[row.index][originKey]?.mainArrow
                 : '';
           }
 
@@ -1096,7 +1138,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                 formatter.objectFormatting === ObjectFormattingEnum.CELL_BAR
               ) {
                 if (generalShowCellBars)
-                  backgroundColorCellBar = forceHexAlpha(formatterResult);
+                  backgroundColorCellBar = formatterResult.slice(0, -2);
               } else {
                 backgroundColor = formatterResult;
                 valueRangeFlag = false;
@@ -1135,12 +1177,11 @@ export default function TableChart<D extends DataRecord = DataRecord>(
             basicColorColumnFormatters?.length > 0
           ) {
             backgroundColor =
-              basicColorColumnFormatters[row.index]?.[column.key]
+              basicColorColumnFormatters[row.index][column.key]
                 ?.backgroundColor || backgroundColor;
             arrow =
               column.label === comparisonLabels[0]
-                ? (basicColorColumnFormatters[row.index]?.[column.key]
-                    ?.mainArrow ?? arrow)
+                ? basicColorColumnFormatters[row.index][column.key]?.mainArrow
                 : '';
           }
           const rowSurfaceColor =
@@ -1153,15 +1194,13 @@ export default function TableChart<D extends DataRecord = DataRecord>(
             text-align: ${sharedStyle.textAlign};
             white-space: ${value instanceof Date ? 'nowrap' : undefined};
             position: relative;
-            font-weight: ${
-              color ? `${theme.fontWeightBold}` : `${theme.fontWeightNormal}`
-            };
+            font-weight: ${color
+              ? `${theme.fontWeightBold}`
+              : `${theme.fontWeightNormal}`};
             background: ${backgroundColor || undefined};
-            padding-left: ${
-              column.isChildColumn
-                ? `${theme.sizeUnit * 5}px`
-                : `${theme.sizeUnit}px`
-            };
+            padding-left: ${column.isChildColumn
+              ? `${theme.sizeUnit * 5}px`
+              : `${theme.sizeUnit}px`};
           `;
 
           const cellBarStyles = css`
@@ -1169,11 +1208,10 @@ export default function TableChart<D extends DataRecord = DataRecord>(
             height: 100%;
             display: block;
             top: 0;
-            ${
-              valueRange &&
-              typeof value === 'number' &&
-              valueRangeFlag &&
-              `
+            ${valueRange &&
+            typeof value === 'number' &&
+            valueRangeFlag &&
+            `
                 width: ${`${cellWidth({
                   value: value as number,
                   valueRange,
@@ -1185,47 +1223,36 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                   alignPositiveNegative,
                 })}%`};
                 background-color: ${
-                  backgroundColorCellBar ||
+                  (backgroundColorCellBar && `${backgroundColorCellBar}99`) ||
                   cellBackground({
                     value: value as number,
                     colorPositiveNegative,
                     theme,
                   })
                 };
-              `
-            }
+              `}
           `;
 
-          // Plain inline style (rather than the `css` prop) so the arrow's
-          // color is guaranteed to apply regardless of whether the consuming
-          // app's build wires up the emotion JSX pragma for the `css` prop --
-          // notably, this codebase's own Jest/Babel config does not, which
-          // silently no-ops any `css` prop on a plain DOM element.
-          let arrowStyles: CSSProperties = {
-            color:
-              basicColorFormatters &&
-              basicColorFormatters[row.index]?.[originKey]?.arrowColor ===
-                ColorSchemeEnum.Green
-                ? theme.colorSuccess
-                : theme.colorError,
-            marginRight: theme.sizeUnit,
-          };
+          let arrowStyles = css`
+            color: ${basicColorFormatters &&
+            basicColorFormatters[row.index][originKey]?.arrowColor ===
+              ColorSchemeEnum.Green
+              ? theme.colorSuccess
+              : theme.colorError};
+            margin-right: ${theme.sizeUnit}px;
+          `;
 
           if (
             basicColorColumnFormatters &&
             basicColorColumnFormatters?.length > 0
           ) {
-            const columnArrowColor =
-              basicColorColumnFormatters[row.index]?.[column.key]?.arrowColor;
-            if (columnArrowColor) {
-              arrowStyles = {
-                color:
-                  columnArrowColor === ColorSchemeEnum.Green
-                    ? theme.colorSuccess
-                    : theme.colorError,
-                marginRight: theme.sizeUnit,
-              };
-            }
+            arrowStyles = css`
+              color: ${basicColorColumnFormatters[row.index][column.key]
+                ?.arrowColor === ColorSchemeEnum.Green
+                ? theme.colorSuccess
+                : theme.colorError};
+              margin-right: ${theme.sizeUnit}px;
+            `;
           }
 
           const cellProps = {
@@ -1235,13 +1262,69 @@ export default function TableChart<D extends DataRecord = DataRecord>(
             title: typeof value === 'number' ? String(value) : undefined,
             onClick:
               emitCrossFilters && !valueRange && !isMetric
-                ? () => {
+                ? (e: MouseEvent) => {
                     const isFilterable = columnsMeta.find(
                       (cm: DataColumnMeta) => cm.key === key,
                     )?.isFilterable;
-                    // allow selecting text in a cell
-                    if (!getSelectedText() && isFilterable !== false) {
-                      toggleFilter(key, value);
+                    if (isFilterable === false) {
+                      return;
+                    }
+                    // HSC customization: Shift+click is reserved for
+                    // spreadsheet-style range select (see below). The
+                    // browser's own default for Shift+click is to *extend
+                    // a text selection*, which would otherwise make
+                    // getSelectedText() below think the user is selecting
+                    // text and silently skip filtering entirely -- so for a
+                    // Shift+click specifically, discard whatever native text
+                    // selection the browser just made and proceed anyway.
+                    // Plain and Ctrl/Cmd clicks are untouched: text selection
+                    // in a cell still works exactly as before for them.
+                    if (e.shiftKey) {
+                      window.getSelection()?.removeAllRanges();
+                    }
+                    // allow selecting text in a cell (plain/Ctrl clicks only)
+                    if (e.shiftKey || !getSelectedText()) {
+                      // HSC customization: Shift+click selects every row
+                      // between the last clicked row (in this same column)
+                      // and this one -- spreadsheet-style range select. Ctrl
+                      // (Cmd on Mac) still adds/removes a single row from the
+                      // selection. Plain click still replaces the selection
+                      // with just this row. See docs/00-runbook.md §5e-§5f.
+                      const currentDataIndex = data.indexOf(row.original);
+                      const anchor = rangeSelectAnchorRef.current;
+                      if (
+                        e.shiftKey &&
+                        anchor &&
+                        anchor.key === key &&
+                        currentDataIndex !== -1
+                      ) {
+                        const [start, end] =
+                          anchor.dataIndex <= currentDataIndex
+                            ? [anchor.dataIndex, currentDataIndex]
+                            : [currentDataIndex, anchor.dataIndex];
+                        const seen = new Set<DataRecordValue>();
+                        const rangeValues: DataRecordValue[] = [];
+                        for (let i = start; i <= end; i += 1) {
+                          const v = data[i]?.[key];
+                          if (v !== undefined && !seen.has(v)) {
+                            seen.add(v);
+                            rangeValues.push(v);
+                          }
+                        }
+                        toggleFilter(key, rangeValues, 'range');
+                        // anchor deliberately not moved -- lets a second
+                        // Shift+click from the same starting row grow or
+                        // shrink the range, matching Excel/Finder behavior
+                      } else {
+                        const isMultiSelect = e.ctrlKey || e.metaKey;
+                        toggleFilter(key, value, isMultiSelect && 'multi');
+                        if (currentDataIndex !== -1) {
+                          rangeSelectAnchorRef.current = {
+                            key,
+                            dataIndex: currentDataIndex,
+                          };
+                        }
+                      }
                     }
                   }
                 : undefined,
@@ -1310,12 +1393,12 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                   className="dt-truncate-cell"
                   style={columnWidth ? { width: columnWidth } : undefined}
                 >
-                  {arrow && <span style={arrowStyles}>{arrow}</span>}
+                  {arrow && <span css={arrowStyles}>{arrow}</span>}
                   {text}
                 </div>
               ) : (
                 <>
-                  {arrow && <span style={arrowStyles}>{arrow}</span>}
+                  {arrow && <span css={arrowStyles}>{arrow}</span>}
                   {text}
                 </>
               )}
@@ -1435,6 +1518,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
       toggleFilter,
       handleContextMenu,
       allowRearrangeColumns,
+      data,
     ],
   );
 
