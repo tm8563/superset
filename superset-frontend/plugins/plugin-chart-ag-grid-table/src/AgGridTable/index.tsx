@@ -49,6 +49,7 @@ import {
   DataRecordValue,
   DataRecord,
   JsonObject,
+  ensureIsArray,
 } from '@superset-ui/core';
 import { SearchOutlined } from '@ant-design/icons';
 import { debounce, isEqual } from 'lodash-es';
@@ -445,6 +446,31 @@ const AgGridDataTable: FunctionComponent<AgGridTableProps> = memo(
       }
     }, [filters]);
 
+    // HSC customization: full-row highlight when any of the row's dimension
+    // values are part of the active cross-filter selection (plain /
+    // Ctrl+click multi / Shift+click range) -- matching the Table & Pivot
+    // charts' row-highlight behavior and the Tableau reference look.
+    // Nothing selected -> empty filters -> rule never fires -> no highlight.
+    const rowClassRules = useMemo(
+      () => ({
+        'dt-is-active-row': (params: { data?: Record<string, unknown> }) => {
+          if (!filters || Object.keys(filters).length === 0) return false;
+          const row = params.data;
+          if (!row) return false;
+          return Object.entries(filters).some(([key, vals]) =>
+            ensureIsArray(vals).some(
+              val =>
+                val === row[key] ||
+                (val instanceof Date &&
+                  row[key] instanceof Date &&
+                  val.getTime() === (row[key] as Date).getTime()),
+            ),
+          );
+        },
+      }),
+      [filters],
+    );
+
     const onGridReady = (params: GridReadyEvent) => {
       // This will make columns fill the grid width
       params.api.sizeColumnsToFit();
@@ -522,6 +548,7 @@ const AgGridDataTable: FunctionComponent<AgGridTableProps> = memo(
           defaultColDef={defaultColDef}
           onColumnGroupOpened={params => params.api.sizeColumnsToFit()}
           rowSelection="multiple"
+          rowClassRules={rowClassRules}
           animateRows
           onCellClicked={handleCellClicked}
           onCellKeyDown={handleCellKeyDown}

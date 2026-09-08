@@ -307,6 +307,19 @@ export const StyledChartContainer = styled.div<{
       }
     }
 
+    /* HSC customization: default full-row highlight applied via rowClassRules
+       (plain / Ctrl+click multi / Shift+click range / filters from other
+       charts). A dashboard can OVERRIDE in its own CSS — ag-grid rules need
+       !important to beat its compiled row styles either way. No selection ->
+       rule never fires -> no highlight. */
+    .ag-row.dt-is-active-row {
+      background: ${theme.colorPrimaryBg} !important;
+    }
+
+    .ag-row.dt-is-active-row:hover {
+      background: ${theme.colorPrimaryBgHover} !important;
+    }
+
     .dt-truncate-cell {
       overflow: hidden;
       text-overflow: ellipsis;

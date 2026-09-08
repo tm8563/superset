@@ -194,6 +194,37 @@ export default function transformProps(chartProps: ChartProps<QueryFormData>) {
     allowRenderHtml,
   } = formData;
   const { selectedFilters } = filterState;
+
+  // HSC customization: highlight rows from ANY active filter, like Tableau --
+  // not just values clicked on this pivot itself. The dashboard already
+  // merges every filter that applies to this chart (native filter bar
+  // selections AND cross-filters emitted by other charts) into
+  // formData.extra_form_data.filters as [{col, op, val}] clauses. Convert the
+  // simple IN/== ones into the same {column: [values]} shape the pivot's
+  // highlightedHeaderCells mechanism consumes, and merge them with the
+  // chart's own selection so both light up together.
+  const extraFormFilters = ensureIsArray(
+    (formData as { extra_form_data?: { filters?: { col: string; op: string; val?: unknown }[] } })
+      .extra_form_data?.filters,
+  ) as { col: string; op: string; val?: unknown }[];
+  const mergedSelectedFilters: Record<string, unknown[]> = {
+    ...(selectedFilters as Record<string, unknown[]> | undefined),
+  };
+  extraFormFilters.forEach(clause => {
+    if (
+      (clause.op === 'IN' || clause.op === '==') &&
+      clause.col &&
+      Array.isArray(clause.val) &&
+      clause.val.length > 0
+    ) {
+      const existing = mergedSelectedFilters[clause.col] || [];
+      clause.val.forEach((v: unknown) => {
+        if (!existing.includes(v)) existing.push(v);
+      });
+      mergedSelectedFilters[clause.col] = existing;
+    }
+  });
+
   const granularity = extractTimegrain(rawFormData);
 
   const dateFormatters = colnames
@@ -268,7 +299,7 @@ export default function transformProps(chartProps: ChartProps<QueryFormData>) {
     detectedCurrency,
     emitCrossFilters,
     setDataMask,
-    selectedFilters,
+    selectedFilters: mergedSelectedFilters,
     verboseMap,
     columnFormats,
     currencyFormats,

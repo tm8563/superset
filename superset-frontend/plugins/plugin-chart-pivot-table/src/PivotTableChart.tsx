@@ -19,6 +19,7 @@
 import {
   useCallback,
   useMemo,
+  useRef,
   type MouseEvent as ReactMouseEvent,
 } from 'react';
 import { MinusSquareOutlined, PlusSquareOutlined } from '@ant-design/icons';
@@ -258,6 +259,21 @@ export default function PivotTableChart(props: PivotTableProps) {
   } = props;
 
   const theme = useTheme();
+
+  // HSC customization: remembers the last plain/Ctrl-clicked header (dimension
+  // label + its position in that dimension's ordered value list) so a later
+  // Shift+click on the same dimension can select every value in between,
+  // spreadsheet-style. Only updated on a plain or Ctrl/Cmd click, never on a
+  // Shift-click, so the anchor stays put across repeated Shift-clicks the way
+  // Excel/Finder range-select works. A ref (not state) because it must never
+  // trigger a re-render on its own -- it's read only inside a later click's
+  // event handler. Mirrors the Table chart's range-select (§5f in
+  // docs/00-runbook.md) but adapted to the pivot's 2D header model.
+  const rangeSelectAnchorRef = useRef<{
+    key: string;
+    axis: 'row' | 'col';
+    valueIndex: number;
+  } | null>(null);
 
   // Base formatter without currency-awareness (for non-AUTO mode or as fallback)
   const baseFormatter = useMemo(
@@ -570,8 +586,19 @@ export default function PivotTableChart(props: PivotTableProps) {
         return;
       }
 
-      // allow selecting text in a cell
-      if (getSelectedText()) {
+      // HSC customization: Shift+click is reserved for spreadsheet-style range
+      // select (see below). The browser's own default for Shift+click is to
+      // *extend a text selection*, which would otherwise make getSelectedText()
+      // below think the user is selecting text and silently skip filtering
+      // entirely -- so for a Shift+click specifically, discard whatever native
+      // text selection the browser just made and proceed anyway. Plain and
+      // Ctrl/Cmd clicks are untouched: text selection in a cell still works
+      // exactly as before for them.
+      if (e.shiftKey) {
+        window.getSelection()?.removeAllRanges();
+      }
+      // allow selecting text in a cell (plain/Ctrl clicks only)
+      if (!e.shiftKey && getSelectedText()) {
         return;
       }
 
@@ -589,8 +616,48 @@ export default function PivotTableChart(props: PivotTableProps) {
       const [key, val] = filtersEntries[filtersEntries.length - 1];
       const isMultiSelect = e.metaKey || e.ctrlKey;
 
+      // HSC customization: resolve the clicked dimension's axis and its ordered
+      // list of distinct values so a Shift+click can select a contiguous range
+      // of values (spreadsheet-style), mirroring the Table chart's §5f range
+      // select but adapted to the pivot's 2D header model. The order comes from
+      // PivotData's own sorted key lists (rowOrder/colOrder config), NOT any
+      // user-applied column-header sort -- same known limitation as §5f.
+      const isRowAxis = rows.includes(key);
+      const dimIndex = isRowAxis ? rows.indexOf(key) : cols.indexOf(key);
+      const allKeys = isRowAxis
+        ? pivotData.getRowKeys()
+        : pivotData.getColKeys();
+      const orderedValues: DataRecordValue[] = [];
+      const seenValues = new Set<DataRecordValue>();
+      allKeys.forEach((k: string[]) => {
+        const v = k[dimIndex];
+        if (v !== undefined && !seenValues.has(v)) {
+          seenValues.add(v);
+          orderedValues.push(v);
+        }
+      });
+      const currentValueIndex = orderedValues.indexOf(val);
+      const anchor = rangeSelectAnchorRef.current;
+
       let updatedFilters = { ...selectedFilters };
-      if (isMultiSelect) {
+      if (
+        e.shiftKey &&
+        anchor &&
+        anchor.key === key &&
+        anchor.axis === (isRowAxis ? 'row' : 'col') &&
+        currentValueIndex !== -1
+      ) {
+        // HSC customization: Shift+click selects every value between the last
+        // clicked value (in this same dimension) and this one, inclusive, in
+        // either direction. The anchor is deliberately not moved, so a second
+        // Shift+click from the same starting value grows/shrinks the range,
+        // matching Excel/Finder behavior.
+        const [start, end] =
+          anchor.valueIndex <= currentValueIndex
+            ? [anchor.valueIndex, currentValueIndex]
+            : [currentValueIndex, anchor.valueIndex];
+        updatedFilters = { [key]: orderedValues.slice(start, end + 1) };
+      } else if (isMultiSelect) {
         if (isActiveFilterValue(key, val)) {
           updatedFilters[key] = (selectedFilters?.[key] || []).filter(
             (x: DataRecordValue) => {
@@ -617,9 +684,28 @@ export default function PivotTableChart(props: PivotTableProps) {
       ) {
         delete updatedFilters[key];
       }
+
+      // HSC customization: remember this click as the range-select anchor, but
+      // only for plain/Ctrl/Cmd clicks (never Shift), so the anchor stays put
+      // across repeated Shift-clicks.
+      if (!e.shiftKey && currentValueIndex !== -1) {
+        rangeSelectAnchorRef.current = {
+          key,
+          axis: isRowAxis ? 'row' : 'col',
+          valueIndex: currentValueIndex,
+        };
+      }
+
       handleChange(updatedFilters);
     },
-    [emitCrossFilters, isActiveFilterValue, selectedFilters, handleChange],
+    [
+      emitCrossFilters,
+      isActiveFilterValue,
+      selectedFilters,
+      handleChange,
+      rows,
+      cols,
+    ],
   );
 
   const tableOptions = useMemo(

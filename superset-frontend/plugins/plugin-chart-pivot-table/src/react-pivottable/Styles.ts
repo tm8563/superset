@@ -99,6 +99,29 @@ export const Styles = styled.div<{ isDashboardEditMode: boolean }>`
       background-color: ${theme.colorPrimaryBg};
     }
 
+    /* HSC customization: default full-row highlight when the row's dimension
+       values are part of the active cross-filter selection (plain /
+       Ctrl+click multi / Shift+click range / filters from other charts via
+       transformProps merge). These defaults match the Tableau reference look;
+       a dashboard can OVERRIDE the colors in its own CSS (Edit dashboard →
+       Properties → CSS) — the dashboard's rules win because they load later.
+       No selection -> no class -> no highlight. */
+    table.pvtTable tr.pvtRowSelected th,
+    table.pvtTable tr.pvtRowSelected td {
+      background-color: ${theme.colorPrimaryBg};
+    }
+
+    /* Cells with NO data inside a selected row stay unpainted -- an empty
+       month cell should look empty, not tinted. */
+    table.pvtTable tr.pvtRowSelected td.pvtValEmpty {
+      background-color: ${theme.colorBgBase};
+    }
+
+    /* The header cell actually clicked gets a stronger tint */
+    table.pvtTable tr.pvtRowSelected th.active {
+      background-color: ${theme.colorPrimaryBgHover};
+    }
+
     table.pvtTable .pvtTotalLabel {
       text-align: right;
       font-weight: ${theme.fontWeightStrong};

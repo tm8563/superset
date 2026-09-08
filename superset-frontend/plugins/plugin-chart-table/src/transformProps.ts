@@ -819,7 +819,34 @@ const transformProps = (
         ? serverPaginationData?.pageSize
         : serverPageLength
       : getPageSize(pageLength, data.length, columns.length),
-    filters: filterState.filters,
+    // HSC customization: highlight rows from ANY active filter, like Tableau.
+    // Merge the dashboard's applied filters (native filter bar + cross-filters
+    // from other charts, delivered via formData.extra_form_data.filters as
+    // [{col, op, val}] clauses) with this chart's own cross-filter selection
+    // so both light up together. Simple IN/== clauses only.
+    filters: (() => {
+      const own = (filterState.filters as Record<string, unknown[]>) || {};
+      const merged: Record<string, unknown[]> = { ...own };
+      const extra = ensureIsArray(
+        (formData as { extra_form_data?: { filters?: { col: string; op: string; val?: unknown }[] } })
+          .extra_form_data?.filters,
+      ) as { col: string; op: string; val?: unknown }[];
+      extra.forEach(clause => {
+        if (
+          (clause.op === 'IN' || clause.op === '==') &&
+          clause.col &&
+          Array.isArray(clause.val) &&
+          clause.val.length > 0
+        ) {
+          const existing = merged[clause.col] || [];
+          clause.val.forEach((v: unknown) => {
+            if (!existing.includes(v)) existing.push(v);
+          });
+          merged[clause.col] = existing;
+        }
+      });
+      return merged as typeof filterState.filters;
+    })(),
     emitCrossFilters,
     onChangeFilter,
     columnColorFormatters,

@@ -134,6 +134,22 @@ export default styled.div`
       background-color: ${theme.colorFillContentHover};
     }
 
+    /* HSC customization: default full-row highlight when the row's dimension
+       values are part of the active cross-filter selection (plain /
+       Ctrl+click multi / Shift+click range / filters from other charts via
+       transformProps merge). A dashboard can OVERRIDE these colors in its own
+       CSS (Edit dashboard → Properties → CSS) — dashboard rules win because
+       they load later. No selection -> class never applies -> no highlight. */
+    tr:has(td.dt-is-active-row) td {
+      background-color: ${theme.colorPrimaryBg};
+    }
+
+    /* The clicked cell's own active tint stays readable on top */
+    td.dt-is-active-row.dt-is-active-filter,
+    td.dt-is-active-row.dt-is-active-filter:hover {
+      background-color: ${theme.colorPrimaryBgHover};
+    }
+
     .dt-global-filter {
       float: right;
     }

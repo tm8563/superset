@@ -1356,6 +1356,19 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                 ? 'dt-is-null'
                 : '',
               isActiveFilterValue(key, value) ? ' dt-is-active-filter' : '',
+              // HSC customization: full-row highlight when ANY of this row's
+              // dimension (non-metric) values are part of the active
+              // cross-filter selection -- covers plain, Ctrl+click multi and
+              // Shift+click range selection alike, matching the Tableau
+              // reference look. No selection -> no row matches -> the whole
+              // table stays unhighlighted.
+              Object.entries(filters || {}).some(([filterKey, filterVals]) =>
+                ensureIsArray(filterVals).some(filterVal =>
+                  isEqual(filterVal, row.original?.[filterKey]),
+                ),
+              )
+                ? ' dt-is-active-row'
+                : '',
             ].join(' '),
             style: resolvedTextColor
               ? ({ color: resolvedTextColor } as CSSProperties)

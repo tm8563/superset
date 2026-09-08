@@ -1360,10 +1360,15 @@ export function TableRenderer(props: TableRendererProps) {
             }
           : { backgroundColor, color: color ?? cellTextColor };
 
+        // HSC customization: mark cells whose value is null/undefined so the
+        // row-highlight rule can skip them -- an empty month cell in a
+        // selected row should look empty, not tinted.
+        const isEmptyValue = aggValue === null || aggValue === undefined;
+
         return (
           <td
             role="gridcell"
-            className="pvtVal"
+            className={`pvtVal${isEmptyValue ? ' pvtValEmpty' : ''}`}
             key={`pvtVal-${flatColKey}`}
             onClick={rowClickHandlers[flatColKey]}
             onContextMenu={e => onContextMenu(e, colKey, rowKey)}
@@ -1398,7 +1403,26 @@ export function TableRenderer(props: TableRendererProps) {
         totalCell,
       ];
 
-      return <tr key={`keyRow-${flatRowKey}`}>{rowCells}</tr>;
+      // HSC customization: highlight the ENTIRE row (header cells AND data
+      // cells) when any of this row's dimension values are part of the active
+      // cross-filter selection -- Ctrl+click multi-select or Shift+click
+      // range select land here too, matching the Tableau reference look.
+      // Nothing selected -> no row gets the class -> no highlight at all.
+      const isRowSelected =
+        !!highlightedHeaderCells &&
+        rowKey.some((r, i) => {
+          const vals = highlightedHeaderCells[settingsRowAttrs[i]];
+          return Array.isArray(vals) && vals.includes(r);
+        });
+
+      return (
+        <tr
+          key={`keyRow-${flatRowKey}`}
+          className={isRowSelected ? 'pvtRowSelected' : undefined}
+        >
+          {rowCells}
+        </tr>
+      );
     },
     [
       tableOptions,
