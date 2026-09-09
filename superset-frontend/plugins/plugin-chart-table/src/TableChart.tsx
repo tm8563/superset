@@ -46,6 +46,8 @@ import {
   BinaryQueryObjectFilterClause,
   extractTextFromHTML,
   TimeGranularity,
+  forceHexAlpha,
+  DateWithFormatter,
 } from '@superset-ui/core';
 import {
   styled,
@@ -97,7 +99,6 @@ import { formatColumnValue } from './utils/formatValue';
 import { PAGE_SIZE_OPTIONS, SERVER_PAGE_SIZE_OPTIONS } from './consts';
 import { updateTableOwnState } from './DataTable/utils/externalAPIs';
 import getScrollBarSize from './DataTable/utils/getScrollBarSize';
-import DateWithFormatter from './utils/DateWithFormatter';
 
 type ValueRange = [number, number];
 
