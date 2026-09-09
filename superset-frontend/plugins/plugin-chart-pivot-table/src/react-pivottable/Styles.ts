@@ -143,6 +143,18 @@ export const Styles = styled.div<{ isDashboardEditMode: boolean }>`
 
     table.pvtTable tbody tr th.pvtRowLabel {
       vertical-align: baseline;
+      /* HSC customization: several row-dimension label columns (e.g.
+         group_name/sub_group/pjcode/project_name) otherwise pack into
+         narrow, similarly-sized strips shoulder to shoulder, each only as
+         wide as its own content needs -- easy to click the wrong adjacent
+         dimension by a few px, especially on a tall rowSpan'd cell. A wider
+         minimum width and more horizontal breathing room make each
+         dimension's click target bigger and more forgiving without
+         meaningfully shrinking the data columns, which have far more
+         width to spare. */
+      min-width: 110px;
+      padding-left: ${theme.sizeUnit * 2}px;
+      padding-right: ${theme.sizeUnit * 2}px;
     }
 
     table.pvtTable tbody tr th.pvtRowLabel.pvtRowLabelLast {

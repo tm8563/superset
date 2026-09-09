@@ -25,6 +25,7 @@ from marshmallow import ValidationError
 
 from superset import db, security_manager
 from superset.commands.base import BaseCommand, UpdateMixin
+from superset.extensions import feature_flag_manager
 from superset.commands.dashboard.exceptions import (
     DashboardChartCustomizationsUpdateFailedError,
     DashboardColorsConfigUpdateFailedError,
@@ -72,7 +73,31 @@ class UpdateDashboardCommand(UpdateMixin, BaseCommand):
             self.process_native_filter_diff()
 
             # Update tags
-            if (tags := self._properties.pop("tags", None)) is not None:
+            # NOTE: the dashboard-edit UI sends an explicit ``tags: []`` when
+            # the TAGGING_SYSTEM feature flag is off (its save payload hardcodes
+            # ``tags: cleanedData.tags || []``) — see saveDashboardRequest in
+            # superset-frontend/src/dashboard/actions/dashboardState.ts. Blindly
+            # treating that as "remove every tag" silently stripped hsc:* tags
+            # that drive the /welcome/ homepage menu every time someone saved
+            # dashboard properties. Treat a payload WITHOUT the tags key, or
+            # with an empty list while tagging is disabled, as "no tag change".
+            tags = self._properties.pop("tags", None)
+            tagging_enabled = feature_flag_manager.is_feature_enabled(
+                "TAGGING_SYSTEM"
+            )
+            if not tagging_enabled:
+                # NOTE: the dashboard-edit UI sends an explicit ``tags: []``
+                # when the TAGGING_SYSTEM feature flag is off (its save payload
+                # hardcodes ``tags: cleanedData.tags || []`` — see
+                # saveDashboardRequest in superset-frontend/src/dashboard/
+                # actions/dashboardState.ts). With the flag off the UI has no
+                # tag editor at all, so ANY tags value in the payload is stale
+                # client state, never an intentional edit: treating it as
+                # "remove every tag" silently stripped hsc:* tags that drive
+                # the /welcome/ homepage menu on every dashboard save. Ignore
+                # the field entirely while tagging is disabled.
+                tags = None
+            if tags is not None:
                 update_tags(
                     ObjectType.dashboard, self._model.id, self._model.tags, tags
                 )
