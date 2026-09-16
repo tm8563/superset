@@ -76,6 +76,8 @@ import FilterBar from 'src/dashboard/components/nativeFilters/FilterBar';
 import { useUiConfig } from 'src/components/UiConfigContext';
 import { isMobileConsumptionEnabled, useIsMobile } from 'src/hooks/useIsMobile';
 import ResizableSidebar from 'src/components/ResizableSidebar';
+import AIStudioScoped from 'src/ai-studio/AIStudioScoped';
+import { isAuthenticatedUser } from 'src/utils/getBootstrapData';
 import {
   BUILDER_SIDEPANEL_WIDTH,
   CLOSED_FILTER_BAR_WIDTH,
@@ -997,6 +999,9 @@ const DashboardBuilder = () => {
               <Loading />
             )}
             {editMode && <BuilderComponentPane topOffset={barTopOffset} />}
+            {isAuthenticatedUser() && isFeatureEnabled(FeatureFlag.AiStudio) && (
+              <AIStudioScoped variant="dashboard" />
+            )}
           </StyledDashboardContent>
         </DashboardContentWrapper>
       </StyledContent>

@@ -15,6 +15,10 @@
 # specific language governing permissions and limitations
 # under the License.
 from . import (  # noqa: F401
+    # AI Studio models are imported here so SQLAlchemy/Alembic see them during
+    # normal Superset application startup. The feature remains disabled until
+    # explicitly enabled in deployment configuration.
+    ai_studio,
     core,
     dynamic_plugins,
     purge_audit_log,

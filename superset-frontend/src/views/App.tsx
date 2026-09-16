@@ -37,7 +37,10 @@ import { setupAGGridModules } from '@superset-ui/core/components/ThemedAgGridRea
 import { ErrorBoundary } from 'src/components';
 import MobileRouteGuard from 'src/components/MobileRouteGuard';
 import MenuWrapper from 'src/features/home/Menu';
-import getBootstrapData, { applicationRoot } from 'src/utils/getBootstrapData';
+import getBootstrapData, {
+  applicationRoot,
+  isAuthenticatedUser,
+} from 'src/utils/getBootstrapData';
 import ToastContainer from 'src/components/MessageToasts/ToastContainer';
 import setupApp from 'src/setup/setupApp';
 import setupPlugins from 'src/setup/setupPlugins';
@@ -47,9 +50,9 @@ import setupCodeOverrides from 'src/setup/setupCodeOverrides';
 import { logEvent } from 'src/logger/actions';
 import { store } from 'src/views/store';
 import { FeatureFlag, isFeatureEnabled } from '@superset-ui/core';
-import { isUser } from 'src/types/bootstrapTypes';
 import ExtensionsStartup from 'src/extensions/ExtensionsStartup';
 import { ChatFloatingHost, ChatPanelHost, useChat } from 'src/core/chat';
+import AIStudio from 'src/ai-studio';
 import useStoredSidebarWidth from 'src/components/ResizableSidebar/useStoredSidebarWidth';
 import { RootContextProviders } from './RootContextProviders';
 import { ScrollToTop } from './ScrollToTop';
@@ -162,8 +165,7 @@ const AppContent = ({
 }: {
   layoutPortalNode: HtmlPortalNode;
 }) => {
-  const isAuthenticated =
-    isUser(bootstrapData.user) && !bootstrapData.user.isAnonymous;
+  const isAuthenticated = isAuthenticatedUser();
   const chatExtensionsEnabled =
     isFeatureEnabled(FeatureFlag.EnableExtensions) && isAuthenticated;
   const { open: panelOpen, mode, chat } = useChat();
@@ -231,6 +233,9 @@ const AppContent = ({
         isFrontendRoute={isFrontendRoute}
       />
       <ExtensionsStartup>{content}</ExtensionsStartup>
+      {isAuthenticated && isFeatureEnabled(FeatureFlag.AiStudio) && (
+        <AIStudio />
+      )}
     </Flex>
   );
 };

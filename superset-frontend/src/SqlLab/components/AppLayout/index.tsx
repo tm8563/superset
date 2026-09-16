@@ -20,11 +20,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { noop } from 'lodash-es';
 import type { SqlLabRootState } from 'src/SqlLab/types';
 import { css, styled } from '@apache-superset/core/theme';
-import { useComponentDidUpdate } from '@superset-ui/core';
+import { FeatureFlag, isFeatureEnabled, useComponentDidUpdate } from '@superset-ui/core';
 import { Grid, Splitter } from '@superset-ui/core/components';
 import { useViews } from 'src/core';
 import useEffectEvent from 'src/hooks/useEffectEvent';
 import useStoredSidebarWidth from 'src/components/ResizableSidebar/useStoredSidebarWidth';
+import AIStudioScoped from 'src/ai-studio/AIStudioScoped';
+import { isAuthenticatedUser } from 'src/utils/getBootstrapData';
 import {
   SQL_EDITOR_LEFTBAR_WIDTH,
   SQL_EDITOR_RIGHTBAR_WIDTH,
@@ -35,6 +37,9 @@ import { toggleLeftBar } from 'src/SqlLab/actions/sqlLab';
 
 import SqlEditorLeftBar from '../SqlEditorLeftBar';
 import StatusBar from '../StatusBar';
+
+const AI_STUDIO_SQLLAB_DEFAULT_WIDTH = 420;
+const AI_STUDIO_SQLLAB_MIN_WIDTH = 320;
 
 const StyledContainer = styled.div`
   display: flex;
@@ -99,8 +104,14 @@ const AppLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
     }
   };
   const viewItems = useViews(ViewLocations.sqllab.rightSidebar) || [];
+  const [aiStudioWidth, setAiStudioWidth] = useStoredSidebarWidth(
+    'sqllab:ai-studio',
+    AI_STUDIO_SQLLAB_DEFAULT_WIDTH,
+  );
+  const showAiStudio =
+    isAuthenticatedUser() && isFeatureEnabled(FeatureFlag.AiStudio);
 
-  return (
+  const container = (
     <StyledContainer>
       <Splitter
         css={css`
@@ -145,6 +156,33 @@ const AppLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
       </Splitter>
       <StatusBar />
     </StyledContainer>
+  );
+
+  // The outer AI Studio Splitter only mounts when the panel would actually
+  // render — AppLayout.test.tsx fully mocks the Splitter module with a
+  // mock that can't distinguish nested instances, so an unconditional wrap
+  // would break every existing test's panel-count/button assertions
+  // regardless of this flag's value.
+  if (!showAiStudio) return container;
+  return (
+    <Splitter
+      lazy
+      onResizeEnd={sizes => {
+        const width = sizes[sizes.length - 1];
+        if (typeof width === 'number' && width >= AI_STUDIO_SQLLAB_MIN_WIDTH) {
+          setAiStudioWidth(width);
+        }
+      }}
+      onResize={noop}
+      css={css`
+        flex: 1;
+      `}
+    >
+      <Splitter.Panel>{container}</Splitter.Panel>
+      <Splitter.Panel size={aiStudioWidth} min={AI_STUDIO_SQLLAB_MIN_WIDTH}>
+        <AIStudioScoped variant="sqllab" />
+      </Splitter.Panel>
+    </Splitter>
   );
 };
 

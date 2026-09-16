@@ -110,6 +110,11 @@ jest.mock('src/dashboard/components/BuilderComponentPane', () => {
   MockBuilderComponentPane.displayName = 'MockBuilderComponentPane';
   return MockBuilderComponentPane;
 });
+jest.mock('src/ai-studio/AIStudioScoped', () => {
+  const MockAIStudioScoped = () => <div data-test="mock-ai-studio-scoped" />;
+  MockAIStudioScoped.displayName = 'MockAIStudioScoped';
+  return MockAIStudioScoped;
+});
 jest.mock('src/dashboard/components/nativeFilters/FilterBar', () => {
   const MockFilterBar = () => <div data-test="mock-filter-bar" />;
   MockFilterBar.displayName = 'MockFilterBar';

@@ -22,6 +22,7 @@ import { initialState } from 'src/SqlLab/fixtures';
 import useStoredSidebarWidth from 'src/components/ResizableSidebar/useStoredSidebarWidth';
 import { ViewLocations } from 'src/SqlLab/contributions';
 import * as sqlLabActions from 'src/SqlLab/actions/sqlLab';
+import { isAuthenticatedUser } from 'src/utils/getBootstrapData';
 import {
   registerTestView,
   cleanupExtensions,
@@ -29,6 +30,20 @@ import {
 import AppLayout from './index';
 
 jest.mock('src/components/ResizableSidebar/useStoredSidebarWidth');
+jest.mock('src/utils/getBootstrapData', () => ({
+  __esModule: true,
+  // Other modules pulled in transitively by the test-library setup (e.g.
+  // hostNamesConfig) call the real getBootstrapData() too, so only
+  // isAuthenticatedUser is overridden here — replacing the whole module
+  // breaks those unrelated call sites.
+  ...jest.requireActual('src/utils/getBootstrapData'),
+  isAuthenticatedUser: jest.fn(),
+}));
+jest.mock('src/ai-studio/AIStudioScoped', () => {
+  const MockAIStudioScoped = () => <div data-test="mock-ai-studio-scoped" />;
+  MockAIStudioScoped.displayName = 'MockAIStudioScoped';
+  return MockAIStudioScoped;
+});
 jest.mock('@superset-ui/core/components/Splitter', () => {
   const Splitter = ({
     onResizeEnd,
@@ -65,9 +80,16 @@ const defaultProps = {
 beforeEach(() => {
   jest.clearAllMocks();
   (useStoredSidebarWidth as jest.Mock).mockReturnValue([250, jest.fn()]);
+  // AI Studio stays off unless a test opts in below — matches the real
+  // default (window.featureFlags is {} in this test env) so every existing
+  // case here keeps rendering exactly as it did before that feature existed.
+  (isAuthenticatedUser as jest.Mock).mockReturnValue(false);
 });
 
-afterEach(cleanupExtensions);
+afterEach(async () => {
+  await cleanupExtensions();
+  window.featureFlags = {};
+});
 
 test('renders two panels', () => {
   const { getAllByTestId } = render(<AppLayout {...defaultProps} />, {
@@ -168,4 +190,30 @@ test('renders right sidebar when view is contributed at rightSidebar location', 
   expect(getByText('Child')).toBeInTheDocument();
   expect(getByText('Right Sidebar Content')).toBeInTheDocument();
   expect(getAllByTestId('mock-panel')).toHaveLength(3);
+});
+
+test('wraps in an additional Splitter panel for AI Studio when authenticated and enabled', () => {
+  window.featureFlags = { AI_STUDIO_ENABLED: true };
+  (isAuthenticatedUser as jest.Mock).mockReturnValue(true);
+  const { getByTestId, getAllByTestId } = render(
+    <AppLayout {...defaultProps} />,
+    { useRedux: true, initialState },
+  );
+  // Baseline (flag off) is 2 mock-panels (left + body); the outer AI Studio
+  // Splitter contributes 2 more of its own (one wrapping everything else,
+  // one for the AI Studio panel itself) — see the "conditional, not
+  // unconditional" note in AppLayout's outer Splitter wrap.
+  expect(getAllByTestId('mock-panel')).toHaveLength(4);
+  expect(getByTestId('mock-ai-studio-scoped')).toBeInTheDocument();
+});
+
+test('does not add the AI Studio Splitter when not authenticated', () => {
+  window.featureFlags = { AI_STUDIO_ENABLED: true };
+  (isAuthenticatedUser as jest.Mock).mockReturnValue(false);
+  const { queryByTestId, getAllByTestId } = render(
+    <AppLayout {...defaultProps} />,
+    { useRedux: true, initialState },
+  );
+  expect(getAllByTestId('mock-panel')).toHaveLength(2);
+  expect(queryByTestId('mock-ai-studio-scoped')).not.toBeInTheDocument();
 });
