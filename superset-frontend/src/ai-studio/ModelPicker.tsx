@@ -48,8 +48,22 @@ function flattenModels(providers: Provider[]): ModelRow[] {
   });
 }
 
-function providerIcon(providerId: string): string {
-  const key = providerId.toLowerCase();
+// Ollama's own naming convention for a locally-referenced pointer to a
+// model actually served through Ollama Cloud (via the local daemon's
+// stored cloud login) -- 0 MB local footprint, network-dependent, distinct
+// enough from a fully local model that a "local" provider showing one is
+// worth calling out rather than leaving it looking like a labeling mistake.
+// The "cloud" tag shows up two ways depending on whether the model also
+// carries a size variant: a bare tag (`glm-5.1:cloud`) or a size-suffixed
+// one (`gpt-oss:120b-cloud`) -- both end in "cloud" preceded by either
+// separator, never as part of an unrelated word, so a single suffix check
+// covers both without over-matching.
+function isOllamaCloudModel(model: string): boolean {
+  return model.endsWith(":cloud") || model.endsWith("-cloud");
+}
+
+function providerIcon(providerLabel: string): string {
+  const key = providerLabel.toLowerCase();
   if (key.includes("openai")) return "◉";
   if (key.includes("anthropic") || key.includes("claude")) return "✦";
   if (key.includes("gemini") || key.includes("google")) return "◆";
@@ -182,6 +196,22 @@ function ModelPickerBody({
           gap: 2px;
           max-height: 320px;
           overflow-y: auto;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+
+          &::-webkit-scrollbar {
+            width: 8px;
+          }
+          &::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          &::-webkit-scrollbar-thumb {
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.14);
+          }
+          &::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.26);
+          }
         `}
       >
         {filtered.length === 0 && (
@@ -203,7 +233,6 @@ function ModelPickerBody({
             <button
               key={`${row.providerId}/${row.model}`}
               type="button"
-              disabled={!row.configured}
               onClick={() => onSelect(row.providerId, row.model)}
               css={css`
                 ${rowCss};
@@ -225,7 +254,7 @@ function ModelPickerBody({
                   font-size: 12px;
                 `}
               >
-                {providerIcon(row.providerId)}
+                {providerIcon(row.providerLabel)}
               </span>
               <span
                 css={css`
@@ -235,15 +264,41 @@ function ModelPickerBody({
               >
                 <span
                   css={css`
-                    display: block;
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
                     overflow: hidden;
-                    color: #eaf3ff;
-                    font-size: 11px;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
                   `}
                 >
-                  {row.model}
+                  <span
+                    css={css`
+                      overflow: hidden;
+                      color: #eaf3ff;
+                      font-size: 11px;
+                      text-overflow: ellipsis;
+                      white-space: nowrap;
+                    `}
+                  >
+                    {row.model}
+                  </span>
+                  {isOllamaCloudModel(row.model) && (
+                    <span
+                      title="Referenced locally, but this model actually runs on Ollama Cloud via the server's own Ollama login -- not fully local inference."
+                      css={css`
+                        flex: 0 0 auto;
+                        border: 1px solid rgba(255, 200, 87, 0.25);
+                        border-radius: 999px;
+                        background: rgba(255, 200, 87, 0.1);
+                        color: #ffd479;
+                        font-size: 8px;
+                        letter-spacing: 0.03em;
+                        padding: 1px 6px;
+                        white-space: nowrap;
+                      `}
+                    >
+                      ☁ CLOUD
+                    </span>
+                  )}
                 </span>
                 <span
                   css={css`
@@ -278,6 +333,7 @@ function ModelPickerBody({
                   </span>
                 )}
                 <span
+                  title={row.configured ? "API key set" : "No API key set"}
                   css={css`
                     width: 6px;
                     height: 6px;

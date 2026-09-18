@@ -12,6 +12,7 @@ type Props = {
    * 100% of the parent instead, for a Splitter.Panel that already owns the
    * sizing (SQL Lab). */
   width?: number;
+  variant: "dashboard" | "sqllab";
 };
 
 export default function AIStudioInlinePanel({ width, ...contentProps }: Props) {

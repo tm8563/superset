@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-import os
 from datetime import datetime, timezone
 from typing import Any
 from urllib.error import HTTPError, URLError
@@ -15,9 +14,15 @@ from superset import db, security_manager
 from superset.commands.chart.update import UpdateChartCommand
 from superset.commands.dashboard.update import UpdateDashboardCommand
 from superset.exceptions import SupersetSecurityException
+from superset.models.core import Database
 from superset.models.dashboard import Dashboard
 from superset.models.slice import Slice
-from superset.ai_studio.models import AIStudioChangeSet, AIStudioCheckpoint
+from superset.sql.parse import Table
+from superset.ai_studio.models import (
+    AIStudioChangeSet,
+    AIStudioCheckpoint,
+    AIStudioProvider,
+)
 
 
 class AIStudioError(Exception):
@@ -28,11 +33,26 @@ class PermissionDenied(AIStudioError):
     pass
 
 
+class AdminOnlyError(PermissionDenied):
+    """Raised when a non-admin calls an admin-only AI Studio endpoint."""
+
+
 def _json(value: str | None, fallback: Any) -> Any:
     try:
         return json.loads(value or "")
     except (TypeError, ValueError):
         return fallback
+
+
+def _string_list(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item).strip() for item in value if str(item).strip()]
+
+
+def _require_admin() -> None:
+    if not security_manager.is_admin():
+        raise AdminOnlyError("Only an administrator can manage AI providers.")
 
 
 def _serialize_dashboard(dashboard: Dashboard) -> dict[str, Any]:
@@ -94,55 +114,151 @@ class ContextBuilder:
             },
         }
 
+    @staticmethod
+    def sql_lab(
+        user: User,
+        database_id: int,
+        schema: str | None = None,
+        table: str | None = None,
+    ) -> dict[str, Any]:
+        """Bounded SQL Lab context: the connected database's identity plus,
+        when a table is given, its column metadata -- never row data. The
+        table/schema themselves come from the browser's own current tab
+        (there is no server-side "SQL Lab session" resource with an id to
+        re-resolve the way a dashboard has one), but the database access
+        check and the column introspection are both done here, server-side,
+        under the real request user -- the same trust split ``dashboard()``
+        applies to a client-supplied dashboard id.
+        """
+        database = db.session.get(Database, database_id)
+        if not database or not security_manager.can_access_database(database):
+            raise PermissionDenied("You do not have access to this database.")
+
+        columns: list[dict[str, Any]] = []
+        if table:
+            try:
+                columns = [
+                    {"name": col.get("column_name"), "type": str(col.get("type") or "")}
+                    for col in database.get_columns(
+                        Table(table=table, schema=schema)
+                    )
+                ]
+            except Exception:  # noqa: BLE001 - introspection can fail for many
+                # engine-specific reasons (missing table, transient
+                # connection error); the chat should still proceed with
+                # whatever context it does have rather than 500.
+                columns = []
+
+        return {
+            "database": {
+                "id": database.id,
+                "name": database.database_name,
+                "backend": database.backend,
+            },
+            "schema": schema,
+            "table": table,
+            "columns": columns,
+            "permissions": {"database_read": True},
+        }
+
+
+def _provider_public_dict(provider: AIStudioProvider) -> dict[str, Any]:
+    return {
+        "id": str(provider.id),
+        "label": provider.label,
+        "models": _json(provider.models_json, []),
+        "default_model": provider.default_model,
+        "capabilities": _json(provider.capabilities_json, ["chat"]),
+        # Only the tier names are public; effort_param (how to pass the
+        # chosen tier to the upstream API) is a server-side request-shaping
+        # detail, not something the browser needs.
+        "effort_levels": _json(provider.effort_levels_json, []),
+        "configured": bool(provider.api_key),
+    }
+
+
+def _provider_admin_dict(provider: AIStudioProvider) -> dict[str, Any]:
+    return {
+        **_provider_public_dict(provider),
+        "base_url": provider.base_url,
+        "has_api_key": bool(provider.api_key),
+        "effort_param": provider.effort_param,
+        "enabled": provider.enabled,
+        "created_on": provider.created_on.isoformat() if provider.created_on else None,
+        "changed_on": provider.changed_on.isoformat() if provider.changed_on else None,
+    }
+
 
 class ProviderRegistry:
-    """Config-only provider registry; browser clients never receive secrets."""
+    """Admin-managed, DB-backed provider registry; browser clients never
+    receive secrets. Providers are added/edited/enabled through
+    AdminProviderService (Admin-only), not deployment configuration.
+    """
 
     @staticmethod
     def public() -> list[dict[str, Any]]:
-        configured = current_app.config.get("AI_STUDIO_PROVIDERS", [])
-        providers = []
-        for provider in configured:
-            if not isinstance(provider, dict) or not provider.get("id"):
-                continue
-            providers.append(
-                {
-                    "id": provider["id"],
-                    "label": provider.get("label", provider["id"]),
-                    "models": provider.get("models", []),
-                    "default_model": provider.get("default_model"),
-                    "capabilities": provider.get("capabilities", ["chat"]),
-                    # Only the tier names are public; effort_param (how to pass
-                    # the chosen tier to the upstream API) is a server-side
-                    # request-shaping detail, not something the browser needs.
-                    "effort_levels": provider.get("effort_levels", []),
-                    "configured": bool(provider.get("api_key_env") and os.getenv(provider["api_key_env"])),
-                }
-            )
-        return providers
+        rows = (
+            db.session.query(AIStudioProvider)
+            .filter(AIStudioProvider.enabled.is_(True))
+            .order_by(AIStudioProvider.label)
+            .all()
+        )
+        return [_provider_public_dict(row) for row in rows]
 
     @staticmethod
-    def chat(
-        provider_id: str,
-        model: str | None,
-        messages: list[dict[str, str]],
-        effort: str | None = None,
-    ) -> dict[str, Any]:
-        provider = next((p for p in current_app.config.get("AI_STUDIO_PROVIDERS", []) if p.get("id") == provider_id), None)
-        if not provider:
+    def _resolve_provider(provider_id: str) -> AIStudioProvider:
+        provider = db.session.get(AIStudioProvider, provider_id)
+        if not provider or not provider.enabled:
             raise AIStudioError("The requested AI provider is not enabled by an administrator.")
-        key = os.getenv(provider.get("api_key_env", ""))
-        if not key:
-            raise AIStudioError("This provider is not configured on the server.")
-        endpoint = provider.get("base_url", "https://api.openai.com/v1").rstrip("/") + "/chat/completions"
-        request_body: dict[str, Any] = {"model": model or provider.get("default_model"), "messages": messages, "stream": False}
-        effort_param = provider.get("effort_param")
+        return provider
+
+    @staticmethod
+    def capabilities(provider_id: str) -> list[str]:
+        """Public accessor for a provider's declared capability tags (e.g.
+        "vision") -- lets callers outside this module (attachments.py,
+        api.py) make capability-gated decisions without reaching into
+        _resolve_provider/_json directly.
+        """
+        provider = ProviderRegistry._resolve_provider(provider_id)
+        return _json(provider.capabilities_json, ["chat"])
+
+    @staticmethod
+    def _post_chat_completion(
+        provider: AIStudioProvider,
+        model: str | None,
+        messages: list[dict[str, Any]],
+        *,
+        effort: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
+        """One raw OpenAI-compatible ``/chat/completions`` call.
+
+        Returns the first choice's ``message`` dict (may carry ``content``
+        and/or ``tool_calls``) plus ``usage`` merged in -- shared by both
+        ``chat()`` (a finished, tool-free answer) and ``chat_step()`` (one
+        turn of a tool-calling round trip, which may not be finished yet).
+        """
+        endpoint = provider.base_url.rstrip("/") + "/chat/completions"
+        request_body: dict[str, Any] = {
+            "model": model or provider.default_model,
+            "messages": messages,
+            "stream": False,
+        }
+        if tools:
+            request_body["tools"] = tools
+        effort_levels = _json(provider.effort_levels_json, [])
         # Re-validate against the provider's own declared levels server-side;
         # never forward a client-supplied tier the operator hasn't opted into.
-        if effort and effort_param and effort in provider.get("effort_levels", []):
-            request_body[effort_param] = effort
+        if effort and provider.effort_param and effort in effort_levels:
+            request_body[provider.effort_param] = effort
         payload = json.dumps(request_body).encode()
-        request = Request(endpoint, data=payload, headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"}, method="POST")
+        # Not every OpenAI-compatible endpoint requires a key (e.g. a local,
+        # unauthenticated Ollama server) -- only attach one if the admin set
+        # one, rather than refusing to try the request at all.
+        headers = {"Content-Type": "application/json"}
+        if provider.api_key:
+            headers["Authorization"] = f"Bearer {provider.api_key}"
+        request = Request(endpoint, data=payload, headers=headers, method="POST")
         try:
             with urlopen(request, timeout=45) as response:  # nosec B310: admin-configured endpoint
                 body = json.loads(response.read())
@@ -151,7 +267,141 @@ class ProviderRegistry:
         choices = body.get("choices", [])
         if not choices:
             raise AIStudioError("The provider returned no response.")
-        return {"content": choices[0].get("message", {}).get("content", ""), "usage": body.get("usage"), "provider": provider_id, "model": model or provider.get("default_model")}
+        message = dict(choices[0].get("message", {}))
+        message["usage"] = body.get("usage")
+        return message
+
+    @staticmethod
+    def chat(
+        provider_id: str,
+        model: str | None,
+        messages: list[dict[str, str]],
+        effort: str | None = None,
+    ) -> dict[str, Any]:
+        provider = ProviderRegistry._resolve_provider(provider_id)
+        message = ProviderRegistry._post_chat_completion(provider, model, messages, effort=effort)
+        return {
+            "content": message.get("content", ""),
+            "usage": message.get("usage"),
+            "provider": provider_id,
+            "model": model or provider.default_model,
+        }
+
+    @staticmethod
+    def chat_step(
+        provider_id: str,
+        model: str | None,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]],
+        effort: str | None = None,
+    ) -> dict[str, Any]:
+        """One turn of a tool-calling round trip (api.py's synchronous
+        tool-resolution phase, before the final answer goes to the async GTF
+        task) -- returns the raw ``message`` (``content`` and/or
+        ``tool_calls``), not the finished shape ``chat()`` returns, since the
+        caller here may still have more rounds ahead of it.
+        """
+        provider = ProviderRegistry._resolve_provider(provider_id)
+        return ProviderRegistry._post_chat_completion(
+            provider, model, messages, effort=effort, tools=tools
+        )
+
+
+class AdminProviderService:
+    """Admin-only CRUD for DB-stored AI providers. api_key is write-only:
+    accepted on create/update, encrypted at rest (AIStudioProvider.api_key
+    is an EncryptedType column, the same mechanism Database.password uses),
+    and never included in any response — callers only ever see
+    has_api_key/configured.
+    """
+
+    @staticmethod
+    def list_all() -> list[dict[str, Any]]:
+        _require_admin()
+        rows = db.session.query(AIStudioProvider).order_by(AIStudioProvider.label).all()
+        return [_provider_admin_dict(row) for row in rows]
+
+    @staticmethod
+    def get(provider_id: str) -> dict[str, Any]:
+        _require_admin()
+        provider = db.session.get(AIStudioProvider, provider_id)
+        if not provider:
+            raise AIStudioError("Provider not found.")
+        return _provider_admin_dict(provider)
+
+    @staticmethod
+    def create(user: User, payload: dict[str, Any]) -> dict[str, Any]:
+        _require_admin()
+        label = str(payload.get("label") or "").strip()
+        base_url = str(payload.get("base_url") or "").strip()
+        if not label or not base_url:
+            raise AIStudioError("A label and base URL are required.")
+        provider = AIStudioProvider(
+            label=label,
+            base_url=base_url,
+            default_model=(str(payload["default_model"]).strip() if payload.get("default_model") else None),
+            models_json=json.dumps(_string_list(payload.get("models"))),
+            capabilities_json=json.dumps(_string_list(payload.get("capabilities")) or ["chat"]),
+            effort_levels_json=json.dumps(_string_list(payload.get("effort_levels"))),
+            effort_param=(str(payload["effort_param"]).strip() if payload.get("effort_param") else None),
+            enabled=bool(payload.get("enabled", True)),
+            created_by_fk=user.id,
+            changed_by_fk=user.id,
+        )
+        api_key = payload.get("api_key")
+        if api_key:
+            provider.api_key = str(api_key)
+        db.session.add(provider)
+        db.session.commit()
+        return _provider_admin_dict(provider)
+
+    @staticmethod
+    def update(user: User, provider_id: str, payload: dict[str, Any]) -> dict[str, Any]:
+        _require_admin()
+        provider = db.session.get(AIStudioProvider, provider_id)
+        if not provider:
+            raise AIStudioError("Provider not found.")
+        if "label" in payload:
+            label = str(payload.get("label") or "").strip()
+            if not label:
+                raise AIStudioError("Label cannot be empty.")
+            provider.label = label
+        if "base_url" in payload:
+            base_url = str(payload.get("base_url") or "").strip()
+            if not base_url:
+                raise AIStudioError("Base URL cannot be empty.")
+            provider.base_url = base_url
+        if "default_model" in payload:
+            provider.default_model = str(payload["default_model"]).strip() if payload.get("default_model") else None
+        if "models" in payload:
+            provider.models_json = json.dumps(_string_list(payload.get("models")))
+        if "capabilities" in payload:
+            provider.capabilities_json = json.dumps(_string_list(payload.get("capabilities")) or ["chat"])
+        if "effort_levels" in payload:
+            provider.effort_levels_json = json.dumps(_string_list(payload.get("effort_levels")))
+        if "effort_param" in payload:
+            provider.effort_param = str(payload["effort_param"]).strip() if payload.get("effort_param") else None
+        if "enabled" in payload:
+            provider.enabled = bool(payload.get("enabled"))
+        # Write-only: only touch the stored secret if a real replacement was
+        # actually submitted. There is no mask-sentinel round-trip to worry
+        # about since the real key is never sent back in the first place.
+        api_key = payload.get("api_key")
+        if api_key:
+            provider.api_key = str(api_key)
+        provider.changed_by_fk = user.id
+        provider.changed_on = datetime.now(timezone.utc)
+        db.session.commit()
+        return _provider_admin_dict(provider)
+
+    @staticmethod
+    def delete(provider_id: str) -> None:
+        _require_admin()
+        provider = db.session.get(AIStudioProvider, provider_id)
+        if not provider:
+            raise AIStudioError("Provider not found.")
+        db.session.delete(provider)
+        db.session.commit()
 
 
 class MCPRegistry:

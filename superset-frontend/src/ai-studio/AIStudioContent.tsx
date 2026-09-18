@@ -1,23 +1,36 @@
 import { css } from "@apache-superset/core/theme";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { store } from "src/views/store";
+import { useSelector, shallowEqual } from "react-redux";
+import type { QueryEditor, Table as SqlLabTable } from "src/SqlLab/types";
+import { store, type RootState } from "src/views/store";
 import type { AIStudioSection } from "./index";
 import ModelPicker from "./ModelPicker";
 import {
   applyChange,
+  type Attachment,
+  cancelGtfTask,
   type Change,
   type ChatMessage,
   type DashboardContext,
+  deleteAttachment,
+  errorMessage,
   getChanges,
   getDashboardContext,
+  getSqlLabContext,
   getStudioBootstrap,
   getTasks,
   type MCPTool,
+  pollGtfTaskUntilTerminal,
+  type Provider,
   rejectChange,
-  sendChat,
+  type SqlLabContext,
+  submitChat,
   type StudioBootstrap,
   type Task,
+  type ToolCallAudit,
+  uploadAttachment,
 } from "./api";
+import ProviderAdmin from "./ProviderAdmin";
 
 type Props = {
   section: AIStudioSection;
@@ -25,7 +38,10 @@ type Props = {
   onClose: () => void;
   onOpenPalette: () => void;
   onNotify: (message: string) => void;
+  variant: "dashboard" | "sqllab";
 };
+
+type DisplayMessage = ChatMessage & { toolCalls?: ToolCallAudit[] };
 
 const tabs: Array<{ id: AIStudioSection; label: string }> = [
   { id: "chat", label: "Chat" },
@@ -56,6 +72,20 @@ const primaryButtonCss = css`
   cursor: pointer;
   font-size: 10px;
   padding: 0 10px;
+  transition:
+    transform 120ms ease,
+    filter 120ms ease;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  &:focus-visible {
+    outline: 2px solid #6ea8ff;
+    outline-offset: 2px;
+  }
 `;
 
 const secondaryButtonCss = css`
@@ -67,6 +97,18 @@ const secondaryButtonCss = css`
   cursor: pointer;
   font-size: 10px;
   padding: 0 10px;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+  }
+  &:focus-visible {
+    outline: 2px solid #6ea8ff;
+    outline-offset: 2px;
+  }
 `;
 
 const iconButtonCss = css`
@@ -79,6 +121,22 @@ const iconButtonCss = css`
   background: rgba(255, 255, 255, 0.035);
   color: #dceaff;
   cursor: pointer;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    transform 120ms ease;
+
+  &:hover {
+    border-color: rgba(110, 168, 255, 0.35);
+    background: rgba(110, 168, 255, 0.12);
+  }
+  &:active {
+    transform: scale(0.94);
+  }
+  &:focus-visible {
+    outline: 2px solid #6ea8ff;
+    outline-offset: 2px;
+  }
 `;
 
 const avatarCss = css`
@@ -94,6 +152,31 @@ const avatarCss = css`
   font-weight: 700;
 `;
 
+/** A slim, dark-panel-appropriate scrollbar -- the OS default is a light,
+ * boxy control that clashes with this panel wherever content actually
+ * overflows (the message list, the JSON context viewer, long tab/tool
+ * lists). Firefox honors `scrollbar-*`; the pseudo-elements cover
+ * Chromium/WebKit (Superset's supported browser set). */
+const scrollAreaCss = css`
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.26);
+  }
+`;
+
 const chipCss = css`
   flex: 0 0 auto;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -104,6 +187,10 @@ const chipCss = css`
   padding: 5px 8px;
   white-space: nowrap;
 `;
+
+function pickDefaultProvider(providers: Provider[]) {
+  return providers.find((item) => item.configured) ?? providers[0];
+}
 
 function dashboardIdFromPath() {
   const { pathname } = window.location;
@@ -118,15 +205,50 @@ function dashboardIdFromPath() {
   return typeof id === "number" ? id : undefined;
 }
 
-async function errorMessage(error: unknown, fallback: string) {
-  if (error instanceof Response) {
-    const payload = (await error
-      .clone()
-      .json()
-      .catch(() => undefined)) as { message?: unknown } | undefined;
-    if (typeof payload?.message === "string") return payload.message;
-  }
-  return error instanceof Error ? error.message : fallback;
+type ActiveSqlContext = {
+  databaseId: number;
+  schema?: string;
+  table?: string;
+  sql: string;
+};
+
+/** A useSelector-shaped reader of SQL Lab's own Redux slice for whichever
+ * query editor tab is currently focused -- the same tabHistory-last-entry
+ * convention SQL Lab's own components use (see e.g. SqlEditorTabs) --
+ * merging in `unsavedQueryEditor` the way `getUpToDateQuery` does, so an
+ * in-progress edit (a schema switch, new SQL text) is reflected even before
+ * it's persisted. Selector shape (not a plain store.getState() read) so the
+ * panel re-renders as the user switches tabs or types, the same way any
+ * other SQL Lab component would. Returns undefined once there's no
+ * connected database to report, which is a real, common state (a brand new,
+ * empty tab). */
+function selectActiveSqlLabContext(state: RootState): ActiveSqlContext | undefined {
+  const { sqlLab } = state;
+  const activeId = sqlLab.tabHistory[sqlLab.tabHistory.length - 1];
+  if (!activeId) return undefined;
+  const base = sqlLab.queryEditors.find(
+    (editor: QueryEditor) => editor.id === activeId,
+  );
+  const unsaved =
+    sqlLab.unsavedQueryEditor.id === activeId
+      ? sqlLab.unsavedQueryEditor
+      : undefined;
+  const merged = { ...base, ...unsaved };
+  if (!merged.dbId) return undefined;
+  // A Table's own queryEditorId is written as tabViewId ?? id (see addTable
+  // in src/SqlLab/actions/sqlLab.ts) -- tabViewId is assigned asynchronously
+  // once the tab is persisted server-side, so matching on the plain local
+  // id alone silently stops finding any table opened after that point.
+  const tableOwnerId = merged.tabViewId ?? activeId;
+  const activeTable = sqlLab.tables.find(
+    (item: SqlLabTable) => item.queryEditorId === tableOwnerId && item.expanded,
+  );
+  return {
+    databaseId: merged.dbId,
+    schema: merged.schema || activeTable?.schema,
+    table: activeTable?.name,
+    sql: merged.sql || "",
+  };
 }
 
 type DiffRow = { key: string; before?: string; after?: string };
@@ -248,6 +370,51 @@ function StatusBadge({
     >
       {children}
     </span>
+  );
+}
+
+function ToolCallTrail({ calls }: { calls: ToolCallAudit[] }) {
+  return (
+    <div
+      css={css`
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 8px;
+      `}
+    >
+      {calls.map((call, index) => (
+        <span
+          key={`${call.tool}-${index}`}
+          title={
+            call.argument_keys.length
+              ? `Called with: ${call.argument_keys.join(", ")}`
+              : "Called with no arguments"
+          }
+          css={css`
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid
+              ${call.status === "ok"
+                ? "rgba(67, 216, 158, 0.22)"
+                : "rgba(255, 113, 136, 0.22)"};
+            border-radius: 999px;
+            background: ${call.status === "ok"
+              ? "rgba(67, 216, 158, 0.08)"
+              : "rgba(255, 113, 136, 0.08)"};
+            color: ${call.status === "ok" ? "#8fe6bc" : "#ff9dad"};
+            font-size: 9px;
+            padding: 3px 8px;
+            white-space: nowrap;
+          `}
+        >
+          <span aria-hidden="true">{call.status === "ok" ? "🔧" : "⚠"}</span>
+          {call.tool}
+          <span css={css`opacity: 0.65;`}>{call.latency_ms}ms</span>
+        </span>
+      ))}
+    </div>
   );
 }
 
@@ -418,6 +585,7 @@ function TaskList({ tasks }: { tasks: Task[] }) {
                 {task.error}
               </p>
             )}
+            {!!task.tool_calls?.length && <ToolCallTrail calls={task.tool_calls} />}
             <TaskProgress status={task.status} />
           </article>
         );
@@ -478,6 +646,7 @@ function ChangeList({
             </div>
             <div
               css={css`
+                ${scrollAreaCss};
                 max-height: 220px;
                 overflow: auto;
                 background: #08111e;
@@ -657,18 +826,34 @@ function ToolRegistry({ tools }: { tools: MCPTool[] }) {
   );
 }
 
-function ContextPanel({ context }: { context?: DashboardContext }) {
-  if (!context)
+function ContextPanel({
+  variant,
+  context,
+  sqlContext,
+}: {
+  variant: "dashboard" | "sqllab";
+  context?: DashboardContext;
+  sqlContext?: SqlLabContext;
+}) {
+  const payload = variant === "sqllab" ? sqlContext : context;
+  if (!payload)
     return (
       <EmptyState
-        title="No dashboard context"
-        detail="Open a dashboard to attach its metadata, charts, and filters."
+        title={
+          variant === "sqllab" ? "No database selected yet" : "No dashboard context"
+        }
+        detail={
+          variant === "sqllab"
+            ? "Pick a database (and optionally a table) in SQL Lab's left panel to attach its metadata."
+            : "Open a dashboard to attach its metadata, charts, and filters."
+        }
       />
     );
   return (
     <pre
       css={css`
         ${panelCss};
+        ${scrollAreaCss};
         margin: 0;
         max-height: 100%;
         overflow: auto;
@@ -680,12 +865,18 @@ function ContextPanel({ context }: { context?: DashboardContext }) {
         white-space: pre-wrap;
       `}
     >
-      {JSON.stringify(context, null, 2)}
+      {JSON.stringify(payload, null, 2)}
     </pre>
   );
 }
 
-function SettingsPanel({ safeMode }: { safeMode?: boolean }) {
+function SettingsPanel({
+  safeMode,
+  variant,
+}: {
+  safeMode?: boolean;
+  variant: "dashboard" | "sqllab";
+}) {
   const rows = [
     [
       "Require approval before writes",
@@ -694,12 +885,16 @@ function SettingsPanel({ safeMode }: { safeMode?: boolean }) {
     ],
     [
       "Auto-run read-only tools",
-      "Allow dashboard inspection without confirmation",
+      variant === "sqllab"
+        ? "Allow database and table inspection without confirmation"
+        : "Allow dashboard inspection without confirmation",
       true,
     ],
     [
-      "Dashboard-aware context",
-      "Attach the active dashboard to this session",
+      variant === "sqllab" ? "SQL Lab-aware context" : "Dashboard-aware context",
+      variant === "sqllab"
+        ? "Attach the active database, schema, and table to this session"
+        : "Attach the active dashboard to this session",
       true,
     ],
     [
@@ -841,29 +1036,65 @@ export default function AIStudioContent({
   onClose,
   onOpenPalette,
   onNotify,
+  variant,
 }: Props) {
   const [bootstrap, setBootstrap] = useState<StudioBootstrap>();
   const [context, setContext] = useState<DashboardContext>();
+  const [sqlContext, setSqlContext] = useState<SqlLabContext>();
   const [changes, setChanges] = useState<Change[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  // The in-flight chat's GTF task uuid, so a Cancel click has something to
+  // call; the ref alongside it lets the poll loop below notice a cancel
+  // without re-subscribing the whole loop to state.
+  const [activeGtfTaskUuid, setActiveGtfTaskUuid] = useState<string>();
+  const cancelledRef = useRef(false);
   const [provider, setProvider] = useState("");
   const [model, setModel] = useState<string>();
   const [effort, setEffort] = useState<string>();
   const [pickerOpen, setPickerOpen] = useState(false);
+  // Pending attachments for the *next* message -- upload-on-select, not
+  // upload-on-send: each file finishes uploading (and gets a real
+  // attachment id) as soon as it's chosen, independent of when/whether the
+  // user actually sends. Cleared right after a message is submitted, the
+  // same ephemeral, client-side-only lifecycle the rest of compose-box
+  // state already has (chat history itself doesn't survive a reload either).
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [attachmentsUploading, setAttachmentsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const dashboardId = dashboardIdFromPath();
+  const activeSql = useSelector(
+    (state: RootState) =>
+      variant === "sqllab" ? selectActiveSqlLabContext(state) : undefined,
+    shallowEqual,
+  );
   const refreshChanges = async () => setChanges(await getChanges());
+  // Not called from the mount effect below (which loads bootstrap inline) —
+  // this is only passed down to ProviderAdmin, invoked from its own
+  // event-driven save/delete/toggle handlers, never from a useEffect.
+  const refreshProviders = async () => {
+    const value = await getStudioBootstrap();
+    setBootstrap(value);
+    const current = value.providers.find((item) => item.id === provider);
+    // Re-pick when the provider disappeared, or it's still there but an
+    // admin edit (e.g. changing the model list) left the previously
+    // selected model no longer valid for it.
+    if (!current || (model && !current.models.includes(model))) {
+      const chosen = current ?? pickDefaultProvider(value.providers);
+      setProvider(chosen?.id ?? "");
+      setModel(chosen?.default_model ?? chosen?.models[0]);
+    }
+  };
 
   useEffect(() => {
     getStudioBootstrap()
       .then((value) => {
         setBootstrap(value);
-        const chosen =
-          value.providers.find((item) => item.configured) ?? value.providers[0];
+        const chosen = pickDefaultProvider(value.providers);
         setProvider(chosen?.id ?? "");
         setModel(chosen?.default_model ?? chosen?.models[0]);
       })
@@ -882,6 +1113,22 @@ export default function AIStudioContent({
     return () => window.clearTimeout(focusTimer);
   }, [dashboardId]);
 
+  // sqlContext only ever grows more accurate (or gets replaced by a fetch
+  // for a different table/schema) -- it's never reset synchronously here on
+  // every render where activeSql briefly lacks a database (e.g. a fresh,
+  // still-loading tab), so display sites below gate on activeSql directly
+  // instead of trusting a stale sqlContext left over from a prior tab.
+  useEffect(() => {
+    if (!activeSql?.databaseId) return;
+    getSqlLabContext({
+      databaseId: activeSql.databaseId,
+      schema: activeSql.schema,
+      table: activeSql.table,
+    })
+      .then(setSqlContext)
+      .catch(() => undefined);
+  }, [activeSql?.databaseId, activeSql?.schema, activeSql?.table]);
+
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -891,6 +1138,15 @@ export default function AIStudioContent({
   }, [onClose]);
 
   const activeProvider = bootstrap?.providers.find((item) => item.id === provider);
+  const supportsImages = Boolean(activeProvider?.capabilities.includes("vision"));
+  const acceptedAttachmentExtensions = [
+    ".txt",
+    ".md",
+    ".csv",
+    ".pdf",
+    ".docx",
+    ...(supportsImages ? [".png", ".jpg", ".jpeg", ".gif", ".webp"] : []),
+  ].join(",");
 
   const send = async () => {
     const text = prompt.trim();
@@ -902,27 +1158,103 @@ export default function AIStudioContent({
     setBusy(true);
     setError("");
     setPrompt("");
+    const attachmentIds = attachments.map((item) => item.id);
+    setAttachments([]);
+    cancelledRef.current = false;
     const next = [...messages, { role: "user" as const, content: text }];
     setMessages(next);
     try {
-      const response = await sendChat({
+      const freshSql = variant === "sqllab" ? activeSql : undefined;
+      const submission = await submitChat({
         provider,
         model,
         dashboard_id: dashboardId,
-        messages: next,
+        sql_context: freshSql && {
+          database_id: freshSql.databaseId,
+          schema: freshSql.schema,
+          table: freshSql.table,
+          sql: freshSql.sql,
+        },
+        attachment_ids: attachmentIds.length ? attachmentIds : undefined,
+        messages: next.map(({ role, content }) => ({ role, content })),
         effort: activeProvider?.effort_levels?.length ? effort : undefined,
       });
-      setMessages([...next, { role: "assistant", content: response.content }]);
+      setActiveGtfTaskUuid(submission.gtf_task_uuid);
       getTasks()
         .then(setTasks)
         .catch(() => undefined);
+      const finished = await pollGtfTaskUntilTerminal(
+        submission.gtf_task_uuid,
+        { shouldStop: () => cancelledRef.current },
+      );
+      const latestTasks = await getTasks().catch(() => tasks);
+      setTasks(latestTasks);
+      if (cancelledRef.current) {
+        setMessages([
+          ...next,
+          { role: "assistant", content: "Cancelled." },
+        ]);
+      } else if (finished.status === "success" && finished.payload?.content) {
+        const toolCalls = latestTasks.find(
+          (item) => item.id === submission.task_id,
+        )?.tool_calls;
+        setMessages([
+          ...next,
+          {
+            role: "assistant",
+            content: finished.payload.content,
+            toolCalls: toolCalls?.length ? toolCalls : undefined,
+          },
+        ]);
+      } else if (finished.status === "success") {
+        // A genuinely different case from a provider/network failure below --
+        // the request completed but the model itself returned nothing
+        // (observed with small/free cloud models after a confusing,
+        // error-laden tool round trip). Worth its own message rather than
+        // the generic failure text, since nothing here actually broke.
+        setError(
+          "The assistant didn't return a response for that message. Try asking again or rephrasing it.",
+        );
+      } else {
+        setError(
+          finished.payload?.error ||
+            "The request could not be completed.",
+        );
+      }
     } catch (reason) {
       setError(
         await errorMessage(reason, "The request could not be completed."),
       );
     } finally {
       setBusy(false);
+      setActiveGtfTaskUuid(undefined);
     }
+  };
+
+  const onFilesSelected = async (fileList: FileList | null) => {
+    if (!fileList?.length) return;
+    setAttachmentsUploading(true);
+    setError("");
+    try {
+      for (const file of Array.from(fileList)) {
+        // eslint-disable-next-line no-await-in-loop
+        const uploaded = await uploadAttachment(file);
+        setAttachments((current) => [...current, uploaded]);
+      }
+    } catch (reason) {
+      setError(await errorMessage(reason, "Could not upload that file."));
+    } finally {
+      setAttachmentsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const onRemoveAttachment = async (id: string) => {
+    setAttachments((current) => current.filter((item) => item.id !== id));
+    // The chip is already gone client-side either way; a failed cleanup
+    // call just means the file is purged later by the retention sweep
+    // instead of immediately -- not worth surfacing as a user-facing error.
+    await deleteAttachment(id).catch(() => undefined);
   };
 
   const onApply = async (id: string) => {
@@ -951,15 +1283,28 @@ export default function AIStudioContent({
     const label = bootstrap?.providers.find((item) => item.id === providerId)?.label;
     if (label) onNotify(`Switched to ${label} · ${modelId}`);
   };
+  // activeSql is the source of truth for "is a database connected right
+  // now" -- sqlContext is only ever the last successful fetch, which would
+  // otherwise flash stale info from a previous tab while a new one loads.
+  const sqlContextForDisplay = activeSql?.databaseId ? sqlContext : undefined;
   const chips = useMemo(
     () =>
       [
         context?.dashboard?.title,
         context?.charts?.length ? `${context.charts.length} charts` : undefined,
+        sqlContextForDisplay?.database?.name,
+        sqlContextForDisplay?.table
+          ? `${sqlContextForDisplay.schema ? `${sqlContextForDisplay.schema}.` : ""}${sqlContextForDisplay.table}`
+          : undefined,
         bootstrap?.safe_mode ? "Approval mode" : undefined,
       ].filter((value): value is string => Boolean(value)),
-    [bootstrap, context],
+    [bootstrap, context, sqlContextForDisplay],
   );
+  const workspaceLabel = variant === "sqllab" ? "this SQL workspace" : "this dashboard";
+  const firstChecklistStep =
+    variant === "sqllab"
+      ? "Inspect the connected database, schema, and table metadata"
+      : "Inspect dashboard layout and chart metadata";
 
   return (
     <div
@@ -1065,6 +1410,20 @@ export default function AIStudioContent({
               cursor: pointer;
               font-size: 11px;
               padding: 7px 9px;
+              transition:
+                background 120ms ease,
+                color 120ms ease;
+
+              &:hover {
+                background: ${section === tab.id
+                  ? "rgba(110, 168, 255, 0.14)"
+                  : "rgba(255, 255, 255, 0.05)"};
+                color: #dceaff;
+              }
+              &:focus-visible {
+                outline: 2px solid #6ea8ff;
+                outline-offset: -2px;
+              }
             `}
           >
             {tab.label}
@@ -1118,6 +1477,18 @@ export default function AIStudioContent({
                 font-size: 10px;
                 padding: 7px 10px;
                 max-width: 100%;
+                transition:
+                  background 120ms ease,
+                  border-color 120ms ease;
+
+                &:hover {
+                  border-color: rgba(110, 168, 255, 0.35);
+                  background: rgba(110, 168, 255, 0.08);
+                }
+                &:focus-visible {
+                  outline: 2px solid #6ea8ff;
+                  outline-offset: 2px;
+                }
               `}
             >
               <span>◉</span>
@@ -1154,6 +1525,7 @@ export default function AIStudioContent({
           <div
             aria-live="polite"
             css={css`
+              ${scrollAreaCss};
               flex: 1;
               overflow: auto;
               padding: 14px;
@@ -1177,9 +1549,9 @@ export default function AIStudioContent({
                       line-height: 1.55;
                     `}
                   >
-                    I’m ready to analyze this dashboard, inspect live Superset
-                    context, and stage changes for your approval. Nothing is
-                    written without review.
+                    I’m ready to help with {workspaceLabel}, inspect live
+                    Superset context, and stage changes for your approval.
+                    Nothing is written without review.
                   </div>
                 </div>
                 <div
@@ -1210,7 +1582,7 @@ export default function AIStudioContent({
                     `}
                   >
                     {[
-                      "Inspect dashboard layout and chart metadata",
+                      firstChecklistStep,
                       "Use only role-permitted MCP tools",
                       "Stage a diff for every write",
                     ].map((step, index) => (
@@ -1247,34 +1619,90 @@ export default function AIStudioContent({
                   gap: 10px;
                   justify-content: ${message.role === "user" ? "flex-end" : "flex-start"};
                   margin-bottom: 15px;
+                  animation: ai-studio-message-in 220ms ease both;
+                  @keyframes ai-studio-message-in {
+                    from {
+                      opacity: 0;
+                      transform: translateY(4px);
+                    }
+                    to {
+                      opacity: 1;
+                      transform: translateY(0);
+                    }
+                  }
                 `}
               >
                 {message.role === "assistant" && <div css={avatarCss}>AI</div>}
                 <div
                   css={css`
+                    display: flex;
+                    flex-direction: column;
                     max-width: calc(100% - 40px);
-                    border: ${message.role === "user" ? "1px solid rgba(110, 168, 255, 0.16)" : "0"};
-                    border-radius: ${message.role === "user" ? "12px" : "0"};
-                    background: ${message.role === "user" ? "rgba(110, 168, 255, 0.1)" : "transparent"};
-                    color: ${message.role === "user" ? "#e8f1ff" : "#cbd7e7"};
-                    font-size: 12px;
-                    line-height: 1.55;
-                    padding: ${message.role === "user" ? "9px 11px" : "2px 0"};
-                    white-space: pre-wrap;
                   `}
                 >
-                  {message.content}
+                  <div
+                    css={css`
+                      border: ${message.role === "user" ? "1px solid rgba(110, 168, 255, 0.16)" : "0"};
+                      border-radius: ${message.role === "user" ? "12px" : "0"};
+                      background: ${message.role === "user" ? "rgba(110, 168, 255, 0.1)" : "transparent"};
+                      color: ${message.role === "user" ? "#e8f1ff" : "#cbd7e7"};
+                      font-size: 12px;
+                      line-height: 1.55;
+                      padding: ${message.role === "user" ? "9px 11px" : "2px 0"};
+                      white-space: pre-wrap;
+                    `}
+                  >
+                    {message.content}
+                  </div>
+                  {!!message.toolCalls?.length && (
+                    <ToolCallTrail calls={message.toolCalls} />
+                  )}
                 </div>
               </div>
             ))}
             {busy && (
               <div
                 css={css`
-                  color: #8fa2bd;
-                  font-size: 11px;
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
                 `}
               >
-                AI Studio is thinking…
+                <div css={avatarCss}>AI</div>
+                <div
+                  aria-label="AI Studio is thinking"
+                  css={css`
+                    display: flex;
+                    gap: 4px;
+                    padding: 8px 0;
+                  `}
+                >
+                  {[0, 1, 2].map((dot) => (
+                    <span
+                      key={dot}
+                      css={css`
+                        width: 6px;
+                        height: 6px;
+                        border-radius: 999px;
+                        background: #7fa4e0;
+                        animation: ai-studio-typing-dot 1.1s ease-in-out infinite;
+                        animation-delay: ${dot * 0.15}s;
+                        @keyframes ai-studio-typing-dot {
+                          0%,
+                          60%,
+                          100% {
+                            opacity: 0.3;
+                            transform: translateY(0);
+                          }
+                          30% {
+                            opacity: 1;
+                            transform: translateY(-3px);
+                          }
+                        }
+                      `}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -1299,9 +1727,55 @@ export default function AIStudioContent({
                   </span>
                 ))
               ) : (
-                <span css={chipCss}>No dashboard context</span>
+                <span css={chipCss}>
+                  {variant === "sqllab"
+                    ? "No database selected yet"
+                    : "No dashboard context"}
+                </span>
               )}
             </div>
+            {(attachments.length > 0 || attachmentsUploading) && (
+              <div
+                css={css`
+                  display: flex;
+                  flex-wrap: wrap;
+                  gap: 6px;
+                  margin-bottom: 7px;
+                `}
+              >
+                {attachments.map((item) => (
+                  <span
+                    key={item.id}
+                    css={css`
+                      ${chipCss};
+                      display: inline-flex;
+                      align-items: center;
+                      gap: 5px;
+                    `}
+                  >
+                    {item.kind === "image" ? "🖼" : "📄"} {item.original_filename}
+                    <button
+                      type="button"
+                      aria-label={`Remove ${item.original_filename}`}
+                      onClick={() => onRemoveAttachment(item.id)}
+                      css={css`
+                        border: 0;
+                        background: transparent;
+                        color: inherit;
+                        cursor: pointer;
+                        font-size: 10px;
+                        padding: 0;
+                      `}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+                {attachmentsUploading && (
+                  <span css={chipCss}>Uploading…</span>
+                )}
+              </div>
+            )}
             {activeProvider && (activeProvider.effort_levels?.length ?? 0) > 0 && (
               <div
                 css={css`
@@ -1333,6 +1807,14 @@ export default function AIStudioContent({
                 background: rgba(255, 255, 255, 0.025);
                 padding: 8px;
                 box-shadow: 0 0 30px rgba(110, 168, 255, 0.06);
+                transition:
+                  border-color 160ms ease,
+                  box-shadow 160ms ease;
+
+                &:focus-within {
+                  border-color: rgba(110, 168, 255, 0.45);
+                  box-shadow: 0 0 34px rgba(110, 168, 255, 0.14);
+                }
               `}
             >
               <textarea
@@ -1346,7 +1828,11 @@ export default function AIStudioContent({
                     send();
                   }
                 }}
-                placeholder="Ask, edit, analyze, or build anything on this dashboard…"
+                placeholder={
+                  variant === "sqllab"
+                    ? "Ask about this query, explain a table, or draft new SQL…"
+                    : "Ask, edit, analyze, or build anything on this dashboard…"
+                }
                 css={css`
                   width: 100%;
                   min-height: 58px;
@@ -1366,25 +1852,82 @@ export default function AIStudioContent({
                   justify-content: space-between;
                 `}
               >
-                <span
+                <div
                   css={css`
-                    color: #8295ae;
-                    font-size: 9px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
                   `}
                 >
-                  Enter to send · Shift+Enter for newline
-                </span>
-                <button
-                  type="button"
-                  onClick={send}
-                  disabled={!prompt.trim() || busy}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept={acceptedAttachmentExtensions}
+                    onChange={(event) => onFilesSelected(event.target.files)}
+                    css={css`
+                      display: none;
+                    `}
+                  />
+                  <button
+                    type="button"
+                    aria-label="Attach a file"
+                    title={
+                      supportsImages
+                        ? "Attach an image or document"
+                        : "Attach a document (switch to a vision-capable model to attach images)"
+                    }
+                    disabled={attachmentsUploading}
+                    onClick={() => fileInputRef.current?.click()}
+                    css={css`
+                      ${iconButtonCss};
+                      width: 26px;
+                      height: 26px;
+                      font-size: 12px;
+                      opacity: ${attachmentsUploading ? 0.5 : 1};
+                    `}
+                  >
+                    📎
+                  </button>
+                  <span
+                    css={css`
+                      color: #8295ae;
+                      font-size: 9px;
+                    `}
+                  >
+                    Enter to send · Shift+Enter for newline
+                  </span>
+                </div>
+                <div
                   css={css`
-                    ${primaryButtonCss};
-                    opacity: ${!prompt.trim() || busy ? 0.5 : 1};
+                    display: flex;
+                    gap: 8px;
                   `}
                 >
-                  Send ↵
-                </button>
+                  {busy && activeGtfTaskUuid && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        cancelledRef.current = true;
+                        cancelGtfTask(activeGtfTaskUuid).catch(() => undefined);
+                      }}
+                      css={secondaryButtonCss}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={send}
+                    disabled={!prompt.trim() || busy}
+                    css={css`
+                      ${primaryButtonCss};
+                      opacity: ${!prompt.trim() || busy ? 0.5 : 1};
+                    `}
+                  >
+                    Send ↵
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1393,6 +1936,7 @@ export default function AIStudioContent({
       {section !== "chat" && (
         <section
           css={css`
+            ${scrollAreaCss};
             flex: 1;
             overflow: auto;
             padding: 14px;
@@ -1433,8 +1977,15 @@ export default function AIStudioContent({
             <>
               <SectionHero
                 title="Provider hub"
-                detail="Models are configured server-side; credentials never reach the browser."
+                detail={
+                  bootstrap?.is_admin
+                    ? "Add and manage AI providers below. API keys are encrypted and never sent back to the browser."
+                    : "Providers are managed by an administrator; credentials never reach the browser."
+                }
               />
+              {bootstrap?.is_admin && (
+                <ProviderAdmin onChanged={refreshProviders} />
+              )}
               <ModelPicker
                 providers={bootstrap?.providers ?? []}
                 selectedProviderId={provider}
@@ -1448,13 +1999,21 @@ export default function AIStudioContent({
             <>
               <SectionHero
                 title="Context inspector"
-                detail="Structured dashboard metadata attached to the current AI session."
+                detail={
+                  variant === "sqllab"
+                    ? "Structured database, schema, and table metadata attached to the current AI session."
+                    : "Structured dashboard metadata attached to the current AI session."
+                }
               />
-              <ContextPanel context={context} />
+              <ContextPanel
+                variant={variant}
+                context={context}
+                sqlContext={sqlContextForDisplay}
+              />
             </>
           )}
           {section === "settings" && (
-            <SettingsPanel safeMode={bootstrap?.safe_mode} />
+            <SettingsPanel safeMode={bootstrap?.safe_mode} variant={variant} />
           )}
         </section>
       )}

@@ -9,9 +9,14 @@ type Props = {
   onClose: () => void;
   onOpenPalette: () => void;
   onNotify: (message: string) => void;
+  variant?: "dashboard" | "sqllab";
 };
 
-export default function AIStudioDrawer({ open, ...contentProps }: Props) {
+export default function AIStudioDrawer({
+  open,
+  variant = "dashboard",
+  ...contentProps
+}: Props) {
   if (!open) return null;
   return (
     <aside
@@ -41,7 +46,7 @@ export default function AIStudioDrawer({ open, ...contentProps }: Props) {
         }
       `}
     >
-      <AIStudioContent {...contentProps} />
+      <AIStudioContent variant={variant} {...contentProps} />
     </aside>
   );
 }

@@ -92,6 +92,7 @@ export default function AIStudioScoped({ variant }: Props) {
               onOpenPalette={() => setPaletteOpen(true)}
               onNotify={notify}
               width={variant === "dashboard" ? DASHBOARD_PANEL_WIDTH : undefined}
+              variant={variant}
             />
           </Suspense>
         )}

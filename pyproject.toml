@@ -100,6 +100,8 @@ dependencies = [
     "pyparsing>=3.3.2, <4",
     "python-dateutil",
     "python-dotenv", # optional dependencies for Flask but required for Superset, see https://flask.palletsprojects.com/en/stable/installation/#optional-dependencies
+    "python-docx>=1.1.0, <2", # AI Studio document attachments: .docx text extraction
+    "pypdf>=5.0.0, <7", # AI Studio document attachments: .pdf text extraction
     "pygeohash",
     "pyarrow>=25.0.1, <26", # before upgrading pyarrow, check that all db dependencies support this, see e.g. https://github.com/apache/superset/pull/34693
     "pyyaml>=6.0.3, <7.0.0",
