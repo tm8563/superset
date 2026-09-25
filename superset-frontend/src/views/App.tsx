@@ -171,6 +171,17 @@ const AppContent = ({
   const { open: panelOpen, mode, chat } = useChat();
   const hasChatExtension = chatExtensionsEnabled && !!chat;
   const isPanelOpen = hasChatExtension && mode === 'panel' && panelOpen;
+  // Keep the provider mounted while its DOM moves between display modes.
+  const chatPortalNode = useMemo(
+    () =>
+      createHtmlPortalNode({
+        attributes: {
+          style:
+            'display: flex; flex-direction: column; height: 100%; min-height: 0;',
+        },
+      }),
+    [],
+  );
 
   const [storedWidth, setStoredWidth] = useStoredSidebarWidth(
     'chat:panel',
@@ -216,13 +227,17 @@ const AppContent = ({
     >
       <Splitter.Panel>{layoutContent}</Splitter.Panel>
       <Splitter.Panel size={storedWidth} min={CHAT_PANEL_MIN_WIDTH}>
-        <ChatPanelHost />
+        <OutPortal node={chatPortalNode} />
       </Splitter.Panel>
     </Splitter>
   ) : (
     <>
       {layoutContent}
-      {hasChatExtension && <ChatFloatingHost />}
+      {hasChatExtension && (
+        <ChatFloatingHost>
+          <OutPortal node={chatPortalNode} />
+        </ChatFloatingHost>
+      )}
     </>
   );
 
@@ -232,7 +247,14 @@ const AppContent = ({
         data={bootstrapData.common.menu_data}
         isFrontendRoute={isFrontendRoute}
       />
-      <ExtensionsStartup>{content}</ExtensionsStartup>
+      <ExtensionsStartup>
+        {hasChatExtension && panelOpen && (
+          <InPortal node={chatPortalNode}>
+            <ChatPanelHost />
+          </InPortal>
+        )}
+        {content}
+      </ExtensionsStartup>
       {isAuthenticated && isFeatureEnabled(FeatureFlag.AiStudio) && (
         <AIStudio />
       )}
