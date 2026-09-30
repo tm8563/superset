@@ -819,30 +819,45 @@ const transformProps = (
         ? serverPaginationData?.pageSize
         : serverPageLength
       : getPageSize(pageLength, data.length, columns.length),
+    // This chart's own cross-filter selection. Click handling (plain,
+    // Ctrl/Cmd multi-select, Shift range select) reads only this.
+    filters: filterState.filters,
     // HSC customization: highlight rows from ANY active filter, like Tableau.
     // Merge the dashboard's applied filters (native filter bar + cross-filters
     // from other charts, delivered via formData.extra_form_data.filters as
     // [{col, op, val}] clauses) with this chart's own cross-filter selection
-    // so both light up together. Simple IN/== clauses only.
-    filters: (() => {
+    // so both light up together. Simple IN/== clauses on named columns only.
+    // Kept separate from `filters` so another chart's values never leak into
+    // this chart's own emitted cross-filter.
+    highlightFilters: (() => {
       const own = (filterState.filters as Record<string, unknown[]>) || {};
-      const merged: Record<string, unknown[]> = { ...own };
+      const merged: Record<string, unknown[]> = {};
+      Object.entries(own).forEach(([col, vals]) => {
+        // copy, never mutate the dashboard's filterState arrays
+        merged[col] = [...ensureIsArray(vals)];
+      });
       const extra = ensureIsArray(
-        (formData as { extra_form_data?: { filters?: { col: string; op: string; val?: unknown }[] } })
-          .extra_form_data?.filters,
-      ) as { col: string; op: string; val?: unknown }[];
+        (
+          formData as {
+            extra_form_data?: {
+              filters?: { col: unknown; op: string; val?: unknown }[];
+            };
+          }
+        ).extra_form_data?.filters,
+      );
       extra.forEach(clause => {
         if (
           (clause.op === 'IN' || clause.op === '==') &&
+          typeof clause.col === 'string' &&
           clause.col &&
-          Array.isArray(clause.val) &&
-          clause.val.length > 0
+          clause.val !== undefined &&
+          clause.val !== null
         ) {
           const existing = merged[clause.col] || [];
-          clause.val.forEach((v: unknown) => {
+          ensureIsArray(clause.val).forEach((v: unknown) => {
             if (!existing.includes(v)) existing.push(v);
           });
-          merged[clause.col] = existing;
+          if (existing.length > 0) merged[clause.col] = existing;
         }
       });
       return merged as typeof filterState.filters;

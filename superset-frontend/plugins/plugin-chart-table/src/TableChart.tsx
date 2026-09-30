@@ -126,6 +126,36 @@ const getCrossFilterValue = (
   return value;
 };
 
+/**
+ * HSC customization: equality used for cross-filter selection and row
+ * highlighting. Dates compare by time value (memoization cache misses create
+ * new DateWithFormatter instances), and a Date also matches the epoch-ms
+ * number that cross-filters emit for temporal columns.
+ */
+const isSameFilterValue = (a: unknown, b: unknown): boolean => {
+  if (a === b) return true;
+  if (a instanceof Date && b instanceof Date) {
+    return a.getTime() === b.getTime();
+  }
+  if (a instanceof Date && typeof b === 'number') return a.getTime() === b;
+  if (b instanceof Date && typeof a === 'number') return b.getTime() === a;
+  return false;
+};
+
+const isNullFilterValue = (value: unknown): boolean =>
+  value === null ||
+  value === undefined ||
+  (value instanceof DateWithFormatter && value.input == null);
+
+/**
+ * HSC customization: how a cell click changes this chart's cross-filter.
+ * - single: plain click -- replace the selection with this value (or clear
+ *   it when the value is already selected)
+ * - multi: Ctrl/Cmd+click -- add or remove this one value
+ * - range: Shift+click -- replace the selection with a contiguous run of rows
+ */
+type CrossFilterMode = 'single' | 'multi' | 'range';
+
 const ACTION_KEYS = {
   enter: 'Enter',
   spacebar: 'Spacebar',
@@ -416,6 +446,7 @@ export default function TableChart<D extends DataRecord = DataRecord>(
     showCellBars = true,
     sortDesc = false,
     filters,
+    highlightFilters,
     sticky = true, // whether to use sticky header
     columnColorFormatters,
     allowRearrangeColumns = false,
@@ -515,23 +546,67 @@ export default function TableChart<D extends DataRecord = DataRecord>(
   const isActiveFilterValue = useCallback(
     function isActiveFilterValue(key: string, val: DataRecordValue) {
       if (!filters || !filters[key]) return false;
-      return filters[key].some(filterVal => {
-        if (filterVal === val) return true;
-        // DateWithFormatter extends Date — compare by time value
-        // since memoization cache misses can create new instances
-        if (filterVal instanceof Date && val instanceof Date) {
-          return filterVal.getTime() === val.getTime();
-        }
-        return false;
-      });
+      // DateWithFormatter extends Date — compare by time value
+      // since memoization cache misses can create new instances
+      return filters[key].some(filterVal => isSameFilterValue(filterVal, val));
     },
     [filters],
   );
 
+  // HSC customization: reverse of columnLabelToNameMap, so a dashboard filter
+  // on a column *name* can find the row value stored under an adhoc label.
+  const columnNameToLabels = useMemo(() => {
+    const result: Record<string, string[]> = {};
+    Object.entries(columnLabelToNameMap).forEach(([label, name]) => {
+      (result[name] ||= []).push(label);
+    });
+    return result;
+  }, [columnLabelToNameMap]);
+
+  // HSC customization: true when any of this row's values is part of the
+  // active selection -- this chart's own cross-filter or a filter applied from
+  // elsewhere on the dashboard. Drives the full-row tint (`dt-is-active-row`).
+  // Nothing selected -> false for every row -> no highlight anywhere.
+  const isHighlightedRow = useCallback(
+    (record: D) => {
+      if (!highlightFilters) return false;
+      return Object.entries(highlightFilters).some(([col, vals]) => {
+        if (!Array.isArray(vals) || vals.length === 0) return false;
+        return [col, ...(columnNameToLabels[col] || [])].some(
+          rowKey =>
+            rowKey in record &&
+            vals.some(val => isSameFilterValue(val, record[rowKey])),
+        );
+      });
+    },
+    [highlightFilters, columnNameToLabels],
+  );
+
   const getCrossFilterDataMask = useCallback(
-    (key: string, value: DataRecordValue) => {
+    (
+      key: string,
+      value: DataRecordValue,
+      mode: CrossFilterMode = 'single',
+      rangeValues: DataRecordValue[] = [],
+    ) => {
       let updatedFilters = { ...filters };
-      if (filters && isActiveFilterValue(key, value)) {
+      const existing = filters?.[key] || [];
+      // A null value becomes an IS NULL clause, which cannot share one IN
+      // list with other values -- so a Ctrl+click involving null falls back
+      // to plain-click behavior instead of building an invalid mix.
+      const canMultiSelect =
+        !isNullFilterValue(value) && !existing.some(isNullFilterValue);
+      if (mode === 'range') {
+        // HSC customization: Shift+click replaces the whole selection with
+        // the contiguous run of rows (values resolved by the click handler).
+        updatedFilters = { [key]: rangeValues };
+      } else if (mode === 'multi' && canMultiSelect) {
+        // HSC customization: Ctrl/Cmd+click toggles just this one value,
+        // keeping the rest of the selection.
+        updatedFilters[key] = isActiveFilterValue(key, value)
+          ? existing.filter(x => !isSameFilterValue(x, value))
+          : [...existing, value];
+      } else if (filters && isActiveFilterValue(key, value)) {
         updatedFilters = {};
       } else {
         updatedFilters = {
@@ -614,13 +689,87 @@ export default function TableChart<D extends DataRecord = DataRecord>(
   );
 
   const toggleFilter = useCallback(
-    function toggleFilter(key: string, val: DataRecordValue) {
+    function toggleFilter(
+      key: string,
+      val: DataRecordValue,
+      mode: CrossFilterMode = 'single',
+      rangeValues: DataRecordValue[] = [],
+    ) {
       if (!emitCrossFilters) {
         return;
       }
-      setDataMask(getCrossFilterDataMask(key, val).dataMask);
+      setDataMask(getCrossFilterDataMask(key, val, mode, rangeValues).dataMask);
     },
     [emitCrossFilters, getCrossFilterDataMask, setDataMask],
+  );
+
+  // HSC customization: remembers the last plain or Ctrl/Cmd-clicked cell
+  // (column key, react-table row id and value) so a later Shift+click in the
+  // same column can select every row in between, spreadsheet-style. Never
+  // moved by a Shift+click, so repeated Shift+clicks grow/shrink the range
+  // from the same start, like Excel/Finder. A ref, not state: it is read only
+  // inside a later click handler and must not trigger a re-render.
+  const rangeSelectAnchorRef = useRef<{
+    key: string;
+    rowId: string;
+    value: DataRecordValue;
+  } | null>(null);
+
+  // HSC customization: resolves a cell click into a plain / Ctrl-Cmd multi /
+  // Shift range cross-filter. `visibleRows` is react-table's own row list
+  // after sorting and in-chart search, so a range follows the order the user
+  // actually sees, including after re-sorting by a column header.
+  const handleCellClick = useCallback(
+    (
+      e: MouseEvent,
+      key: string,
+      value: DataRecordValue,
+      row: Row<D>,
+      visibleRows: Row<D>[] | undefined,
+    ) => {
+      const anchor = rangeSelectAnchorRef.current;
+      if (e.shiftKey && anchor && anchor.key === key && visibleRows) {
+        // Prefer the exact anchor row; fall back to the first row with the
+        // anchor's value if the data was re-queried since the anchor click.
+        let anchorIndex = visibleRows.findIndex(
+          r =>
+            r.id === anchor.rowId &&
+            isSameFilterValue(r.original[key], anchor.value),
+        );
+        if (anchorIndex === -1) {
+          anchorIndex = visibleRows.findIndex(r =>
+            isSameFilterValue(r.original[key], anchor.value),
+          );
+        }
+        const currentIndex = visibleRows.findIndex(r => r.id === row.id);
+        if (anchorIndex !== -1 && currentIndex !== -1) {
+          const [start, end] =
+            anchorIndex <= currentIndex
+              ? [anchorIndex, currentIndex]
+              : [currentIndex, anchorIndex];
+          const rangeValues: DataRecordValue[] = [];
+          visibleRows.slice(start, end + 1).forEach(r => {
+            const v = r.original[key] as DataRecordValue;
+            // null cannot join an IN list (it becomes IS NULL), so skip it
+            if (
+              !isNullFilterValue(v) &&
+              !rangeValues.some(x => isSameFilterValue(x, v))
+            ) {
+              rangeValues.push(v);
+            }
+          });
+          if (rangeValues.length > 0) {
+            toggleFilter(key, value, 'range', rangeValues);
+            return;
+          }
+        }
+      }
+      // Plain click, Ctrl/Cmd+click, or a Shift+click with no usable anchor
+      // in this column (treated as a plain click that sets the anchor).
+      toggleFilter(key, value, e.metaKey || e.ctrlKey ? 'multi' : 'single');
+      rangeSelectAnchorRef.current = { key, rowId: row.id, value };
+    },
+    [toggleFilter],
   );
 
   const getSharedStyle = useCallback(
@@ -1082,7 +1231,17 @@ export default function TableChart<D extends DataRecord = DataRecord>(
         columnKey: key,
         columnLabel: label,
         accessor: ((datum: D) => datum[key]) as never,
-        Cell: ({ value, row }: { value: DataRecordValue; row: Row<D> }) => {
+        Cell: ({
+          value,
+          row,
+          rows: visibleRows,
+        }: {
+          value: DataRecordValue;
+          row: Row<D>;
+          // react-table passes the whole table instance to Cell; `rows` is
+          // the sorted + searched row list (all pages)
+          rows?: Row<D>[];
+        }) => {
           const [isHtml, text] = formatColumnValue(column, value, row.original);
           const html = isHtml && allowRenderHtml ? { __html: text } : undefined;
 
@@ -1259,14 +1418,24 @@ export default function TableChart<D extends DataRecord = DataRecord>(
             title: typeof value === 'number' ? String(value) : undefined,
             onClick:
               emitCrossFilters && !valueRange && !isMetric
-                ? () => {
+                ? (e: MouseEvent) => {
                     const isFilterable = columnsMeta.find(
                       (cm: DataColumnMeta) => cm.key === key,
                     )?.isFilterable;
-                    // allow selecting text in a cell
-                    if (!getSelectedText() && isFilterable !== false) {
-                      toggleFilter(key, value);
+                    if (isFilterable === false) return;
+                    // HSC customization: the browser's default for
+                    // Shift+click is to extend a text selection, which would
+                    // make the text-selection guard below skip filtering. For
+                    // Shift+click specifically, discard that incidental
+                    // selection and proceed; plain and Ctrl/Cmd clicks keep
+                    // the guard, so copying text out of a cell still works.
+                    if (e.shiftKey) {
+                      window.getSelection()?.removeAllRanges();
+                    } else if (getSelectedText()) {
+                      // allow selecting text in a cell
+                      return;
                     }
+                    handleCellClick(e, key, value, row, visibleRows);
                   }
                 : undefined,
             onContextMenu: (e: MouseEvent) => {
@@ -1288,6 +1457,9 @@ export default function TableChart<D extends DataRecord = DataRecord>(
                 ? 'dt-is-null'
                 : '',
               isActiveFilterValue(key, value) ? ' dt-is-active-filter' : '',
+              // HSC customization: every cell of a selected row gets this
+              // class; Styles.tsx tints the whole <tr> from it.
+              isHighlightedRow(row.original) ? 'dt-is-active-row' : '',
             ].join(' '),
             style: resolvedTextColor
               ? ({ color: resolvedTextColor } as CSSProperties)
@@ -1456,7 +1628,8 @@ export default function TableChart<D extends DataRecord = DataRecord>(
       allowRenderHtml,
       basicColorColumnFormatters,
       isActiveFilterValue,
-      toggleFilter,
+      isHighlightedRow,
+      handleCellClick,
       handleContextMenu,
       allowRearrangeColumns,
     ],

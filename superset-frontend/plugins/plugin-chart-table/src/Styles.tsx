@@ -144,6 +144,13 @@ export default styled.div`
       background-color: ${theme.colorPrimaryBg};
     }
 
+    /* Empty (null) cells inside a selected row stay unpainted, so a blank
+       cell never reads as "has data here" -- same as the pivot table's
+       pvtValEmpty rule. The clicked cell itself keeps its tint. */
+    tr:has(td.dt-is-active-row) td.dt-is-null:not(.dt-is-active-filter) {
+      background-color: ${theme.colorBgBase};
+    }
+
     /* The clicked cell's own active tint stays readable on top */
     td.dt-is-active-row.dt-is-active-filter,
     td.dt-is-active-row.dt-is-active-filter:hover {

@@ -107,6 +107,11 @@ interface PivotTableCustomizeProps {
   setDataMask: SetDataMaskHook;
   emitCrossFilters?: boolean;
   selectedFilters?: SelectedFiltersType;
+  // HSC customization: this chart's own selection plus simple IN/== filters
+  // applied from elsewhere on the dashboard. Used only to highlight
+  // headers/rows; click handling reads `selectedFilters` so another chart's
+  // values are never re-emitted as this chart's own cross-filter.
+  highlightFilters?: SelectedFiltersType;
   verboseMap: JsonObject;
   columnFormats: JsonObject;
   currencyFormats: Record<string, Currency>;

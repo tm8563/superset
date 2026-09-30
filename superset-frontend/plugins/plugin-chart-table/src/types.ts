@@ -105,6 +105,13 @@ export interface TableChartTransformedProps<D extends DataRecord = DataRecord> {
   // These are dashboard filters, don't be confused with in-chart search filter
   // enabled by `includeSearch`
   filters?: DataRecordFilters;
+  // HSC customization: every filter value that should tint a row -- this
+  // chart's own cross-filter selection (`filters`) plus the simple IN/==
+  // filters applied to it from elsewhere on the dashboard (native filter bar,
+  // other charts' cross-filters). Used for row highlighting only; click
+  // handling reads `filters` so another chart's values are never re-emitted
+  // as this chart's own cross-filter.
+  highlightFilters?: DataRecordFilters;
   emitCrossFilters?: boolean;
   onChangeFilter?: ChartProps['hooks']['onAddFilter'];
   columnColorFormatters?: ColorFormatters;

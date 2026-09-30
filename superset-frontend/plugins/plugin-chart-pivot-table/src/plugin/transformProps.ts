@@ -19,6 +19,7 @@
 import {
   ChartProps,
   DataRecord,
+  DataRecordValue,
   ensureIsArray,
   extractTimegrain,
   getColumnLabel,
@@ -35,7 +36,12 @@ import {
   ConditionalFormattingConfig,
   getColorFormatters,
 } from '@superset-ui/chart-controls';
-import { DateFormatter, PivotTableQueryFormData, QueryData } from '../types';
+import {
+  DateFormatter,
+  PivotTableQueryFormData,
+  QueryData,
+  SelectedFiltersType,
+} from '../types';
 import buildGroupbyCombinations, {
   additiveReducerFor,
   allMetricsAdditive,
@@ -202,26 +208,43 @@ export default function transformProps(chartProps: ChartProps<QueryFormData>) {
   // formData.extra_form_data.filters as [{col, op, val}] clauses. Convert the
   // simple IN/== ones into the same {column: [values]} shape the pivot's
   // highlightedHeaderCells mechanism consumes, and merge them with the
-  // chart's own selection so both light up together.
+  // chart's own selection so both light up together. The result is passed as
+  // `highlightFilters` (highlighting only); `selectedFilters` stays this
+  // chart's own selection so click handling never re-emits another chart's
+  // values as this pivot's own cross-filter. Read from rawFormData:
+  // chartProps.formData has camelCased top-level keys, so `extra_form_data`
+  // only exists there as `extraFormData`.
   const extraFormFilters = ensureIsArray(
-    (formData as { extra_form_data?: { filters?: { col: string; op: string; val?: unknown }[] } })
-      .extra_form_data?.filters,
-  ) as { col: string; op: string; val?: unknown }[];
-  const mergedSelectedFilters: Record<string, unknown[]> = {
-    ...(selectedFilters as Record<string, unknown[]> | undefined),
-  };
+    (
+      rawFormData as {
+        extra_form_data?: {
+          filters?: { col: unknown; op: string; val?: unknown }[];
+        };
+      }
+    ).extra_form_data?.filters,
+  );
+  const mergedSelectedFilters: SelectedFiltersType = {};
+  Object.entries(
+    (selectedFilters as SelectedFiltersType | undefined) || {},
+  ).forEach(([col, vals]) => {
+    // copy, never mutate the dashboard's filterState arrays
+    mergedSelectedFilters[col] = [...ensureIsArray(vals)];
+  });
   extraFormFilters.forEach(clause => {
     if (
       (clause.op === 'IN' || clause.op === '==') &&
+      typeof clause.col === 'string' &&
       clause.col &&
-      Array.isArray(clause.val) &&
-      clause.val.length > 0
+      clause.val !== undefined &&
+      clause.val !== null
     ) {
       const existing = mergedSelectedFilters[clause.col] || [];
-      clause.val.forEach((v: unknown) => {
-        if (!existing.includes(v)) existing.push(v);
-      });
-      mergedSelectedFilters[clause.col] = existing;
+      ensureIsArray(clause.val as DataRecordValue | DataRecordValue[]).forEach(
+        v => {
+          if (!existing.includes(v)) existing.push(v);
+        },
+      );
+      if (existing.length > 0) mergedSelectedFilters[clause.col] = existing;
     }
   });
 
@@ -299,7 +322,8 @@ export default function transformProps(chartProps: ChartProps<QueryFormData>) {
     detectedCurrency,
     emitCrossFilters,
     setDataMask,
-    selectedFilters: mergedSelectedFilters,
+    selectedFilters,
+    highlightFilters: mergedSelectedFilters,
     verboseMap,
     columnFormats,
     currencyFormats,

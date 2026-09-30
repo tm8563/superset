@@ -246,6 +246,7 @@ export default function PivotTableChart(props: PivotTableProps) {
     emitCrossFilters,
     setDataMask,
     selectedFilters,
+    highlightFilters,
     verboseMap,
     columnFormats,
     currencyFormats,
@@ -720,7 +721,9 @@ export default function PivotTableChart(props: PivotTableProps) {
         emitCrossFilters ||
         isFeatureEnabled(FeatureFlag.DrillBy) ||
         isFeatureEnabled(FeatureFlag.DrillToDetail),
-      highlightedHeaderCells: selectedFilters,
+      // HSC customization: highlight from own selection + dashboard filters
+      // (transformProps merge); click handling above uses selectedFilters.
+      highlightedHeaderCells: highlightFilters ?? selectedFilters,
       omittedHighlightHeaderGroups: [METRIC_KEY],
       cellColorFormatters: { [METRIC_KEY]: metricColorFormatters },
       dateFormatters,
@@ -737,6 +740,7 @@ export default function PivotTableChart(props: PivotTableProps) {
       rowTotals,
       rowSubTotals,
       selectedFilters,
+      highlightFilters,
       theme.colorBgBase,
       theme.colorPrimaryBg,
       theme.colorPrimaryText,
