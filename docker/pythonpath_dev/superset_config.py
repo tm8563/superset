@@ -88,6 +88,13 @@ class CeleryConfig:
         "superset.tasks.thumbnails",
         "superset.tasks.cache",
         "superset.tasks.export_dashboard_excel",
+        # Entity version-history retention. This fork's CeleryConfig replaces
+        # upstream's wholesale (CELERY_CONFIG is not merged), so omitting a task
+        # here both triggers an "imports is missing ..." startup warning AND
+        # means the task is never registered on the workers. Needed because the
+        # VERSION_HISTORY feature flag is on: without it, version tables grow
+        # unbounded and any scheduled run fails with NotRegistered.
+        "superset.tasks.version_history_retention",
     )
     result_backend = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_RESULTS_DB}"
     worker_prefetch_multiplier = 1
@@ -100,6 +107,15 @@ class CeleryConfig:
         "reports.prune_log": {
             "task": "reports.prune_log",
             "schedule": crontab(minute=10, hour=0),
+        },
+        # Entity version-history retention, matching upstream's default
+        # (daily at 03:00). Without this entry the startup check warns that
+        # 'version_history.prune_old_versions' is missing and the task never
+        # fires, so VERSION_HISTORY shadow rows are never pruned. The task
+        # itself no-ops when VERSION_HISTORY_RETENTION_DAYS is 0.
+        "version_history.prune_old_versions": {
+            "task": "version_history.prune_old_versions",
+            "schedule": crontab(minute=0, hour=3),
         },
         # Gated on the SOFT_DELETE feature flag, which is off by default: the
         # task is scheduled either way, but purges nothing while the flag is

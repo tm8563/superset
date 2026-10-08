@@ -14,15 +14,16 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-from typing import Optional
+from typing import Any, Optional
 
-from flask import make_response, Response
+from flask import g, jsonify, make_response, Response
 from flask_appbuilder import ModelView
+from flask_appbuilder.baseviews import expose_api
 from flask_appbuilder.hooks import before_request
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_babel import lazy_gettext as _
 
-from superset import is_feature_enabled
+from superset import db, is_feature_enabled
 from superset.constants import MODEL_API_RW_METHOD_PERMISSION_MAP
 from superset.models.dynamic_plugins import DynamicPlugin
 
@@ -65,3 +66,48 @@ class DynamicPluginsView(ModelView):
         if not is_feature_enabled("DYNAMIC_PLUGINS"):
             return make_response("Not found", 404)
         return None
+
+    # ------------------------------------------------------------------
+    # HSC customization: implement the endpoint the frontend has always
+    # expected but that neither this fork nor upstream Superset provided.
+    #
+    # superset-frontend/src/components/DynamicPlugins/index.tsx does
+    #     makeApi<{}, { result: Plugin[] }>({method: 'GET',
+    #                                       endpoint: '/dynamic-plugins/api/read'})
+    # and reads `result`. That route existed nowhere: FAB only generates
+    # `/api/<name>` for methods decorated with `@expose_api`, and this view had
+    # none, so `GET /dynamic-plugins/api/read` was a hard 404 while the flag was
+    # ON. The provider then never cleared its `loading` state
+    # (`loading: isFeatureEnabled(FeatureFlag.DynamicPlugins)`), so charts waited
+    # on it forever and every dashboard showed a permanent spinner.
+    #
+    # Auth note: this endpoint must NEVER answer with an error status. The
+    # frontend treats the response as essential plugin metadata and does not
+    # clear its `loading` state when the request fails, so ANY non-2xx here
+    # (403 included) reproduces the very stall this endpoint was added to fix —
+    # including on public/embedded dashboards viewed anonymously. Instead,
+    # anonymous callers get a 200 with an empty list: the provider resolves
+    # cleanly and no plugin bundle URLs are disclosed. Only authenticated users
+    # see the real registry. It still 404s when DYNAMIC_PLUGINS is off, via the
+    # before_request hook above (which is safe: with the flag off the frontend
+    # never issues this request at all).
+    # ------------------------------------------------------------------
+    @expose_api(name="read", description="Read all registered dynamic plugins")
+    def api_read(self) -> Response:
+        user = getattr(g, "user", None)
+        if user is None or not getattr(user, "is_authenticated", False):
+            return jsonify({"result": [], "count": 0})
+
+        plugins: list[DynamicPlugin] = (
+            db.session.query(DynamicPlugin).order_by(DynamicPlugin.id).all()
+        )
+        result: list[dict[str, Any]] = [
+            {
+                "id": plugin.id,
+                "name": plugin.name,
+                "key": plugin.key,
+                "bundle_url": plugin.bundle_url,
+            }
+            for plugin in plugins
+        ]
+        return jsonify({"result": result, "count": len(result)})
