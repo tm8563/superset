@@ -581,6 +581,16 @@ const RightMenu = ({
                   {[
                     navbarRight.show_watermark &&
                       t('Powered by Apache Superset x RyobiLao'),
+                    // HSC customization: credit the Tableau release the
+                    // dashboards were migrated from. Value comes from the
+                    // backend (TABLEAU_VERSION in superset_config_docker.py),
+                    // so changing the release does not need a frontend change.
+                    // Deliberately a plain template literal, matching the
+                    // `Version:` line below: t() uses sprintf placeholders
+                    // (%(name)s), not mustache, and "Tableau" is a product
+                    // name that is not translated anyway.
+                    navbarRight.tableau_version &&
+                      `Tableau ${navbarRight.tableau_version}`,
                     navbarRight.version_string &&
                       `${t('Version')}: ${navbarRight.version_string}`,
                     navbarRight.version_sha &&

@@ -334,6 +334,12 @@ def menu_data(user: User) -> dict[str, Any]:
             "version_string": version_metadata.get("version_string"),
             "version_sha": version_metadata.get("version_sha"),
             "build_number": version_metadata.get("build_number"),
+            # HSC customization: third-party product credit for the About
+            # panel, e.g. "Tableau 2024.2". No upstream equivalent, so it is a
+            # plain config passthrough (TABLEAU_VERSION, set in
+            # infra/superset/superset_config_docker.py) so the value lives in
+            # one place and not in the compiled frontend bundle.
+            "tableau_version": app.config.get("TABLEAU_VERSION"),
             "languages": languages,
             "show_language_picker": len(languages) > 1,
             "user_is_anonymous": user.is_anonymous,

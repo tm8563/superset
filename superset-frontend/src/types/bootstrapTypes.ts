@@ -111,6 +111,8 @@ export interface NavBarProps {
   version_string?: string;
   version_sha?: string;
   build_number?: string;
+  /** HSC customization: third-party product credit shown in About. */
+  tableau_version?: string;
   documentation_url?: string;
   documentation_text?: string;
   documentation_icon?: string;
