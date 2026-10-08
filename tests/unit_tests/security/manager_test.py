@@ -63,6 +63,33 @@ def test_security_manager(app_context: None) -> None:
     assert sm
 
 
+def test_is_guest_user_no_jwt_returns_false_without_raising(
+    app_context: None, mocker: MockerFixture
+) -> None:
+    """
+    ``is_guest_user`` must not propagate ``NoAuthorizationError``.
+
+    Resolving the current user on a request with no JWT and no guest token
+    invokes the app's request loader, which lets ``verify_jwt_in_request``
+    raise ``NoAuthorizationError``. When ``is_guest_user`` runs before auth
+    (e.g. error sanitization while handling an unrelated HTTPException) that
+    raise would escape as an unhandled exception. Such a request cannot be an
+    embedded guest viewer, so the method must return ``False`` instead.
+    """
+    from flask_jwt_extended.exceptions import NoAuthorizationError
+
+    mocker.patch(
+        "superset.is_feature_enabled",
+        side_effect=lambda feature: feature == "EMBEDDED_SUPERSET",
+    )
+    mocker.patch(
+        "superset.security.manager.get_current_user",
+        side_effect=NoAuthorizationError("Missing JWT in cookies or headers"),
+    )
+
+    assert SupersetSecurityManager.is_guest_user() is False
+
+
 def _register_views_with_mock_appbuilder(
     mocker: MockerFixture,
     auth_type: int,
@@ -325,13 +352,15 @@ def test_raise_for_access_guest_user_deck_multi_child_requires_child_datasource(
         return_value=False,
     )
 
-    child_datasource = mocker.MagicMock()
-    other_datasource = mocker.MagicMock()
+    child_datasource: MagicMock = mocker.MagicMock(id=7, type="table")
+    other_datasource: MagicMock = mocker.MagicMock(id=8, type="table")
 
     parent_slc = mocker.MagicMock()
     parent_slc.params = json.dumps({"viz_type": "deck_multi", "deck_slices": [42]})
     child_slc = mocker.MagicMock()
     child_slc.datasource = child_datasource
+    child_slc.datasource_id = 7
+    child_slc.datasource_type = "table"
 
     dashboard = mocker.MagicMock()
     dashboard.slices = [parent_slc]
@@ -1931,7 +1960,8 @@ def _native_filter_ctx(
         "native_filter_id": native_filter_id,
         "dashboardId": dashboard_id,
     }
-    qc.datasource.data = {"id": dataset_id}
+    qc.datasource.id = dataset_id
+    qc.datasource.type = "table"
     qc.queries = queries
     dash = mocker.MagicMock()
     dash.json_metadata = json.dumps(

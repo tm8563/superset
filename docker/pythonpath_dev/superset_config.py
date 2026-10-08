@@ -22,7 +22,6 @@
 #
 import logging
 import os
-import sys
 
 from celery.schedules import crontab
 from flask_caching.backends.filesystemcache import FileSystemCache
@@ -148,18 +147,6 @@ SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = int(
 
 log_level_text = os.getenv("SUPERSET_LOG_LEVEL", "INFO")
 LOG_LEVEL = getattr(logging, log_level_text.upper(), logging.INFO)
-
-if os.getenv("CYPRESS_CONFIG") == "true":
-    # When running the service as a cypress backend, we need to import the config
-    # located @ tests/integration_tests/superset_test_config.py
-    base_dir = os.path.dirname(__file__)
-    module_folder = os.path.abspath(
-        os.path.join(base_dir, "../../tests/integration_tests/")
-    )
-    sys.path.insert(0, module_folder)
-    from superset_test_config import *  # noqa
-
-    sys.path.pop(0)
 
 # MCP Service Configuration (Phase 11)
 MCP_AUTH_ENABLED = True

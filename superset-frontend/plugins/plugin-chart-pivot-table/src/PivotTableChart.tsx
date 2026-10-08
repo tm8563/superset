@@ -239,6 +239,7 @@ export default function PivotTableChart(props: PivotTableProps) {
     colSubTotals,
     rowTotals,
     rowSubTotals,
+    collapseRows,
     valueFormat,
     currencyFormat,
     currencyCodeColumn,
@@ -717,6 +718,7 @@ export default function PivotTableChart(props: PivotTableProps) {
       colSubTotals,
       rowTotals,
       rowSubTotals,
+      collapseRows,
       highlightHeaderCellsOnHover:
         emitCrossFilters ||
         isFeatureEnabled(FeatureFlag.DrillBy) ||
@@ -737,6 +739,7 @@ export default function PivotTableChart(props: PivotTableProps) {
       dateFormatters,
       emitCrossFilters,
       metricColorFormatters,
+      collapseRows,
       rowTotals,
       rowSubTotals,
       selectedFilters,
