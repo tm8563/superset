@@ -272,12 +272,14 @@ class WebDriverPlaywright(WebDriverProxy):
         element: Locator,
         element_name: str,
         timeout_seconds: float | None = None,
+        *,
+        full_page: bool = True,
     ) -> bytes:
         timeout_kwargs = (
             {"timeout": timeout_seconds * 1000} if timeout_seconds is not None else {}
         )
         if element_name == "standalone":
-            return page.screenshot(full_page=True, **timeout_kwargs)
+            return page.screenshot(full_page=full_page, **timeout_kwargs)
         else:
             return element.screenshot(**timeout_kwargs)
 
@@ -328,6 +330,27 @@ class WebDriverPlaywright(WebDriverProxy):
             return min(requested_seconds, remaining_seconds)
 
         for attempt in range(1, TILED_SCREENSHOT_MAX_CAPTURE_ATTEMPTS + 1):
+            prepared_dashboard_viewport = False
+            if element_name == "standalone" and (
+                report_execution_context or require_complete_capture
+            ):
+                viewport = page.viewport_size
+                if isinstance(viewport, dict):
+                    document_height = page.evaluate("""() => Math.ceil(Math.max(
+                            document.body?.scrollHeight || 0,
+                            document.documentElement?.scrollHeight || 0
+                        ))""")
+                    if isinstance(document_height, int) and document_height > 0:
+                        # Chromium's full-page screenshot temporarily changes
+                        # the viewport, which can unmount responsive React
+                        # dashboard content while capturing. Resize first so
+                        # the existing readiness dwell observes the final
+                        # layout, then capture that viewport without resizing.
+                        if document_height > viewport["height"]:
+                            page.set_viewport_size(
+                                {"width": viewport["width"], "height": document_height}
+                            )
+                        prepared_dashboard_viewport = True
             if report_execution_context or require_complete_capture:
                 stable_timeout = (
                     report_execution_context.deadline.timeout_seconds(
@@ -398,6 +421,7 @@ class WebDriverPlaywright(WebDriverProxy):
                 element,
                 element_name,
                 timeout_seconds=capture_timeout,
+                **({"full_page": False} if prepared_dashboard_viewport else {}),
             )
             capture_elapsed = time.monotonic() - capture_started_at
             if require_complete_capture and not bool(
@@ -512,16 +536,14 @@ class WebDriverPlaywright(WebDriverProxy):
             assert repaint_timeout is not None
             try:
                 page.bring_to_front()
-                page.evaluate(
-                    """() => {
+                page.evaluate("""() => {
                         window.scrollBy(0, 1);
                         window.scrollBy(0, -1);
                         window.__supersetRepaintComplete = false;
                         requestAnimationFrame(() => requestAnimationFrame(() => {
                             window.__supersetRepaintComplete = true;
                         }));
-                    }"""
-                )
+                    }""")
                 page.wait_for_function(
                     "() => window.__supersetRepaintComplete === true",
                     timeout=repaint_timeout * 1000,
@@ -1155,12 +1177,10 @@ class WebDriverPlaywright(WebDriverProxy):
                         mounted_chart_count,
                         expected_chart_count or 0,
                     )
-                    dashboard_height = page.evaluate(
-                        f"""() => {{
+                    dashboard_height = page.evaluate(f"""() => {{
                             const target = document.querySelector(\".{element_name}\");
                             return target ? target.scrollHeight : 0;
-                        }}"""
-                    )
+                        }}""")
                     chart_threshold = app.config.get(
                         "SCREENSHOT_TILED_CHART_THRESHOLD", 20
                     )
@@ -1194,9 +1214,11 @@ class WebDriverPlaywright(WebDriverProxy):
                             element_name,
                             url,
                             chart_count,
-                            "attempting tiled screenshot anyway"
-                            if likely_large_dashboard
-                            else "falling back to standard screenshot behavior",
+                            (
+                                "attempting tiled screenshot anyway"
+                                if likely_large_dashboard
+                                else "falling back to standard screenshot behavior"
+                            ),
                             context_suffix,
                         )
 

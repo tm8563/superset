@@ -114,6 +114,68 @@ class TestPlaywrightAvailabilityCheck:
 
 
 class TestStandardScreenshotValidation:
+    def test_complete_dashboard_capture_prepares_viewport_before_readiness(
+        self,
+    ) -> None:
+        page = MagicMock()
+        page.viewport_size = {"width": 1600, "height": 1200}
+        mounted = [True]
+
+        def evaluate(expression: str) -> int | bool:
+            return 3712 if "scrollHeight" in expression else mounted[0]
+
+        def capture(*, full_page: bool, **kwargs: object) -> bytes:
+            if full_page:
+                mounted[0] = False
+            return _png("gray")
+
+        page.evaluate.side_effect = evaluate
+        page.screenshot.side_effect = capture
+
+        def stable_readiness(*args: object) -> bool:
+            page.set_viewport_size.assert_called_once_with(
+                {"width": 1600, "height": 3712}
+            )
+            return True
+
+        with patch("superset.utils.webdriver.wait_for_stable_readiness") as wait:
+            wait.side_effect = stable_readiness
+            result = WebDriverPlaywright._get_validated_screenshot(
+                page,
+                MagicMock(),
+                "standalone",
+                None,
+                None,
+                require_complete_capture=True,
+            )
+
+        assert result == _png("gray")
+        page.screenshot.assert_called_once_with(full_page=False, timeout=ANY)
+        assert mounted[0]
+
+    def test_prepared_dashboard_capture_still_rejects_unmounted_content(self) -> None:
+        page = MagicMock()
+        page.viewport_size = {"width": 1600, "height": 1200}
+        page.evaluate.side_effect = lambda expression: (
+            3712 if "scrollHeight" in expression else False
+        )
+        page.screenshot.return_value = _png("gray")
+        with (
+            patch(
+                "superset.utils.webdriver.wait_for_stable_readiness", return_value=True
+            ),
+            pytest.raises(ScreenshotCaptureReadinessChangedError),
+        ):
+            WebDriverPlaywright._get_validated_screenshot(
+                page,
+                MagicMock(),
+                "standalone",
+                None,
+                None,
+                require_complete_capture=True,
+            )
+        assert page.screenshot.call_count == 3
+
     def test_blank_capture_retries_then_accepts_content(self):
         page = MagicMock()
         element = MagicMock()
@@ -2400,9 +2462,9 @@ class TestWebDriverPlaywrightAnimationWaitOrder:
         assert "animation_wait" in call_order
         spinner_idx = call_order.index("spinner_wait")
         anim_idx = call_order.index("animation_wait")
-        assert spinner_idx < anim_idx, (
-            "spinner wait must precede animation wait in non-tiled path"
-        )
+        assert (
+            spinner_idx < anim_idx
+        ), "spinner wait must precede animation wait in non-tiled path"
 
     @patch("superset.utils.webdriver.PLAYWRIGHT_AVAILABLE", True)
     @patch("superset.utils.webdriver._browser_manager")
@@ -2546,9 +2608,9 @@ class TestWebDriverPlaywrightAnimationWaitOrder:
             for call in mock_page.wait_for_timeout.call_args_list
             if call[0][0] == 2 * 1000
         ]
-        assert animation_waits == [], (
-            "No global 2s animation wait_for_timeout should fire on the tiled path"
-        )
+        assert (
+            animation_waits == []
+        ), "No global 2s animation wait_for_timeout should fire on the tiled path"
 
     @patch("superset.utils.webdriver.PLAYWRIGHT_AVAILABLE", True)
     @patch("superset.utils.webdriver._browser_manager")
@@ -2617,6 +2679,6 @@ class TestWebDriverPlaywrightAnimationWaitOrder:
         timeout_values = [
             call[0][0] for call in mock_page.wait_for_timeout.call_args_list
         ]
-        assert timeout_values == [0], (
-            f"Expected only [0] (headstart), got {timeout_values}"
-        )
+        assert timeout_values == [
+            0
+        ], f"Expected only [0] (headstart), got {timeout_values}"
