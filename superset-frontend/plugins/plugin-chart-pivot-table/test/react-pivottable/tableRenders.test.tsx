@@ -22,7 +22,10 @@ import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { supersetTheme, ThemeProvider } from '@apache-superset/core/theme';
 import { getTimeFormatter } from '@superset-ui/core';
-import { TableRenderer } from '../../src/react-pivottable/TableRenderers';
+import {
+  buildCellTipContent,
+  TableRenderer,
+} from '../../src/react-pivottable/TableRenderers';
 import {
   aggregatorTemplates,
   groupingValueSort,
@@ -1665,4 +1668,161 @@ test('TableRenderer keeps each metric aggregation on its own formatter', () => {
     .filter(cell => cell.classList.contains('pvtGrandTotal'));
   expect(grandTotalCells.length).toBe(1);
   expect(grandTotalCells[0]).toHaveTextContent('3.000 r');
+});
+
+// HSC customization: the hover card for pivot cells.
+const getCellTip = () =>
+  document.querySelector<HTMLElement>('.hsc-pivot-tooltip');
+
+afterEach(() => {
+  getCellTip()?.remove();
+});
+
+test('TableRenderer hover card lists the dimensions, then the cell value in bold', () => {
+  const props = buildDefaultProps({
+    vals: ['value'],
+    aggregatorName: 'Sum',
+    namesMapping: { color: 'Colour' },
+  });
+  const { container } = renderWithTheme(<TableRenderer {...props} />);
+  expect(getCellTip()).toBeNull();
+
+  const cell = container.querySelector('td.pvtVal') as HTMLElement;
+  fireEvent.mouseMove(cell, { clientX: 20, clientY: 30 });
+
+  const tip = getCellTip() as HTMLElement;
+  expect(tip).toHaveStyle({ display: 'block', pointerEvents: 'none' });
+  const lines = Array.from(tip.children).map(line => line.textContent);
+  expect(lines[0]).toBe('Colour: blue');
+  expect(lines[1]).toBe('shape: circle');
+  // after the rule: the value, which is the cell's own formatted text
+  const metricLine = tip.lastElementChild as HTMLElement;
+  expect(metricLine).toHaveTextContent(cell.textContent as string);
+  expect(metricLine.lastElementChild).toHaveStyle({ fontWeight: 'bold' });
+  expect(tip.querySelectorAll('div[style*="border-top"]')).toHaveLength(1);
+});
+
+test('TableRenderer hover card takes the metric name from the Metric key, mapped to its verbose name', () => {
+  const props = buildDefaultProps({
+    data: [
+      { color: 'blue', Metric: 'sales', value: 5 },
+      { color: 'red', Metric: 'sales', value: 7 },
+    ],
+    rows: ['color'],
+    cols: ['Metric'],
+    vals: ['value'],
+    aggregatorName: 'Sum',
+    namesMapping: { sales: 'Revenue' },
+  });
+  const { container } = renderWithTheme(<TableRenderer {...props} />);
+  fireEvent.mouseMove(container.querySelector('td.pvtVal') as HTMLElement, {
+    clientX: 5,
+    clientY: 5,
+  });
+
+  const tip = getCellTip() as HTMLElement;
+  expect(tip).toHaveTextContent('color: blue');
+  // Metric is not a dimension line: it names the bold line instead
+  expect(tip).not.toHaveTextContent('Metric:');
+  expect(tip.lastElementChild).toHaveTextContent('Revenue: 5');
+});
+
+test('TableRenderer hover card says Total for the row-total column and shows no value for an empty cell', () => {
+  // Totals come from the pre-aggregated records, so use the tagged data and
+  // leave out the red-square leaf to get an empty cell.
+  const props = buildDefaultProps({
+    data: TAGGED_COUNT_DATA.filter(
+      record => !(record.color === 'red' && record.shape === 'square'),
+    ),
+    vals: ['value'],
+    tableOptions: { rowTotals: true, colTotals: true },
+  });
+  const { container } = renderWithTheme(<TableRenderer {...props} />);
+
+  const rowTotal = container.querySelector(
+    'td.pvtTotal:not(.pvtRowTotal)',
+  ) as HTMLElement;
+  fireEvent.mouseMove(rowTotal, { clientX: 5, clientY: 5 });
+  const tip = getCellTip() as HTMLElement;
+  expect(tip).toHaveTextContent('color: blue');
+  expect(tip).not.toHaveTextContent('shape:');
+  expect(tip.lastElementChild).toHaveTextContent(/^Total: /);
+
+  const empty = container.querySelector('td.pvtValEmpty') as HTMLElement;
+  fireEvent.mouseMove(empty, { clientX: 5, clientY: 5 });
+  expect(tip).toHaveTextContent('color: red');
+  expect(tip).toHaveTextContent('shape: square');
+  expect(tip.querySelector('span[style*="bold"]')).toBeNull();
+});
+
+test('TableRenderer hover card formats temporal values with the column date formatter', () => {
+  const props = buildDefaultProps({
+    vals: ['value'],
+    aggregatorName: 'Sum',
+    tableOptions: {
+      dateFormatters: { shape: (v: unknown) => `fmt:${String(v)}` },
+    },
+  });
+  const { container } = renderWithTheme(<TableRenderer {...props} />);
+  fireEvent.mouseMove(container.querySelector('td.pvtVal') as HTMLElement, {
+    clientX: 5,
+    clientY: 5,
+  });
+  expect(getCellTip()).toHaveTextContent('shape: fmt:circle');
+});
+
+test('TableRenderer hover card hides on leaving the table, over a header and on scroll', () => {
+  const props = buildDefaultProps({ vals: ['value'], aggregatorName: 'Sum' });
+  const { container } = renderWithTheme(<TableRenderer {...props} />);
+  const cell = container.querySelector('td.pvtVal') as HTMLElement;
+  const tip = () => getCellTip() as HTMLElement;
+
+  fireEvent.mouseMove(cell, { clientX: 5, clientY: 5 });
+  expect(tip()).toHaveStyle({ display: 'block' });
+  fireEvent.mouseLeave(screen.getByRole('grid'));
+  expect(tip()).toHaveStyle({ display: 'none' });
+
+  fireEvent.mouseMove(cell, { clientX: 5, clientY: 5 });
+  fireEvent.mouseMove(container.querySelector('th') as HTMLElement, {
+    clientX: 5,
+    clientY: 5,
+  });
+  expect(tip()).toHaveStyle({ display: 'none' });
+
+  fireEvent.mouseMove(cell, { clientX: 5, clientY: 5 });
+  fireEvent.scroll(window);
+  expect(tip()).toHaveStyle({ display: 'none' });
+});
+
+test('TableRenderer hover card keeps one element and rebuilds it only for a new cell', () => {
+  const props = buildDefaultProps({ vals: ['value'], aggregatorName: 'Sum' });
+  const { container } = renderWithTheme(<TableRenderer {...props} />);
+  const [first, second] = Array.from(container.querySelectorAll('td.pvtVal'));
+
+  fireEvent.mouseMove(first, { clientX: 5, clientY: 5 });
+  const tip = getCellTip() as HTMLElement;
+  const before = tip.firstElementChild;
+  fireEvent.mouseMove(first, { clientX: 9, clientY: 9 });
+  expect(tip.firstElementChild).toBe(before);
+  expect(tip).toHaveStyle({ left: '23px', top: '23px' });
+
+  fireEvent.mouseMove(second, { clientX: 9, clientY: 9 });
+  expect(tip.firstElementChild).not.toBe(before);
+  expect(document.querySelectorAll('.hsc-pivot-tooltip')).toHaveLength(1);
+});
+
+test('buildCellTipContent lists only the dimensions a subtotal row has', () => {
+  const content = buildCellTipContent({
+    rowAttrs: ['region', 'city'],
+    colAttrs: ['Metric'],
+    rowKey: ['north'],
+    colKey: ['hours'],
+    isTotalColumn: false,
+    isTotalRow: false,
+    namesMapping: { hours: 'Hours (H)' },
+    cellText: '12.5',
+    metricKey: 'Metric',
+  });
+  expect(content.dimensions).toEqual([{ label: 'region', value: 'north' }]);
+  expect(content.metric).toEqual({ label: 'Hours (H)', value: '12.5' });
 });

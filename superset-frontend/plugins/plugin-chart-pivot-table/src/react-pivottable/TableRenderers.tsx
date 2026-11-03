@@ -166,6 +166,194 @@ const parseLabel = (value: unknown): string | number => {
 const NO_COLLAPSIBLE_PREFIXES: ReadonlySet<string> = new Set();
 
 /**
+ * HSC customization: hover card for pivot cells, like the one the bar and pie
+ * charts show. Upstream has none. The card is ONE element appended to
+ * `document.body` and updated through the DOM, deliberately not React state: a
+ * pivot can have tens of thousands of cells, and a state update per mouse move
+ * would re-render the whole table. It is rebuilt only when the pointer enters
+ * another cell, and hidden on leave, on scroll and on unmount.
+ */
+const CELL_TIP_CLASS = 'hsc-pivot-tooltip';
+const CELL_TIP_OFFSET = 14;
+const CELL_TIP_EDGE = 4;
+
+interface CellTipLine {
+  label: string;
+  value: string;
+}
+
+export interface CellTipContent {
+  /** One line per row dimension, then per column dimension. */
+  dimensions: CellTipLine[];
+  /** The bold metric line; null for an empty cell. */
+  metric: CellTipLine | null;
+}
+
+interface CellTipInput {
+  rowAttrs: string[];
+  colAttrs: string[];
+  rowKey: string[];
+  colKey: string[];
+  /** The cell sits in the row-total column. */
+  isTotalColumn: boolean;
+  /** The cell sits in the bottom totals row. */
+  isTotalRow: boolean;
+  namesMapping: Record<string, string>;
+  dateFormatters?: Record<string, ((val: unknown) => string) | undefined>;
+  /** The cell's own formatted text, which is the value shown. */
+  cellText: string;
+  /** The pseudo-dimension that carries the metric names. */
+  metricKey: string;
+}
+
+/**
+ * What the card says for one cell. Labels come from `namesMapping` (the
+ * dataset's verbose names) and temporal values go through the column's date
+ * formatter, exactly as the headers do. Subtotal rows have shorter keys, so
+ * they list only the dimensions they have and the bold line is their value.
+ */
+export function buildCellTipContent({
+  rowAttrs,
+  colAttrs,
+  rowKey,
+  colKey,
+  isTotalColumn,
+  isTotalRow,
+  namesMapping,
+  dateFormatters,
+  cellText,
+  metricKey,
+}: CellTipInput): CellTipContent {
+  const dimensions: CellTipLine[] = [];
+  const found: { metricName: string | null } = { metricName: null };
+  const addLines = (attrs: string[], key: string[]) => {
+    attrs.forEach((attr, i) => {
+      if (i >= key.length) {
+        return;
+      }
+      if (attr === metricKey) {
+        found.metricName = namesMapping[String(key[i])] || String(key[i]);
+        return;
+      }
+      const formatted =
+        dateFormatters?.[attr]?.(toDateFormatterInput(key[i])) ?? key[i];
+      dimensions.push({
+        label: namesMapping[attr] || attr,
+        value: String(parseLabel(namesMapping[String(formatted)] || formatted)),
+      });
+    });
+  };
+  addLines(rowAttrs, rowKey);
+  addLines(colAttrs, colKey);
+
+  if (cellText === '') {
+    return { dimensions, metric: null };
+  }
+  const label =
+    found.metricName ?? (isTotalColumn || isTotalRow ? t('Total') : '');
+  return { dimensions, metric: { label, value: cellText } };
+}
+
+/** The nearest ancestor background that is not transparent, if any. */
+function solidBackground(el: Element | null): string | null {
+  let node = el;
+  while (node) {
+    const bg = window.getComputedStyle(node).backgroundColor;
+    if (bg && bg !== 'transparent' && !/,\s*0\)$/.test(bg)) {
+      return bg;
+    }
+    node = node.parentElement;
+  }
+  return null;
+}
+
+function ensureCellTip(): HTMLDivElement {
+  const existing = document.querySelector<HTMLDivElement>(`.${CELL_TIP_CLASS}`);
+  if (existing) {
+    return existing;
+  }
+  const el = document.createElement('div');
+  el.className = CELL_TIP_CLASS;
+  el.setAttribute('role', 'tooltip');
+  Object.assign(el.style, {
+    position: 'fixed',
+    zIndex: '10000',
+    display: 'none',
+    pointerEvents: 'none',
+    maxWidth: '360px',
+    padding: '8px 12px',
+    borderRadius: `${supersetTheme.borderRadius}px`,
+    border: '1px solid rgba(128, 128, 128, 0.35)',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
+    fontSize: '12px',
+    lineHeight: '1.6',
+  });
+  document.body.appendChild(el);
+  return el;
+}
+
+function hideCellTip() {
+  const el = document.querySelector<HTMLDivElement>(`.${CELL_TIP_CLASS}`);
+  if (el) {
+    el.style.display = 'none';
+  }
+}
+
+/** Text and background follow the table, so the card reads in any theme. */
+function fillCellTip(
+  el: HTMLDivElement,
+  content: CellTipContent,
+  table: Element,
+) {
+  el.style.color = window.getComputedStyle(table).color || '';
+  el.style.background =
+    solidBackground(table) ?? supersetTheme.colorBgElevated ?? '';
+  el.textContent = '';
+  const addLine = (line: CellTipLine, bold: boolean) => {
+    const row = document.createElement('div');
+    if (line.label) {
+      const label = document.createElement('span');
+      label.textContent = `${line.label}: `;
+      label.style.opacity = '0.7';
+      row.appendChild(label);
+    }
+    const value = document.createElement('span');
+    value.textContent = line.value;
+    if (bold) {
+      value.style.fontWeight = 'bold';
+    }
+    row.appendChild(value);
+    el.appendChild(row);
+  };
+  content.dimensions.forEach(line => addLine(line, false));
+  if (content.metric) {
+    if (content.dimensions.length > 0) {
+      const rule = document.createElement('div');
+      rule.style.borderTop = '1px solid rgba(128, 128, 128, 0.35)';
+      rule.style.margin = '4px 0';
+      el.appendChild(rule);
+    }
+    addLine(content.metric, true);
+  }
+}
+
+/** Follows the pointer, flipped to the other side when it would leave the window. */
+function moveCellTip(el: HTMLDivElement, clientX: number, clientY: number) {
+  el.style.display = 'block';
+  const { offsetWidth: width, offsetHeight: height } = el;
+  let left = clientX + CELL_TIP_OFFSET;
+  let top = clientY + CELL_TIP_OFFSET;
+  if (left + width > window.innerWidth - CELL_TIP_EDGE) {
+    left = Math.max(CELL_TIP_EDGE, clientX - CELL_TIP_OFFSET - width);
+  }
+  if (top + height > window.innerHeight - CELL_TIP_EDGE) {
+    top = Math.max(CELL_TIP_EDGE, clientY - CELL_TIP_OFFSET - height);
+  }
+  el.style.left = `${left}px`;
+  el.style.top = `${top}px`;
+}
+
+/**
  * Whether a row prefix is collapsed. An explicit toggle wins. Otherwise the
  * prefix is collapsed only when default collapse is on and a subtotal row for
  * that prefix will actually render. Prefixes with no subtotal (for example the
@@ -409,6 +597,22 @@ export function TableRenderer(props: TableRendererProps) {
   }, [collapseRowsByDefault]);
 
   const sortCacheRef = useRef(new Map<string, string[][]>());
+
+  // HSC customization: the cell the hover card currently describes.
+  const cellTipTargetRef = useRef<Element | null>(null);
+  const hideTip = useCallback(() => {
+    cellTipTargetRef.current = null;
+    hideCellTip();
+  }, []);
+  // A scrolled cell moves under a still pointer without any mouse event, so
+  // the card would describe a cell the pointer no longer rests on.
+  useEffect(() => {
+    window.addEventListener('scroll', hideTip, true);
+    return () => {
+      window.removeEventListener('scroll', hideTip, true);
+      hideTip();
+    };
+  }, [hideTip]);
 
   const clickHandler = useCallback(
     (
@@ -1425,7 +1629,7 @@ export function TableRenderer(props: TableRendererProps) {
       }
 
       const rowClickHandlers = cellCallbacks[flatRowKey] || {};
-      const valueCells = settingsVisibleColKeys.map((colKey: string[]) => {
+      const valueCells = settingsVisibleColKeys.map((colKey, colIdx) => {
         const flatColKey = flatKey(colKey);
         const agg = pivotData.getAggregator(rowKey, colKey);
         const aggValue = agg.value();
@@ -1456,6 +1660,8 @@ export function TableRenderer(props: TableRendererProps) {
             role="gridcell"
             className={`pvtVal${isEmptyValue ? ' pvtValEmpty' : ''}`}
             key={`pvtVal-${flatColKey}`}
+            data-pvt-ri={rowIdx}
+            data-pvt-ci={colIdx}
             onClick={rowClickHandlers[flatColKey]}
             onContextMenu={e => onContextMenu(e, colKey, rowKey)}
             style={style}
@@ -1474,6 +1680,8 @@ export function TableRenderer(props: TableRendererProps) {
             role="gridcell"
             key="total"
             className="pvtTotal"
+            data-pvt-ri={rowIdx}
+            data-pvt-ci={-1}
             onClick={rowTotalCallbacks[flatRowKey]}
             onContextMenu={e => onContextMenu(e, undefined, rowKey)}
           >
@@ -1561,7 +1769,7 @@ export function TableRenderer(props: TableRendererProps) {
         </th>
       );
 
-      const totalValueCells = settingsVisibleColKeys.map((colKey: string[]) => {
+      const totalValueCells = settingsVisibleColKeys.map((colKey, colIdx) => {
         const flatColKey = flatKey(colKey);
         const agg = pivotData.getAggregator([], colKey);
         const aggValue = agg.value();
@@ -1571,6 +1779,8 @@ export function TableRenderer(props: TableRendererProps) {
             role="gridcell"
             className="pvtTotal pvtRowTotal"
             key={`total-${flatColKey}`}
+            data-pvt-ri={-1}
+            data-pvt-ci={colIdx}
             onClick={colTotalCallbacks[flatColKey]}
             onContextMenu={e => onContextMenu(e, colKey, undefined)}
             style={{ padding: '5px' }}
@@ -1589,6 +1799,8 @@ export function TableRenderer(props: TableRendererProps) {
             role="gridcell"
             key="total"
             className="pvtGrandTotal pvtRowTotal"
+            data-pvt-ri={-1}
+            data-pvt-ci={-1}
             onClick={grandTotalCallback || undefined}
             onContextMenu={e => onContextMenu(e, undefined, undefined)}
           >
@@ -1614,9 +1826,45 @@ export function TableRenderer(props: TableRendererProps) {
     ],
   );
 
+  const handleCellTipMove = (e: MouseEvent<HTMLTableElement>) => {
+    const cell = (e.target as Element).closest('td[data-pvt-ri]');
+    if (!cell) {
+      hideTip();
+      return;
+    }
+    if (cell !== cellTipTargetRef.current) {
+      cellTipTargetRef.current = cell;
+      // -1 marks the totals: the row-total column (ci) and the bottom row (ri).
+      const rowIdx = Number(cell.getAttribute('data-pvt-ri'));
+      const colIdx = Number(cell.getAttribute('data-pvt-ci'));
+      fillCellTip(
+        ensureCellTip(),
+        buildCellTipContent({
+          rowAttrs,
+          colAttrs,
+          rowKey: rowIdx >= 0 ? (visibleRowKeys[rowIdx] ?? []) : [],
+          colKey: colIdx >= 0 ? (visibleColKeys[colIdx] ?? []) : [],
+          isTotalColumn: colIdx < 0,
+          isTotalRow: rowIdx < 0,
+          namesMapping: namesMappingProp || {},
+          dateFormatters: tableOptions.dateFormatters,
+          cellText: (cell.textContent || '').trim(),
+          metricKey: t('Metric'),
+        }),
+        e.currentTarget,
+      );
+    }
+    moveCellTip(ensureCellTip(), e.clientX, e.clientY);
+  };
+
   return (
     <Styles isDashboardEditMode={isDashboardEditMode()}>
-      <table className="pvtTable" role="grid">
+      <table
+        className="pvtTable"
+        role="grid"
+        onMouseMove={handleCellTipMove}
+        onMouseLeave={hideTip}
+      >
         <thead>
           {colAttrs.map((c: string, j: number) =>
             renderColHeaderRow(c, j, pivotSettings),
